@@ -72,7 +72,7 @@ $(function() {
     <tr>
       <td><%= link_to User.find(user_row.header).full_name, schedules_search_path(user_id: user_row.header, from_date: @from_date, to_date: @to_date) %></td>
       <% @schedules_grid.column_headers.each do |job_id| %>
-      <td><%= link_to user_row.data.inject(0) {|sum, d| d.job_id == job_id ? sum + d.hours : sum }, schedules_search_path(job_id: job_id, user_id: user_row.header, from_date: @from_date, to_date: @to_date) %></td>
+      <td><%= link_to user_row.data.inject(0) {|sum, d| d.nil? ? sum : d.job_id == job_id ? sum + d.hours : sum }, schedules_search_path(job_id: job_id, user_id: user_row.header, from_date: @from_date, to_date: @to_date) %></td>
       <% end %>
       <th><%= user_row.total %></th>
     </tr>
