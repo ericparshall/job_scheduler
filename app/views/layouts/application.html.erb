@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>JobScheduler</title>
+  <%= stylesheet_link_tag    "application", :media => "all" %>
+  <%= javascript_include_tag "application" %>
+  <%= csrf_meta_tags %>
+</head>
+<body>
+  <%= nav_bar fixed: :top, brand: "JobScheduler" do %>
+
+    <% menu_group pull: :right do %>
+      <%= menu_item("Employees", employees_path) if current_user.try :admin? %>
+      <%= menu_item("Jobs", jobs_path) if current_user.try :admin? %>
+      <%= menu_item("Schedules", schedules_path) if current_user.try :admin? %>
+      <%= menu_item("Logout", destroy_user_session_path, method: :delete) if user_signed_in? %>
+    <% end %>
+  <% end %>
+  <p class="notice"><%= notice %></p>
+  <p class="alert"><%= alert %></p>
+  <div class="container">
+    <%= yield %>
+  </div>
+</body>
+</html>

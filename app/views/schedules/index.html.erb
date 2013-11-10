@@ -1,0 +1,93 @@
+<h1>Listing schedules</h1>
+<script type="text/javascript">
+$(function() {
+  $("input[name='from_date']").datepicker();
+  $("input[name='to_date']").datepicker();
+});
+</script>
+<%= form_tag(schedules_search_path, method: :get) do %>
+<div class="horizontal-form">
+  <div class="field">
+    <div style="float: left"><%= label_tag :from_date, "From Date:" %></div>
+    <div style="float: left"><%= text_field_tag :from_date, @from_date %></div>
+  </div>
+  <div class="field">
+    <div style="float: left"><%= label_tag :to_date, "To Date:" %></div>
+    <div style="float: left"><%= text_field_tag :to_date, @to_date %></div>
+  </div>
+  <%= hidden_field_tag :job_id, params[:job_id] %>
+  <%= hidden_field_tag :user_id, params[:user_id] %>
+  <div class="field">
+    <%= submit_tag "Go" %>
+  </div>
+</div>
+<% end %>
+<div style="clear: both" />
+<br />
+<% unless @schedules.nil? %>
+  <table class="table table-bordered table-striped">
+    <tr>
+      <th>Job</th>
+      <th>User</th>
+      <th>Hours</th>
+      <th>Schedule date</th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+
+  <% @schedules.each do |schedule| %>
+    <tr>
+      <td><%= schedule.job.name %></td>
+      <td><%= schedule.user.full_name %></td>
+      <td><%= schedule.hours %></td>
+      <td><%= schedule.schedule_date %></td>
+      <td><%= link_to 'Show', schedule %></td>
+      <td><%= link_to 'Edit', edit_schedule_path(schedule) %></td>
+      <td><%= link_to 'Destroy', schedule, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+    </tr>
+  <% end %>
+  </table>
+<% end %>
+
+<table class="table table-bordered table-striped">
+  <thead>
+    <tr>
+      <th />
+      <% @schedules_grid.columns.each do |job_column| %>
+      <th><%= link_to Job.find(job_column.header).name, schedules_search_path(job_id: job_column.header, from_date: @from_date, to_date: @to_date) %></th>
+      <% end %>
+      <th />
+    </tr>
+    <tr>
+      <th>Employee</th>
+      <% @schedules_grid.columns.each do |job_column| %>
+      <th />
+      <% end %>
+      <th>Total for Employee</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @schedules_grid.rows.each do |user_row| %>
+    <tr>
+      <td><%= link_to User.find(user_row.header).full_name, schedules_search_path(user_id: user_row.header, from_date: @from_date, to_date: @to_date) %></td>
+      <% @schedules_grid.column_headers.each do |job_id| %>
+      <td><%= link_to user_row.data.inject(0) {|sum, d| d.job_id == job_id ? sum + d.hours : sum }, schedules_search_path(job_id: job_id, user_id: user_row.header, from_date: @from_date, to_date: @to_date) %></td>
+      <% end %>
+      <th><%= user_row.total %></th>
+    </tr>
+    <% end %>
+  </tbody>
+  <tfoot>
+    <tr>
+      <th>Total</th>
+      <% @schedules_grid.columns.each do |job_column| %>
+      <th><%= job_column.total %></th>
+      <% end %>
+      <th><%= @schedules_grid.grand_total %></th>
+    </tr>
+  </tfoot>
+</table>
+<br />
+
+<%= link_to 'New Schedule', new_schedule_path %>
