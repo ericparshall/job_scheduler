@@ -4,8 +4,8 @@ gem 'rails', '3.2.15'
 
 # Bundle edge Rails instead:
 # gem 'rails', :git => 'git://github.com/rails/rails.git'
+gem 'pg'
 
-gem 'sqlite3'
 gem 'devise'
 gem "therubyracer"
 gem "less-rails" #Sprockets (what Rails 3.1 uses for its asset pipeline) supports LESS
@@ -27,6 +27,8 @@ gem 'jquery-rails'
 gem 'jquery-ui-rails'
 gem 'american_date'
 gem 'pivot_table'
+
+
 
 # To use ActiveModel has_secure_password
 # gem 'bcrypt-ruby', '~> 3.0.0'
