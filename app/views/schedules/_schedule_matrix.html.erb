@@ -1,0 +1,50 @@
+<script type="text/javascript">
+  function refine_search(options) {
+    if (options.job_id != null) {
+      $("#job_id").val(options.job_id);
+    }
+    if (options.user_id != null) {
+      $("#user_id").val(options.user_id);
+    }
+    $("#schedule_search_form input[name='commit']").click();
+    return false;
+  }
+  </script>
+<table class="table table-bordered table-striped">
+  <thead>
+    <tr>
+      <th />
+      <% @schedules_grid.columns.each do |job_column| %>
+      <th><%= link_to Job.find(job_column.header).name, "#", onclick: "refine_search({job_id: '#{job_column.header}'})" %></th>
+      <% end %>
+      <th />
+    </tr>
+    <tr>
+      <th>Employee</th>
+      <% @schedules_grid.columns.each do |job_column| %>
+      <th />
+      <% end %>
+      <th>Total for Employee</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @schedules_grid.rows.each do |user_row| %>
+    <tr>
+      <td><%= link_to User.find(user_row.header).full_name, "#", onclick: "refine_search({user_id: '#{user_row.header}'})" %></td>
+      <% @schedules_grid.column_headers.each do |job_id| %>
+      <td><%= link_to user_row.data.inject(0) {|sum, d| d.nil? ? sum : d.job_id == job_id ? sum + d.hours : sum }, "#", onclick: "refine_search({user_id: '#{user_row.header}', job_id: '#{job_id}'})" %></td>
+      <% end %>
+      <th><%= user_row.total %></th>
+    </tr>
+    <% end %>
+  </tbody>
+  <tfoot>
+    <tr>
+      <th>Total</th>
+      <% @schedules_grid.columns.each do |job_column| %>
+      <th><%= job_column.total %></th>
+      <% end %>
+      <th><%= @schedules_grid.grand_total %></th>
+    </tr>
+  </tfoot>
+</table>
