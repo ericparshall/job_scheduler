@@ -18,10 +18,30 @@ $(function() {
   $("#remove_user_filter").click(function() { $("#user_id").val(""); $("#schedule_search_form input[name='commit']").click(); });
   $("#remove_job_filter").click(function() { $("#job_id").val(""); $("#schedule_search_form input[name='commit']").click(); });
   
-  $("#date_range_today").click(function() { $("#unit").val("today"); $("#schedule_search_form input[name='commit']").click(); });
-  $("#date_range_month").click(function() { $("#unit").val("month"); $("#schedule_search_form input[name='commit']").click(); });
-  $("#date_range_week").click(function() { $("#unit").val("week"); $("#schedule_search_form input[name='commit']").click(); });
-  $("#date_range_day").click(function() { $("#unit").val("day"); $("#schedule_search_form input[name='commit']").click(); });
+  $("#date_range_today").click(function() {
+    $("input[name='from_date']").val("<%= Date.today %>");
+    $("input[name='to_date']").val("<%= Date.today %>");
+    $("#unit").val("today"); 
+    $("#schedule_search_form input[name='commit']").click(); 
+  });
+  $("#date_range_month").click(function() { 
+    $("input[name='from_date']").val("<%= Date.today %>");
+    $("input[name='to_date']").val("<%= Date.today %>");
+    $("#unit").val("month"); 
+    $("#schedule_search_form input[name='commit']").click(); 
+  });
+  $("#date_range_week").click(function() { 
+    $("input[name='from_date']").val("<%= Date.today %>");
+    $("input[name='to_date']").val("<%= Date.today %>");
+    $("#unit").val("week"); 
+    $("#schedule_search_form input[name='commit']").click(); 
+  });
+  $("#date_range_day").click(function() { 
+    $("input[name='from_date']").val("<%= Date.today %>");
+    $("input[name='to_date']").val("<%= Date.today %>");
+    $("#unit").val("day"); 
+    $("#schedule_search_form input[name='commit']").click(); 
+  });
   
   <% unless params[:unit].blank? %>
   $("#page_back_date").click(function() { 
