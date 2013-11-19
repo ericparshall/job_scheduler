@@ -1,6 +1,15 @@
 <script type="text/javascript">
 $(function() {
   $("input[name='schedule[schedule_date]']").datepicker();
+  $("input[name='schedule[from_time]']").timepicker();
+  $("input[name='schedule[to_time]']").timepicker();
+  $("input[name='schedule[from_time]']").on("changeTime", function(){
+    $("input[name='schedule[to_time]']").timepicker('remove');
+    $("input[name='schedule[to_time]']").timepicker({
+      'minTime': $(this).val(),
+      'showDuration': true
+    });
+  });
 });
 </script>
 <%= form_for(@schedule) do |f| %>
@@ -25,12 +34,16 @@ $(function() {
     <%= f.select :user_id, @users %>
   </div>
   <div class="field">
-    <%= f.label :hours %><br />
-    <%= f.text_field :hours %>
-  </div>
-  <div class="field">
     <%= f.label :schedule_date %><br />
     <%= f.text_field :schedule_date %>
+  </div>
+  <div class="field">
+    <%= f.label :from_time %><br />
+    <%= f.text_field :from_time %>
+  </div>
+  <div class="field">
+    <%= f.label :to_time %><br />
+    <%= f.text_field :to_time %>
   </div>
   <div class="actions">
     <%= f.submit %>

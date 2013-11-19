@@ -41,7 +41,7 @@ class JobsController < ApplicationController
   # POST /jobs
   # POST /jobs.json
   def create
-    @job = Job.new(params[:job])
+    @job = Job.new(job_params)
 
     respond_to do |format|
       if @job.save
@@ -60,7 +60,7 @@ class JobsController < ApplicationController
     @job = Job.find(params[:id])
 
     respond_to do |format|
-      if @job.update_attributes(params[:job])
+      if @job.update_attributes(job_params)
         format.html { redirect_to @job, notice: 'Job was successfully updated.' }
         format.json { head :no_content }
       else
@@ -80,5 +80,10 @@ class JobsController < ApplicationController
       format.html { redirect_to jobs_url }
       format.json { head :no_content }
     end
+  end
+  
+  private
+  def job_params
+    params.require(:job).permit(:name, :description)
   end
 end

@@ -1,5 +1,5 @@
 JobScheduler::Application.routes.draw do
-  match 'schedules/search' => "schedules#search"
+  match 'schedules/search' => "schedules#search", via: [:get, :post]
   resources :schedules
 
 

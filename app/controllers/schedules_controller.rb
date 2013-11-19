@@ -4,8 +4,9 @@ class SchedulesController < ApplicationController
   # GET /schedules
   # GET /schedules.json
   def index
-    @from_date = (Date.parse(params[:from_date]) rescue nil) || Date.new(Date.today.year, Date.today.month, 1)
-    @to_date = (Date.parse(params[:to_date]) rescue nil) || Date.new(Date.today.year, Date.today.month, 1) + 1.month - 1.day
+    @from_date = (Date.parse(params[:from_date]) rescue nil) || Date.today.beginning_of_month
+    @to_date = (Date.parse(params[:to_date]) rescue nil) || Date.today.end_of_month
+    params[:unit] = "month"
     @schedules_grid = schedules_grid
     @schedules_grid.build
 
@@ -15,11 +16,17 @@ class SchedulesController < ApplicationController
   end
   
   def search
-    @from_date = (Date.parse(params[:from_date]) rescue nil) || Date.new(Date.today.year, Date.today.month, 1)
-    @to_date = (Date.parse(params[:to_date]) rescue nil) || Date.new(Date.today.year, Date.today.month, 1) + 1.month - 1.day
+    Date.beginning_of_week = :sunday
+    @from_date = (Date.parse(params[:from_date]) rescue nil) || Date.today.beginning_of_month
+    @to_date = (Date.parse(params[:to_date]) rescue nil) || Date.today.end_of_month
+    update_date_range
+    
     @schedules = schedule_query
     @schedules_grid = schedules_grid
     @schedules_grid.build
+    
+    @user = User.find(params[:user_id]) rescue nil
+    @job = Job.find(params[:job_id]) rescue nil
     
     render :index
   end
@@ -54,7 +61,7 @@ class SchedulesController < ApplicationController
   # POST /schedules
   # POST /schedules.json
   def create
-    @schedule = Schedule.new(params[:schedule])
+    @schedule = Schedule.new(schedule_params)
 
     respond_to do |format|
       if @schedule.save
@@ -73,7 +80,7 @@ class SchedulesController < ApplicationController
     @schedule = Schedule.find(params[:id])
 
     respond_to do |format|
-      if @schedule.update_attributes(params[:schedule])
+      if @schedule.update_attributes(schedule_params)
         format.html { redirect_to @schedule, notice: 'Schedule was successfully updated.' }
         format.json { head :no_content }
       else
@@ -114,5 +121,33 @@ class SchedulesController < ApplicationController
     schedule_query = schedule_query.where(job_id: params[:job_id]) unless params[:job_id].blank?
     schedule_query = schedule_query.where(user_id: params[:user_id]) unless params[:user_id].blank?
     schedule_query
+  end
+  
+  private
+  def schedule_params
+    params[:from_time] = "#{params[:schedule_date]} #{params[:from_time]}"
+    params[:to_time] = "#{params[:schedule_date]} #{params[:to_time]}"
+    params.require(:schedule).permit(:job_id, :schedule_date, :user_id, :from_time, :to_time)
+  end
+  
+  def update_date_range
+    case params[:unit]
+    when "today"
+      @from_date = Date.today
+      @to_date = Date.today
+    when "month"
+      @from_date = @from_date.beginning_of_month
+      @to_date = @from_date.end_of_month
+    when "week"
+      @from_date = @from_date.beginning_of_week
+      @to_date = @from_date.end_of_week
+    when "day"
+      @to_date = @from_date
+    else
+      params[:unit] = "day" if @from_date == @to_date
+      params[:unit] = "month" if @from_date == @from_date.beginning_of_month && @to_date == @from_date.end_of_month
+      params[:unit] = "week" if @from_date == @from_date.beginning_of_week && @to_date == @from_date.end_of_week
+      params[:unit] = "today" if @from_date == Date.today && @to_date == Date.today
+    end
   end
 end
