@@ -26,9 +26,9 @@ gem 'jquery-ui-rails'
 gem 'american_date'
 gem 'pivot_table'
 
-group :production do
-  gem 'rails_12factor'
-end
+
+gem 'rails_12factor'
+
 # To use ActiveModel has_secure_password
 # gem 'bcrypt-ruby', '~> 3.0.0'
 
