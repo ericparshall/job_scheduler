@@ -1,4 +1,6 @@
 JobScheduler::Application.routes.draw do
+  resources :user_types
+
   match 'schedules/search' => "schedules#search", via: [:get, :post]
   resources :schedules
 
@@ -11,6 +13,7 @@ JobScheduler::Application.routes.draw do
   root to: "home#index"
   resources :jobs
   resources :employees
+  resources :user_types
   # The priority is based upon order of creation:
   # first created -> highest priority.
 

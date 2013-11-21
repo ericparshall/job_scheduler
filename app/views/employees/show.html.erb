@@ -1,18 +1,45 @@
-<p>
-  <b>Name:</b>
-  <%= @user.full_name %>
-</p>
+<script type="text/javascript">
+$(document).ready(function() {
+    $('#calendar').fullCalendar({
+      header: {
+        left:   'title',
+        center: 'basicDay,agendaWeek,month',
+        right:  'today prev,next'
+      },
+      events: [
+        {
+          title: 'My Event',
+          start: '2013-11-15',
+          end: '2013-11-15',
+          description: 'This is a cool event'
+        }
+      ]
+    })
+  });
+</script>
 
-<p>
-  <b>Email:</b>
-  <%= @user.email %>
-</p>
+<div class="panel panel-default">
+  <div class="panel-heading">Employee</div>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Type</th>
+        <th>Manager</th>
+        <th />
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><%= @user.full_name %></td>
+        <td><%= @user.email %></td>
+        <td><%= @user.user_type.name %></td>
+        <td><%= @user.manager.try(:full_name) %></td>
+        <td><%= link_to 'Edit', edit_employee_path(@user) %></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
 
-<p>
-  <b>Admin:</b>
-  <%= @user.admin ? "Yes" : "No" %>
-</p>
-
-
-<%= link_to 'Edit', edit_employee_path(@user) %> |
-<%= link_to 'Back', employees_path %>
+<div id="calendar" style="width: 100%"></div>

@@ -4,20 +4,20 @@
   <tr>
     <th>Name</th>
     <th>Email</th>
-    <th>Admin</th>
-    <th></th>
+    <th>Type</th>
+    <th>Manager</th>
     <th></th>
     <th></th>
   </tr>
 
 <% @users.each do |user| %>
   <tr>
-    <td><%= user.full_name %></td>
-    <td><%= user.email %></td>
-    <td><%= user.admin? ? "Yes" : "No" %></td>
-    <td><%= link_to 'Show', employee_path(user) %></td>
+    <td><%= link_to user.full_name, employee_path(user) %></td>
+    <td><%= link_to user.email, employee_path(user) %></td>
+    <td><%= user.user_type.name %></td>
+    <td><%= user.manager.try(:full_name) %></td>
     <td><%= link_to 'Edit', edit_employee_path(user) %></td>
-    <td><%= link_to 'Destroy', employee_path(user), method: :delete, data: { confirm: 'Are you sure?' } %></td>
+    <td><%= link_to 'Delete', employee_path(user), method: :delete, data: { confirm: 'Are you sure?' } %></td>
   </tr>
 <% end %>
 </table>

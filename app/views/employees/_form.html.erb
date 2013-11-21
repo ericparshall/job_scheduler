@@ -20,8 +20,12 @@
     <%= f.text_field :email %>
   </div>
   <div class="field">
-    <%= f.label :admin %><br />
-    <%= f.check_box :admin %>
+    <%= f.label :user_type_id, "User Type" %><br />
+    <%= f.select :user_type_id, UserType.all.collect {|ut| [ut.name, ut.id] } %>
+  </div>
+  <div class="field">
+    <%= f.label :manager_id, "Manager" %><br />
+    <%= f.select :manager_id, User.joins(:user_type).where("user_types.manager" => true).collect {|u| [u.full_name, u.id] } %>
   </div>
   <div>
     <%= f.label :password %><br />
