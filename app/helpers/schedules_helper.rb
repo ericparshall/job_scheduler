@@ -47,8 +47,8 @@ module SchedulesHelper
   
   def default_from_time
     case
-    when @schedule then format_time_to_hour(@schedule.from_time)
-    when params[:for_date]then format_time_to_us(for_date_to_time(params[:for_date]))
+    when @schedule.schedule_date then format_time_to_hour(@schedule.from_time)
+    when params[:for_date]then format_time_to_hour(for_date_to_time(params[:for_date]))
     else nil
     end
   end
