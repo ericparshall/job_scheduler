@@ -1,0 +1,13 @@
+<script type="text/javascript">
+$(document).ready(function() {
+    $('#calendar').fullCalendar({
+      header: {
+        left:   'title',
+        center: 'agendaDay,agendaWeek,month',
+        right:  'today prev,next'
+      },
+      events: '/my_schedule.json'
+    })
+  });
+</script>
+<div id="calendar" style="padding-top: 10px; padding-left: 10%; padding-right: 10%; padding-bottom: 10%"></div>

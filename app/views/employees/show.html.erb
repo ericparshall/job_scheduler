@@ -1,19 +1,15 @@
 <script type="text/javascript">
-$(document).ready(function() {
+  $(document).ready(function() {
     $('#calendar').fullCalendar({
       header: {
         left:   'title',
-        center: 'basicDay,agendaWeek,month',
+        center: 'agendaDay,agendaWeek,month',
         right:  'today prev,next'
       },
-      events: [
-        {
-          title: 'My Event',
-          start: '2013-11-15',
-          end: '2013-11-15',
-          description: 'This is a cool event'
-        }
-      ]
+      events: '<%= "/employees/#{params[:id]}/schedule.json" %>',
+      dayClick: function(date, allDay, jsEvent, view) {
+        window.location = '<%= new_schedule_path(employee_id: params[:id], return_path: employee_path(User.find(params[:id]))).html_safe %>&for_date=' + date.getTime() / 1000;
+      }
     })
   });
 </script>
@@ -42,4 +38,4 @@ $(document).ready(function() {
   </table>
 </div>
 
-<div id="calendar" style="width: 100%"></div>
+<div id="calendar" style="padding-top: 10px; padding-left: 10%; padding-right: 10%; padding-bottom: 10%"></div>

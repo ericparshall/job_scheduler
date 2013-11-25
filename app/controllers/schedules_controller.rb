@@ -21,7 +21,7 @@ class SchedulesController < ApplicationController
     @to_date = (Date.parse(params[:to_date]) rescue nil) || Date.today.end_of_month
     update_date_range
     
-    @schedules = schedule_query
+    @schedules = schedule_query.sort_by(&:schedule_date)
     @schedules_grid = schedules_grid
     @schedules_grid.build
     
@@ -65,7 +65,7 @@ class SchedulesController < ApplicationController
 
     respond_to do |format|
       if @schedule.save
-        format.html { redirect_to @schedule, notice: 'Schedule was successfully created.' }
+        format.html { redirect_to params[:return_path] || @schedule, notice: 'Schedule was successfully created.' }
         format.json { render json: @schedule, status: :created, location: @schedule }
       else
         format.html { render action: "new" }
@@ -81,7 +81,9 @@ class SchedulesController < ApplicationController
 
     respond_to do |format|
       if @schedule.update_attributes(schedule_params)
-        format.html { redirect_to @schedule, notice: 'Schedule was successfully updated.' }
+        format.html { 
+          redirect_to params[:return_path] || @schedule, notice: 'Schedule was successfully updated.' 
+        }
         format.json { head :no_content }
       else
         format.html { render action: "edit" }
@@ -97,7 +99,7 @@ class SchedulesController < ApplicationController
     @schedule.destroy
 
     respond_to do |format|
-      format.html { redirect_to schedules_url }
+      format.html { redirect_to params[:return_path] || schedules_url }
       format.json { head :no_content }
     end
   end

@@ -1,5 +1,15 @@
 <p id="notice"><%= notice %></p>
-
+<script type="text/javascript">
+  $(document).ready(function() {
+    $('#calendar').fullCalendar({
+    defaultView: 'agendaDay',
+      year: <%= @schedule.schedule_date.year %>,
+      month: <%= @schedule.schedule_date.month - 1 %>,
+      date: <%= @schedule.schedule_date.day %>,
+      events: [<%= @schedule.to_schedule_event(edit_schedule_path(@schedule, return_path: schedule_path(@schedule))).to_json.html_safe %>]
+    })
+  });
+</script>
 <p>
   <b>Job:</b>
   <%= @schedule.job_id %>
@@ -20,6 +30,7 @@
   <%= @schedule.schedule_date %>
 </p>
 
+<div id="calendar" style="padding-top: 10px; padding-left: 10%; padding-right: 10%; padding-bottom: 10%"></div>
 
 <%= link_to 'Edit', edit_schedule_path(@schedule) %> |
 <%= link_to 'Back', schedules_path %>

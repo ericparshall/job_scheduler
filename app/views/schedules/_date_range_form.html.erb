@@ -65,32 +65,24 @@ $(function() {
 });
 </script>
 
-<%= form_tag(schedules_search_path, method: :post, id: "schedule_search_form") do %>
+<%= form_tag(schedules_search_path, method: :get, id: "schedule_search_form") do %>
 <table class="fc-header" style="width: 100%">
   <tbody>
     <tr>
       <td class="fc-header-left">
-        <% unless params[:unit].blank? %>
-        <span id="page_back_date" class="fc-button fc-button-prev fc-state-default fc-corner-left" unselectable="on">
-          <span class="fc-text-arrow">‹</span>
-        </span>
-        <span id="page_forward_date" class="fc-button fc-button-next fc-state-default fc-corner-right" unselectable="on">
-          <span class="fc-text-arrow">›</span>
-        </span>
-        <% end %>
-      </td>
-      <td class="fc-header-center">
         
         <div class="horizontal-form">
-          <div class="field">
+          <div class="field" style="width: 75px">
             <%= @from_date.strftime('%A') %>&nbsp;
           </div>
           <div class="field">
-            <div style="float: left"><%= text_field_tag :from_date, @from_date, style: "width: 100px" %></div>
+            <div style="float: left"><%= text_field_tag :from_date, @from_date, style: "width: 80px" %></div>
           </div>
-          <div class="field">&nbsp;&nbsp;to&nbsp;&nbsp;<%= @to_date.strftime('%A') %>&nbsp;</div>
+          <div class="field" style="width: 75">
+            <%= @to_date.strftime('%A') %>&nbsp;
+          </div>
           <div class="field">
-            <div style="float: left"><%= text_field_tag :to_date, @to_date, style: "width: 100px" %></div>
+            <div style="float: left"><%= text_field_tag :to_date, @to_date, style: "width: 80px" %></div>
           </div>
           <%= hidden_field_tag :job_id, params[:job_id] %>
           <%= hidden_field_tag :user_id, params[:user_id] %>
@@ -106,6 +98,14 @@ $(function() {
         <span id="date_range_month" class="fc-button fc-button-month fc-state-default <%= params[:unit] == "month" ? "fc-state-active" : "" %>" unselectable="on">month</span>
         <span id="date_range_week" class="fc-button fc-button-agendaWeek fc-state-default <%= params[:unit] == "week" ? "fc-state-active" : "" %>" unselectable="on">week</span>
         <span id="date_range_day" class="fc-button fc-button-agendaDay fc-state-default fc-corner-right <%= params[:unit] == "day" ? "fc-state-active" : "" %>" unselectable="on">day</span>
+        <% unless params[:unit].blank? %>
+        <span id="page_back_date" class="fc-button fc-button-prev fc-state-default fc-corner-left" unselectable="on">
+          <span class="fc-text-arrow">‹</span>
+        </span>
+        <span id="page_forward_date" class="fc-button fc-button-next fc-state-default fc-corner-right" unselectable="on">
+          <span class="fc-text-arrow">›</span>
+        </span>
+        <% end %>
       </td>
     </tr>
     <tr>

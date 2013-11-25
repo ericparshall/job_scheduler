@@ -28,4 +28,28 @@ module SchedulesHelper
     
     @page_forward_dates
   end
+  
+  def default_schedule_date
+    puts @schedule.inspect
+    puts params[:for_date]
+    puts for_date_to_time(params[:for_date])
+    puts format_time_to_us(for_date_to_time(params[:for_date]))
+    case 
+    when @schedule.schedule_date then
+      val = format_time_to_us(@schedule.try(:schedule_date))
+    when params[:for_date] then 
+      val = format_time_to_us(for_date_to_time(params[:for_date]))
+    else 
+      val = nil
+    end
+    return val
+  end
+  
+  def default_from_time
+    case
+    when @schedule then format_time_to_hour(@schedule.from_time)
+    when params[:for_date]then format_time_to_us(for_date_to_time(params[:for_date]))
+    else nil
+    end
+  end
 end

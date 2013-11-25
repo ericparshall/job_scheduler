@@ -5,4 +5,4 @@
 <br />
 <div id="calendar"></div>
 
-<%= link_to 'New Schedule', new_schedule_path %>
+<%= link_to 'New Schedule', new_schedule_path(employee_id: params[:user_id], job_id: params[:job_id], return_path: request.fullpath) %>

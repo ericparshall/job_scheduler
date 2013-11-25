@@ -6,14 +6,12 @@
     <th>Description</th>
     <th></th>
     <th></th>
-    <th></th>
   </tr>
 
 <% @jobs.each do |job| %>
   <tr>
-    <td><%= job.name %></td>
-    <td><%= job.description %></td>
-    <td><%= link_to 'Show', job %></td>
+    <td><%= link_to job.name, job %></td>
+    <td><%= link_to job.description, job %></td>
     <td><%= link_to 'Edit', edit_job_path(job) %></td>
     <td><%= link_to 'Destroy', job, method: :delete, data: { confirm: 'Are you sure?' } %></td>
   </tr>

@@ -2,7 +2,9 @@
 $(function() {
   $("input[name='schedule[schedule_date]']").datepicker();
   $("input[name='schedule[from_time]']").timepicker();
-  $("input[name='schedule[to_time]']").timepicker();
+  $("input[name='schedule[to_time]']").timepicker({
+    'minTime': $("input[name='schedule[from_time]']").val(),
+  });
   $("input[name='schedule[from_time]']").on("changeTime", function(){
     $("input[name='schedule[to_time]']").timepicker('remove');
     $("input[name='schedule[to_time]']").timepicker({
@@ -27,24 +29,25 @@ $(function() {
 
   <div class="field">
     <%= f.label :job_id %><br />
-    <%= f.select :job_id, @jobs %>
+    <%= f.select :job_id, @jobs, selected: @schedule.job.try(:id) || params[:job_id] %>
   </div>
   <div class="field">
     <%= f.label :user_id %><br />
-    <%= f.select :user_id, @users %>
+    <%= f.select :user_id, @users, selected: @schedule.user.try(:id) || params[:employee_id] %>
   </div>
   <div class="field">
     <%= f.label :schedule_date %><br />
-    <%= f.text_field :schedule_date %>
+    <%= f.text_field :schedule_date, value: default_schedule_date %>
   </div>
   <div class="field">
     <%= f.label :from_time %><br />
-    <%= f.text_field :from_time %>
+    <%= f.text_field :from_time, value: default_from_time %>
   </div>
   <div class="field">
     <%= f.label :to_time %><br />
-    <%= f.text_field :to_time %>
+    <%= f.text_field :to_time, value: format_time_to_hour(@schedule.to_time) %>
   </div>
+  <%= hidden_field_tag :return_path, params[:return_path] %>
   <div class="actions">
     <%= f.submit %>
   </div>

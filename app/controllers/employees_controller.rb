@@ -83,9 +83,29 @@ class EmployeesController < ApplicationController
     end
   end
   
+  def schedule
+    @schedules = []
+    
+    query = Schedule.where(user_id: params[:employee_id])
+    query = query.where(["schedule_date >= ?", Time.at(params[:start].to_i)]) unless params[:start].blank?
+    query = query.where(["schedule_date <= ?", Time.at(params[:end].to_i)]) unless params[:end].blank?
+    query.each do |schedule|
+      puts schedule.inspect
+      @schedules << schedule.to_schedule_event(edit_schedule_path(schedule, return_path: return_path))
+    end
+    
+    respond_to do |format|
+      format.json { render json: @schedules}
+    end
+  end
+  
   private
   def user_params
     params[:user].delete_if {|k, v| [ "password", "password_confirmation" ].include?(k) && v.blank? }
     params.require(:user).permit(:full_name, :email, :password, :password_confirmation, :user_type_id, :manager_id)
+  end
+  
+  def return_path
+    employee_path(User.find(params[:employee_id]))
   end
 end

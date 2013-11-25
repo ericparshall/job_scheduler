@@ -3,4 +3,5 @@
 <%= render 'form' %>
 
 <%= link_to 'Show', @schedule %> |
-<%= link_to 'Back', schedules_path %>
+<%= link_to 'Back', params[:return_path] || schedules_path %> |
+<%= link_to 'Delete', schedule_path(@schedule, return_path: params[:return_path] || schedules_path), method: :delete, data: { confirm: 'Are you sure?' } %>
