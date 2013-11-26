@@ -34,6 +34,7 @@ JobScheduler::Application.configure do
   config.action_mailer.delivery_method = :smtp
   config.action_mailer.smtp_settings = {
     address:              'smtp.postmarkapp.com',
+    from: 'eric@parshall.us',
     port:                 25,
     domain:               'peaceful-shelf-1692.herokuapp.com',
     user_name:            '701e29bc-cabc-43ba-853b-e5248dc3a0ae',

@@ -65,7 +65,7 @@ JobScheduler::Application.configure do
   
   config.action_mailer.default_url_options = { :host => 'peaceful-shelf-1692.herokuapp.com' }
   config.action_mailer.smtp_settings = {
-    from: '8ce15a63d23fd052f1fe117def3c175b@inbound.postmarkapp.com',
+    from: 'eric@parshall.us',
     address:              ENV['POSTMARK_SMTP_SERVER'],
     port:                 25,
     domain:               'peaceful-shelf-1692.herokuapp.com',
