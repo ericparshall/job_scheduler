@@ -62,4 +62,15 @@ JobScheduler::Application.configure do
   config.active_support.deprecation = :notify
 
   config.eager_load = true
+  
+  config.action_mailer.default_url_options = { :host => 'peaceful-shelf-1692.herokuapp.com' }
+  config.action_mailer.smtp_settings = {
+    address:              ENV['POSTMARK_SMTP_SERVER'],
+    port:                 25,
+    domain:               'peaceful-shelf-1692.herokuapp.com',
+    user_name:            ENV['POSTMARK_API_KEY'],
+    password:             ENV['POSTMARK_API_KEY'],
+    authentication:       'plain',
+  }
+  ActionMailer::Base.delivery_method = :smtp
 end
