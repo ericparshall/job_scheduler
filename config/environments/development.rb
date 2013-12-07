@@ -42,4 +42,6 @@ JobScheduler::Application.configure do
     authentication:       'plain',
   }
   ActionMailer::Base.delivery_method = :smtp
+  config.action_mailer.default_options = {from: 'eric@parshall.us'}
+  
 end

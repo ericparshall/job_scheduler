@@ -11,7 +11,193 @@ $(function() {
       'minTime': $(this).val(),
       'showDuration': true
     });
+  });  
+});
+
+(function( $ ) {
+  $.widget( "custom.combobox", {
+    _create: function() {
+      this._customOnSelect = this.options.custom_on_select;
+      this.wrapper = $( "<span>" )
+        .addClass( "custom-combobox" )
+        .insertAfter( this.element );
+
+      this.element.hide();
+      this._createAutocomplete();
+      this._createShowAllButton();
+    },
+    _createAutocomplete: function() {
+      var selected = this.element.children( ":selected" ),
+        value = selected.val() ? selected.text() : "";
+
+      this.input = $( "<input>" )
+        .appendTo( this.wrapper )
+        .val( value )
+        .attr( "title", "" )
+        .addClass( "custom-combobox-input ui-widget ui-widget-content ui-state-default ui-corner-left" )
+        .autocomplete({
+          delay: 0,
+          minLength: 0,
+          source: $.proxy( this, "_source" )
+        })
+        .tooltip({
+          tooltipClass: "ui-state-highlight"
+        });
+
+      this._on( this.input, {
+        autocompleteselect: function( event, ui ) {
+          if (this._customOnSelect != null) {
+            this._customOnSelect(ui.item.option);
+          } else {
+            ui.item.option.selected = true;
+            this._trigger( "select", event, {
+              item: ui.item.option
+            });
+          }
+        },
+        
+        autocompletechange: "_removeIfInvalid"
+      });
+    },
+
+    _createShowAllButton: function() {
+      var input = this.input,
+        wasOpen = false;
+
+      $( "<a>" )
+        .attr( "tabIndex", -1 )
+        .attr( "title", "Show All Items" )
+        .tooltip()
+        .appendTo( this.wrapper )
+        .button({
+          icons: {
+            primary: "ui-icon-triangle-1-s"
+          },
+          text: false
+        })
+        .removeClass( "ui-corner-all" )
+        .addClass( "ui-combobox-button custom-combobox-toggle ui-corner-right" )
+        .mousedown(function() {
+          wasOpen = input.autocomplete( "widget" ).is( ":visible" );
+        })
+        .click(function() {
+          input.focus();
+
+          // Close if already visible
+          if ( wasOpen ) {
+            return;
+          }
+
+          // Pass empty string as value to search for, displaying all results
+          input.autocomplete( "search", "" );
+        });
+    },
+
+    _source: function( request, response ) {
+      var matcher = new RegExp( $.ui.autocomplete.escapeRegex(request.term), "i" );
+      response( this.element.children( "option" ).map(function() {
+        var text = $( this ).text();
+        if ( this.value && ( !request.term || matcher.test(text) ) )
+          return {
+            label: text,
+            value: text,
+            option: this
+          };
+      }) );
+    },
+
+    _removeIfInvalid: function( event, ui ) {
+
+      // Selected an item, nothing to do
+      if ( ui.item ) {
+        return;
+      }
+
+      // Search for a match (case-insensitive)
+      var value = this.input.val(),
+        valueLowerCase = value.toLowerCase(),
+        valid = false;
+      this.element.children( "option" ).each(function() {
+        if ( $( this ).text().toLowerCase() === valueLowerCase ) {
+          this.selected = valid = true;
+          return false;
+        }
+      });
+
+      // Found a match, nothing to do
+      if ( valid ) {
+        return;
+      }
+
+      // Remove invalid value
+      this.input
+        .val( "" )
+        .attr( "title", value + " didn't match any item" )
+        .tooltip( "open" );
+      this.element.val( "" );
+      this._delay(function() {
+        this.input.tooltip( "close" ).attr( "title", "" );
+      }, 2500 );
+      this.input.data( "ui-autocomplete" ).term = "";
+    },
+
+    _destroy: function() {
+      this.wrapper.remove();
+      this.element.show();
+    }
   });
+})( jQuery );
+
+
+function addToMassAssignList(option) {
+  var row_id = "user_id_" + option.value
+  if ( $("#" + row_id).length == 0 ) {
+    var row_div = $("<div id='" + row_id + "' class='row'>");
+    var label_div = $("<div class='span2'>");
+    label_div.text(option.label);
+  
+    var user_id_field = $("<input id='user_ids_" + option.value + "' name='user_ids[" + option.value + "]' type='hidden'>");
+    user_id_field.val(option.label);
+    label_div.append(user_id_field);
+  
+    var remove_link_div = $("<div class='span2'>");
+    var remove_link = $("<a href='#'>");
+    remove_link.text("remove");
+    remove_link.click(function() {
+      removeRowFromMassAssign(row_id);
+      return false;
+    });
+    remove_link_div.append(remove_link);
+  
+    row_div.append(label_div);
+    row_div.append(remove_link_div);
+    $("#mass_assign_users").append(row_div);
+  }
+}
+
+function removeRowFromMassAssign(row_id) {
+  $("#" + row_id).remove();
+}
+
+
+$(function() {
+  $( "#schedule_job_id" ).combobox();
+  $( "#toggle" ).click(function() {
+    $( "#schedule_job_id" ).toggle();
+  });
+});
+$(function() {
+  $( "#user_id" ).combobox({
+    custom_on_select: function(option) {
+      addToMassAssignList(option);
+    }
+  });
+  $( "#toggle" ).click(function() {
+    $( "#user_id" ).toggle();
+  });
+  <% params[:user_ids].try(:each) do |k, v| %>
+  addToMassAssignList({ value: '<%= k %>', label: '<%= v %>' });
+  <% end %>
 });
 </script>
 <%= form_for(@schedule) do |f| %>
@@ -27,28 +213,39 @@ $(function() {
     </div>
   <% end %>
 
-  <div class="field">
-    <%= f.label :job_id %><br />
-    <%= f.select :job_id, @jobs, selected: @schedule.job.try(:id) || params[:job_id] %>
-  </div>
-  <div class="field">
-    <%= f.label :user_id %><br />
-    <%= f.select :user_id, @users, selected: @schedule.user.try(:id) || params[:employee_id] %>
-  </div>
-  <div class="field">
-    <%= f.label :schedule_date %><br />
-    <%= f.text_field :schedule_date, value: default_schedule_date %>
-  </div>
-  <div class="field">
-    <%= f.label :from_time %><br />
-    <%= f.text_field :from_time, value: default_from_time %>
-  </div>
-  <div class="field">
-    <%= f.label :to_time %><br />
-    <%= f.text_field :to_time, value: format_time_to_hour(@schedule.to_time) %>
-  </div>
-  <%= hidden_field_tag :return_path, params[:return_path] %>
-  <div class="actions">
-    <%= f.submit %>
-  </div>
+  <div class="row">
+    <div class="span4">
+      <div class="field">
+        <%= f.label :job_id %>
+        <%= f.select :job_id, @jobs, selected: @schedule.job.try(:id) || params[:job_id], include_blank: true %>
+      </div>
+      <div class="field">
+        <% if @schedule.persisted? %>
+          User: <%= @schedule.user.full_name %>
+        <% else %>
+          <%= f.label :user_id %>
+          <%= select_tag :user_id, options_for_select(@users, params[:employee_id]), include_blank: true %>
+        <% end %>
+      </div>
+      <div class="field">
+        <%= f.label :schedule_date %>
+        <%= f.text_field :schedule_date, value: default_schedule_date %>
+      </div>
+      <div class="field">
+        <%= f.label :from_time %>
+        <%= f.text_field :from_time, value: default_from_time %>
+      </div>
+      <div class="field">
+        <%= f.label :to_time %>
+        <%= f.text_field :to_time, value: format_time_to_hour(@schedule.to_time) %>
+      </div>
+      <%= hidden_field_tag :return_path, params[:return_path] %>
+      <div class="actions">
+        <%= f.submit %>
+      </div>
+    </div>
+    <div id="mass_assign_users" class="span4">
+      
+    </div>
 <% end %>
+<div style="clear:both" />

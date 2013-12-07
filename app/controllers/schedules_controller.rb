@@ -62,10 +62,19 @@ class SchedulesController < ApplicationController
   # POST /schedules.json
   def create
     @schedule = Schedule.new(schedule_params)
+    params[:user_ids].each do |user_id, name|
+      begin
+        ActiveRecord::Base.transaction do
+          @schedule = Schedule.create(schedule_params.merge(user_id: user_id))
+        end
+      rescue => e
+        break
+      end
+    end
 
     respond_to do |format|
-      if @schedule.save
-        format.html { redirect_to params[:return_path] || @schedule, notice: 'Schedule was successfully created.' }
+      if @schedule.valid?
+        format.html { redirect_to params[:return_path] || @schedule, notice: 'Schedule(s) was successfully created.' }
         format.json { render json: @schedule, status: :created, location: @schedule }
       else
         format.html { render action: "new" }
@@ -119,7 +128,7 @@ class SchedulesController < ApplicationController
   end
   
   def schedule_query
-    schedule_query = Schedule.where(["schedule_date >= ? and schedule_date <= ?", @from_date, @to_date])
+    schedule_query = Schedule.where(["schedule_date >= ? and schedule_date <= ?", @from_date, @to_date]).includes(:user, :job)
     schedule_query = schedule_query.where(job_id: params[:job_id]) unless params[:job_id].blank?
     schedule_query = schedule_query.where(user_id: params[:user_id]) unless params[:user_id].blank?
     schedule_query
@@ -129,7 +138,7 @@ class SchedulesController < ApplicationController
   def schedule_params
     params[:from_time] = "#{params[:schedule_date]} #{params[:from_time]}"
     params[:to_time] = "#{params[:schedule_date]} #{params[:to_time]}"
-    params.require(:schedule).permit(:job_id, :schedule_date, :user_id, :from_time, :to_time)
+    params.require(:schedule).permit(:job_id, :schedule_date, :from_time, :to_time)
   end
   
   def update_date_range

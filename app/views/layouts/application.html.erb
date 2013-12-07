@@ -13,6 +13,7 @@
       <%= menu_item("Employees", employees_path) if current_user.try(:user_type).try(:admin?) %>
       <%= menu_item("Jobs", jobs_path) if current_user.try(:user_type).try(:admin?) %>
       <%= menu_item("Schedules", schedules_path) if current_user.try(:user_type).try(:admin?) %>
+      <%= menu_item("Time Off", time_off_requests_path) %>
       <%= menu_item("Logout", destroy_user_session_path, method: :delete) if user_signed_in? %>
     <% end %>
   <% end %>

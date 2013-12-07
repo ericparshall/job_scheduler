@@ -2,7 +2,7 @@ class Schedule < ActiveRecord::Base
   belongs_to :user
   belongs_to :job
   
-  validates :schedule_date, :from_time, :to_time, presence: true
+  validates :schedule_date, :from_time, :to_time, :job_id, :user_id, presence: true
   validate :hours_greater_than_zero
   
   before_validation do

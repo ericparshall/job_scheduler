@@ -99,6 +99,17 @@ class EmployeesController < ApplicationController
     end
   end
   
+  def employee_list
+    list = User.all.sort_by{|u| u.full_name }
+    matches = Set.new
+    list.find_all {|l| l.full_name =~ /^#{params[:term]}/i }.each {|l| matches << l }
+    list.find_all {|l| l.full_name =~ /#{params[:term]}/i }.each {|l| matches << l }
+    
+    respond_to do |format|
+      format.json { render json: matches.collect {|u| { value: u.full_name, id: u.id } } }
+    end
+  end
+  
   private
   def user_params
     params[:user].delete_if {|k, v| [ "password", "password_confirmation" ].include?(k) && v.blank? }

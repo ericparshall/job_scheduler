@@ -6,7 +6,14 @@ $(document).ready(function() {
         center: 'agendaDay,agendaWeek,month',
         right:  'today prev,next'
       },
-      events: '/my_schedule.json'
+      events: '/my_schedule.json',
+      dayClick: function(date, allDay, jsEvent, view) {
+        alert(date);
+        //$(this).events = '/my_schedule.json?detail=true';
+      },
+      eventClick: function(calEvent, jsEvent, view) {
+        alert(calEvent)
+      }
     })
   });
 </script>

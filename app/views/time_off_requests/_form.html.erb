@@ -1,0 +1,30 @@
+<script type="text/javascript">
+$(function() {
+  $("input[name='time_off_request[day_off_requested]']").datepicker();
+});
+</script>
+<%= form_for(@time_off_request) do |f| %>
+  <% if @time_off_request.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@time_off_request.errors.count, "error") %> prohibited this time_off_request from being saved:</h2>
+
+      <ul>
+      <% @time_off_request.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :day_off_requested %><br>
+    <%= f.text_field :day_off_requested %>
+  </div>
+  <div class="field">
+    <%= f.label :comment %><br>
+    <%= f.text_area :comment %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>
