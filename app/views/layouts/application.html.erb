@@ -7,19 +7,25 @@
   <%= csrf_meta_tags %>
 </head>
 <body>
-  <%= nav_bar fixed: :top, brand: "JobScheduler" do %>
-
-    <% menu_group pull: :right do %>
-      <%= menu_item("Employees", employees_path) if current_user.try(:user_type).try(:admin?) %>
-      <%= menu_item("Jobs", jobs_path) if current_user.try(:user_type).try(:admin?) %>
-      <%= menu_item("Schedules", schedules_path) if current_user.try(:user_type).try(:admin?) %>
-      <%= menu_item("Time Off", time_off_requests_path) %>
-      <%= menu_item("Logout", destroy_user_session_path, method: :delete) if user_signed_in? %>
-    <% end %>
-  <% end %>
-  <p class="notice"><%= notice %></p>
-  <p class="alert"><%= alert %></p>
   <div class="container" style="padding-bottom: 20px;">
+    <div class="navbar">
+      <div class="navbar-inner">
+        <a class="brand" href="/">
+          <%= image_tag("logo_banner.jpg", style: "width: 419px; height: 75px") %>
+        </a>
+        <div style="padding-top: 55px">
+          <ul class="nav pull-right" style="height: 100%">
+            <% show_admin_section do %><li class="<%= menu_class("employees") %>"><%= link_to("Employees", employees_path) %></li><% end %>
+            <% show_admin_section do %><li class="<%= menu_class("jobs") %>"><%= link_to("Jobs", jobs_path) %></li><% end %>
+            <% show_admin_section do %><li class="<%= menu_class("schedules") %>"><%= link_to("Schedules", schedules_path) %></li><% end %>
+            <% if user_signed_in? %><li class="<%= menu_class("time_of_requests") %>"><%= link_to("Time Off", time_off_requests_path) %></li><% end %>
+            <li><%= link_to("Logout", destroy_user_session_path, method: :delete) if user_signed_in? %></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <% unless notice.nil? %><p class="notice"><%= notice %></p><% end %>
+    <% unless alert.nil? %><p class="alert"><%= alert %></p><% end %>
     <%= yield %>
   </div>
 </body>

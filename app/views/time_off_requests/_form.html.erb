@@ -5,8 +5,8 @@ $(function() {
 </script>
 <%= form_for(@time_off_request) do |f| %>
   <% if @time_off_request.errors.any? %>
-    <div id="error_explanation">
-      <h2><%= pluralize(@time_off_request.errors.count, "error") %> prohibited this time_off_request from being saved:</h2>
+    <div id="error_explanation" class="alert alert-error">
+      <strong><%= pluralize(@time_off_request.errors.count, "error") %> prohibited this time_off_request from being saved:</strong>
 
       <ul>
       <% @time_off_request.errors.full_messages.each do |msg| %>

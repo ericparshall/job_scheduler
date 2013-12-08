@@ -10,4 +10,12 @@ module ApplicationHelper
   def format_time_to_us(time)
     time.try(:strftime, "%m/%d/%Y")
   end
+  
+  def menu_class(section)
+    section == controller_name ? "active" : ""
+  end
+  
+  def show_admin_section
+    yield if current_user.try(:user_type).try(:admin?)
+  end
 end

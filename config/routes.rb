@@ -5,7 +5,10 @@ JobScheduler::Application.routes.draw do
 
   match 'schedules/search' => "schedules#search", via: [:get, :post]
   match 'my_schedule' => "home#my_schedule", via: [:get]
-  resources :schedules
+  get "schedules/scheduled_for_job" => "schedules#scheduled_for_job"
+  resources :schedules do
+    get :scheduled_for_job
+  end
 
 
   resources :jobs

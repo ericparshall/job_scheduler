@@ -16,6 +16,8 @@ class Schedule < ActiveRecord::Base
       title: "#{self.job.name}, #{self.hours} hrs",
       start: "#{self.schedule_date.strftime("%Y-%m-%d")} #{self.from_time.strftime("%H:%M:%S")}",
       end: "#{self.schedule_date.strftime("%Y-%m-%d")} #{self.to_time.strftime("%H:%M:%S")}",
+      schedule_date: self.schedule_date.strftime("%Y-%m-%d"),
+      job_id: self.job_id,
       allDay: false
     }
     event[:url] = link_to_url if link_to_url

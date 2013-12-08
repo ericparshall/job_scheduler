@@ -202,8 +202,8 @@ $(function() {
 </script>
 <%= form_for(@schedule) do |f| %>
   <% if @schedule.errors.any? %>
-    <div id="error_explanation">
-      <h2><%= pluralize(@schedule.errors.count, "error") %> prohibited this schedule from being saved:</h2>
+    <div id="error_explanation" class="alert alert-error">
+      <strong><%= pluralize(@schedule.errors.count, "error") %> prohibited this schedule from being saved:</strong>
 
       <ul>
       <% @schedule.errors.full_messages.each do |msg| %>

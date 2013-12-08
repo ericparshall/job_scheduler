@@ -1,8 +1,7 @@
 class SchedulesController < ApplicationController
-  before_filter :require_admin_user
+  before_filter :require_admin_user, except: [ :scheduled_for_job ]
   before_filter :initialize_collections
-  # GET /schedules
-  # GET /schedules.json
+
   def index
     @from_date = (Date.parse(params[:from_date]) rescue nil) || Date.today.beginning_of_month
     @to_date = (Date.parse(params[:to_date]) rescue nil) || Date.today.end_of_month
@@ -31,8 +30,6 @@ class SchedulesController < ApplicationController
     render :index
   end
 
-  # GET /schedules/1
-  # GET /schedules/1.json
   def show
     @schedule = Schedule.find(params[:id])
 
@@ -42,8 +39,6 @@ class SchedulesController < ApplicationController
     end
   end
 
-  # GET /schedules/new
-  # GET /schedules/new.json
   def new
     @schedule = Schedule.new
 
@@ -53,16 +48,13 @@ class SchedulesController < ApplicationController
     end
   end
 
-  # GET /schedules/1/edit
   def edit
     @schedule = Schedule.find(params[:id])
   end
 
-  # POST /schedules
-  # POST /schedules.json
   def create
     @schedule = Schedule.new(schedule_params)
-    params[:user_ids].each do |user_id, name|
+    params[:user_ids].try(:each) do |user_id, name|
       begin
         ActiveRecord::Base.transaction do
           @schedule = Schedule.create(schedule_params.merge(user_id: user_id))
@@ -83,8 +75,6 @@ class SchedulesController < ApplicationController
     end
   end
 
-  # PUT /schedules/1
-  # PUT /schedules/1.json
   def update
     @schedule = Schedule.find(params[:id])
 
@@ -101,8 +91,6 @@ class SchedulesController < ApplicationController
     end
   end
 
-  # DELETE /schedules/1
-  # DELETE /schedules/1.json
   def destroy
     @schedule = Schedule.find(params[:id])
     @schedule.destroy
@@ -111,6 +99,11 @@ class SchedulesController < ApplicationController
       format.html { redirect_to params[:return_path] || schedules_url }
       format.json { head :no_content }
     end
+  end
+  
+  def scheduled_for_job
+    schedules = Schedule.where(job_id: params[:job_id], schedule_date: Date.parse(params[:schedule_date]))
+    @schedules = schedules.detect {|s| s.user_id == current_user.id } ? schedules : []
   end
   
   private
@@ -134,7 +127,6 @@ class SchedulesController < ApplicationController
     schedule_query
   end
   
-  private
   def schedule_params
     params[:from_time] = "#{params[:schedule_date]} #{params[:from_time]}"
     params[:to_time] = "#{params[:schedule_date]} #{params[:to_time]}"

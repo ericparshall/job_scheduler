@@ -23,6 +23,8 @@
         <th>Email</th>
         <th>Type</th>
         <th>Manager</th>
+        <th>Phone</th>
+        <th>Address</th>
         <th />
       </tr>
     </thead>
@@ -32,6 +34,8 @@
         <td><%= @user.email %></td>
         <td><%= @user.user_type.name %></td>
         <td><%= @user.manager.try(:full_name) %></td>
+        <td><%= @user.phone_number %></td>
+        <td><pre><%= @user.address %></pre></td>
         <td><%= link_to 'Edit', edit_employee_path(@user) %></td>
       </tr>
     </tbody>

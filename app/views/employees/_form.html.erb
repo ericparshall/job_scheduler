@@ -1,7 +1,7 @@
 <%= form_for(@user, url: @user.id.nil? ? employees_path : employee_path(@user), method: @user.id.nil? ? :post : :put) do |f| %>
   <% if @user.errors.any? %>
-    <div id="error_explanation">
-      <h2><%= pluralize(@user.errors.count, "error") %> prohibited this user from being saved:</h2>
+    <div id="error_explanation" class="alert alert-error">
+      <strong><%= pluralize(@user.errors.count, "error") %> prohibited this user from being saved:</strong>
 
       <ul>
       <% @user.errors.full_messages.each do |msg| %>
@@ -26,6 +26,14 @@
   <div class="field">
     <%= f.label :manager_id, "Manager" %><br />
     <%= f.select :manager_id, User.joins(:user_type).where("user_types.manager" => true).collect {|u| [u.full_name, u.id] } %>
+  </div>
+  <div class="field">
+    <%= f.label :phone_number %><br />
+    <%= f.text_field :phone_number %>
+  </div>
+  <div class="field">
+    <%= f.label :address %><br />
+    <%= f.text_area :address, cols: 30, rows: 3 %>
   </div>
   <div>
     <%= f.label :password %><br />

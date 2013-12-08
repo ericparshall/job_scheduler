@@ -7,12 +7,8 @@ $(document).ready(function() {
         right:  'today prev,next'
       },
       events: '/my_schedule.json',
-      dayClick: function(date, allDay, jsEvent, view) {
-        alert(date);
-        //$(this).events = '/my_schedule.json?detail=true';
-      },
       eventClick: function(calEvent, jsEvent, view) {
-        alert(calEvent)
+        window.location = "/schedules/scheduled_for_job?job_id=" + calEvent.job_id + "&schedule_date=" + encodeURIComponent(calEvent.schedule_date);
       }
     })
   });
