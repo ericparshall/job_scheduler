@@ -1,19 +1,43 @@
-<table class="table table-bordered table-striped">
-  <tr>
-    <th>Job</th>
-    <th>User</th>
-    <th>Schedule Date</th>
-    <th>Hours</th>
-    <th>Total Hours</th>
-  </tr>
-
-<% @schedules.each do |schedule| %>
-  <tr>
-    <td><%= schedule.job.name %></td>
-    <td><%= schedule.user.full_name %></td>
-    <td><%= schedule.schedule_date %></td>
-    <td><%= "#{schedule.from_time.strftime("%I:%M%P")} - #{schedule.to_time.strftime("%I:%M%P")}" unless schedule.from_time.nil? || schedule.to_time.nil? %></td>
-    <td><%= schedule.hours %></td>
-  </tr>
-<% end %>
-</table>
+<style type="text/css">
+  .panel-body p label {
+    padding-right: 5px;
+  }
+</style>
+<div class="panel panel-default">
+  <div class="panel-heading"><h3><%= @job.name %></h3></div>
+  <div class="panel-body">
+    <p>
+      <label>Description: </label><pre><%= @job.description %></pre>
+    </p>
+    <p>
+      <label>Point-of-contact: </label><%= @job.point_of_contact %>
+    </p>
+    <p>
+      <label>Phone: </label><a href="tel:<%= @job.phone_number %>"><%= @job.phone_number %></a>
+    </p>
+    <p>
+      <label>Email: </label><%= @job.email_address %>
+    </p>
+    
+      <p>
+        <label>Address: </label><pre><a href="<%= "https://maps.google.com/?#{{q: @job.address}.to_query}" %>" target="_blank" class="list-group-item active"><%= @job.address %></a></pre>
+      </p>
+    
+  </div>
+  <table class="table table-bordered table-striped">
+    <tr>
+      <th>User</th>
+      <th>Schedule Date</th>
+      <th>Hours</th>
+      <th>Total Hours</th>
+    </tr>
+  <% @schedules.each do |schedule| %>
+    <tr>
+      <td><%= schedule.user.full_name %></td>
+      <td><%= schedule.schedule_date %></td>
+      <td><%= "#{schedule.from_time.strftime("%I:%M%P")} - #{schedule.to_time.strftime("%I:%M%P")}" unless schedule.from_time.nil? || schedule.to_time.nil? %></td>
+      <td><%= schedule.hours %></td>
+    </tr>
+  <% end %>
+  </table>
+</div>

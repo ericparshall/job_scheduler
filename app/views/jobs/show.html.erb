@@ -1,13 +1,33 @@
-<p>
-  <b>Name:</b>
-  <%= @job.name %>
-</p>
-
-<p>
-  <b>Description:</b>
-  <%= @job.description %>
-</p>
-
+<div class="list-group">
+  <h4 class="list-group-item-heading">Name</h4>
+  <p class="list-group-item-text"><%= @job.name %></p>
+</div>
+<div class="list-group">
+  <h4 class="list-group-item-heading">Description</h4>
+  <p class="list-group-item-text">
+    <pre><%= @job.description %></pre>
+  </p>
+</div>
+<div class="list-group">
+  <h4 class="list-group-item-heading">POC</h4>
+  <p class="list-group-item-text"><%= @job.point_of_contact %></p>
+</div>
+<div class="list-group">
+  <h4 class="list-group-item-heading">Phone</h4>
+  <p class="list-group-item-text"><%= @job.phone_number %></p>
+</div>
+<div class="list-group">
+  <h4 class="list-group-item-heading">Email</h4>
+  <p class="list-group-item-text"><%= @job.email_address %></p>
+</div>
+<div class="list-group">
+  <h4 class="list-group-item-heading">Address</h4>
+  <a href="<%= "https://maps.google.com/?#{{q: @job.address}.to_query}" %>" target="_blank" class="list-group-item active">
+    <p class="list-group-item-text">
+      <pre><%= @job.address %></pre>
+    </p>
+  </a>
+</div>
 
 <%= link_to 'Edit', edit_job_path(@job) %> |
 <%= link_to 'Back', jobs_path %>

@@ -40,6 +40,8 @@ class SchedulesController < ApplicationController
   end
 
   def new
+    params[:user_ids] ||= {}
+    params[:user_ids][params[:employee_id]] = User.find(params[:employee_id]).full_name
     @schedule = Schedule.new
 
     respond_to do |format|
@@ -103,6 +105,7 @@ class SchedulesController < ApplicationController
   
   def scheduled_for_job
     schedules = Schedule.where(job_id: params[:job_id], schedule_date: Date.parse(params[:schedule_date]))
+    @job = Job.find(params[:job_id])
     @schedules = schedules.detect {|s| s.user_id == current_user.id } ? schedules : []
   end
   
