@@ -16,7 +16,7 @@
       <label>Phone: </label><a href="tel:<%= @job.phone_number %>"><%= @job.phone_number %></a>
     </p>
     <p>
-      <label>Email: </label><%= @job.email_address %>
+      <label>Email: </label><a href="mailto:<%= @job.email_address %>" target="_blank"><%= @job.email_address %></a>
     </p>
     
       <p>

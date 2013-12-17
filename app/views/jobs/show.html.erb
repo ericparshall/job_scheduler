@@ -18,7 +18,7 @@
 </div>
 <div class="list-group">
   <h4 class="list-group-item-heading">Email</h4>
-  <p class="list-group-item-text"><%= @job.email_address %></p>
+  <p class="list-group-item-text"><a href="mailto:<%= @job.email_address %>" target="_blank"><%= @job.email_address %></a></p>
 </div>
 <div class="list-group">
   <h4 class="list-group-item-heading">Address</h4>
