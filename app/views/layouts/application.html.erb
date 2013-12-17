@@ -2,31 +2,43 @@
 <html>
 <head>
   <title>JobScheduler</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <%= stylesheet_link_tag    "application", :media => "all" %>
   <%= javascript_include_tag "application" %>
   <%= csrf_meta_tags %>
+  <link href="/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-  <div class="container" style="padding-bottom: 20px;">
-    <div class="navbar">
-      <div class="navbar-inner">
-        <a class="brand" href="/">
+  <div class="navbar navbar-default navbar-static-top">
+    <div class="container">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" style="padding: 0px" href="/">
           <%= image_tag("logo_banner.jpg", style: "width: 419px; height: 75px") %>
         </a>
-        <div style="padding-top: 55px">
-          <ul class="nav pull-right" style="height: 100%">
-            <% show_admin_section do %><li class="<%= menu_class("employees") %>"><%= link_to("Employees", employees_path) %></li><% end %>
-            <% show_admin_section do %><li class="<%= menu_class("jobs") %>"><%= link_to("Jobs", jobs_path) %></li><% end %>
-            <% show_admin_section do %><li class="<%= menu_class("schedules") %>"><%= link_to("Schedules", schedules_path) %></li><% end %>
-            <% if user_signed_in? %><li class="<%= menu_class("time_of_requests") %>"><%= link_to("Time Off", time_off_requests_path) %></li><% end %>
-            <li><%= link_to("Logout", destroy_user_session_path, method: :delete) if user_signed_in? %></li>
-          </ul>
-        </div>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav navbar-right" style="padding-top: 25px">
+          <% show_admin_section do %><li class="<%= menu_class("employees") %>"><%= link_to("Employees", employees_path) %></li><% end %>
+          <% show_admin_section do %><li class="<%= menu_class("jobs") %>"><%= link_to("Jobs", jobs_path) %></li><% end %>
+          <% show_admin_section do %><li class="<%= menu_class("schedules") %>"><%= link_to("Schedules", schedules_path) %></li><% end %>
+          <% if user_signed_in? %><li class="<%= menu_class("time_off_requests") %>"><%= link_to("Time Off", time_off_requests_path) %></li><% end %>
+          <li><%= link_to("Logout", destroy_user_session_path, method: :delete) if user_signed_in? %></li>
+        </ul>
       </div>
     </div>
+  </div>
+
+  <div class="container" style="padding-bottom: 20px;">
     <% unless notice.nil? %><p class="notice"><%= notice %></p><% end %>
-    <% unless alert.nil? %><p class="alert"><%= alert %></p><% end %>
+    <% unless alert.nil? %><p class="alert"><%= alert %></p><% end %>  
     <%= yield %>
   </div>
+  <script src="/js/bootstrap.min.js"></script>
 </body>
 </html>

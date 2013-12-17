@@ -23,7 +23,7 @@ JobScheduler::Application.configure do
   config.assets.compress = false
 
   # Expands the lines which load the assets
-  config.assets.debug = true
+  config.assets.debug = false
   
   config.action_mailer.default_url_options = { :host => 'localhost:3000' }
   
@@ -59,7 +59,7 @@ JobScheduler::Application.configure do
   config.serve_static_assets = true
 
   # Compress JavaScripts and CSS
-  config.assets.compress = true
+  config.assets.compress = false
 
   # Don't fallback to assets pipeline if a precompiled asset is missed
   config.assets.compile = false

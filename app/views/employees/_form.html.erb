@@ -1,3 +1,17 @@
+<script type="text/javascript">
+$(function() {
+  $( "#user_user_type_id" ).combobox({
+    list: $( "#user_user_type_id" ),
+    parent_div: $("#user_type_id_input_group"),
+    input: $("#user_type_id_input")
+  });
+  $( "#user_manager_id" ).combobox({
+    list: $( "#user_manager_id" ),
+    parent_div: $("#manager_id_input_group"),
+    input: $("#manager_id_input")
+  });
+});
+</script>
 <%= form_for(@user, url: @user.id.nil? ? employees_path : employee_path(@user), method: @user.id.nil? ? :post : :put) do |f| %>
   <% if @user.errors.any? %>
     <div id="error_explanation" class="alert alert-error">
@@ -10,41 +24,48 @@
       </ul>
     </div>
   <% end %>
-
-  <div class="field">
-    <%= f.label :full_name %><br />
-    <%= f.text_field :full_name %>
-  </div>
-  <div class="field">
-    <%= f.label :email %><br />
-    <%= f.text_field :email %>
-  </div>
-  <div class="field">
-    <%= f.label :user_type_id, "User Type" %><br />
-    <%= f.select :user_type_id, UserType.all.collect {|ut| [ut.name, ut.id] } %>
-  </div>
-  <div class="field">
-    <%= f.label :manager_id, "Manager" %><br />
-    <%= f.select :manager_id, User.joins(:user_type).where("user_types.manager" => true).collect {|u| [u.full_name, u.id] } %>
-  </div>
-  <div class="field">
-    <%= f.label :phone_number %><br />
-    <%= f.text_field :phone_number %>
-  </div>
-  <div class="field">
-    <%= f.label :address %><br />
-    <%= f.text_area :address, cols: 30, rows: 3 %>
-  </div>
-  <div>
-    <%= f.label :password %><br />
-    <%= f.text_field :password %>
-  </div>
-  <div>
-    <%= f.label :password_confirmation %><br />
-    <%= f.text_field :password_confirmation %>
+  <div class="row-fluid">
+    <div class="col-md-4">
+      <%= f.text_field :full_name, class: "form-control", placeholder: "Full Name" %>
+      <br />
+      <%= f.text_field :email, class: "form-control", placeholder: "Email" %>
+      <br />
+      <%= f.select :user_type_id, UserType.all.collect {|ut| [ut.name, ut.id] } %>
+      <input id="user_type_id_input" title="" placeholder="User Type" class="form-control custom-combobox-input ui-autocomplete-input" autocomplete="on" data-original-title="">
+      <div id="user_type_id_input_group" class="input-group">
+        <span class="input-group-btn">
+          <button class="btn btn-default" type="button">Show</button>
+        </span>
+      </div>
+    
+    
+      <br />
+      <%= f.select :manager_id, User.joins(:user_type).where("user_types.manager" => true).collect {|u| [u.full_name, u.id] }, include_blank: true %>
+      <input id="manager_id_input" title="" placeholder="Manager" class="form-control custom-combobox-input ui-autocomplete-input" autocomplete="on" data-original-title="">
+      <div id="manager_id_input_group" class="input-group">
+        <span class="input-group-btn">
+          <button class="btn btn-default" type="button">Show</button>
+        </span>
+      </div>
+      <br />
+      <%= f.text_field :phone_number, class: "form-control", placeholder: "Phone Number" %>
+      <br />
+      <%= f.text_area :address, cols: 30, rows: 3, class: "form-control", placeholder: "Address" %>
+      <br />
+      <%= f.text_field :password, class: "form-control", placeholder: "Password" %>
+      <br />
+      <%= f.text_field :password_confirmation, class: "form-control", placeholder: "Password Confirmation" %>
+      <br />
+    </div>
+    
   </div>
   <br />
-  <div class="actions">
-    <%= f.submit %>
+  <div style="clear:both" />
+  <div class="row-fluid">
+    <div class="col-md-4">
+      <%= f.submit class: "btn btn-lg btn-primary btn-block" %>
+    </div>
   </div>
 <% end %>
+<div style="clear:both" />
+<br />

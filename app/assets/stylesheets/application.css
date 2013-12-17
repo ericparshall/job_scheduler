@@ -9,35 +9,17 @@
  * compiled file, but it's generally better to create a new file per style scope.
  *
  *= require_self
- *= require bootstrap_and_overrides
  *= require jquery.ui.all
  *= require_tree .
  */
 .horizontal-form {
  width: 100%;
 }
-.horizontal-form div.field {
+.horizontal-form div.input-group {
  float: left;
  padding: 10px;
 }
 .ui-autocomplete-loading {
  background: white url("/assets/ui-anim_basic_16x16.gif") right center no-repeat;
 }
-.custom-combobox {
- position: relative;
- display: inline-block;
-}
-.custom-combobox-toggle {
- position: absolute;
- top: 0;
- bottom: 0;
- margin-left: -1px;
- padding: 0;
- /* support: IE7 */
- *height: 1.7em;
- *top: 0.1em;
-}
-.custom-combobox-input {
- margin: 0;
- padding: 0.3em;
-}
+.ui-helper-hidden-accessible { display:none; }

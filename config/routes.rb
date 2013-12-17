@@ -23,7 +23,11 @@ JobScheduler::Application.routes.draw do
     get :schedule
   end
   resources :user_types
-  resources :time_off_requests
+  resources :time_off_requests do
+    member do
+      post :approve
+    end
+  end
   # The priority is based upon order of creation:
   # first created -> highest priority.
 

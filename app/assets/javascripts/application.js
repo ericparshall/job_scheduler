@@ -11,6 +11,107 @@
 // GO AFTER THE REQUIRES BELOW.
 //= require jquery
 //= require jquery_ujs
-//= require twitter/bootstrap
 //= require jquery.ui.all
 //= require_tree .
+
+(function( $ ) {
+  $.widget( "custom.combobox", {
+    _create: function() {
+      this._customOnSelect = this.options.custom_on_select;
+      this._textPlaceholder = this.options.text_placeholder;
+      this.list = this.options.list;
+      this.parent_div = this.options.parent_div;
+      this.parent_div.prepend(this.wrapper);
+      this.input = this.options.input;
+      this.element.hide();
+      this._createAutocomplete();
+      this._createShowAllButton();
+      this.parent_div.prepend(this.input);
+    },
+    _createAutocomplete: function() {
+      var selected = this.element.children( ":selected" );
+      var value = selected.val() ? selected.text() : "";
+      var itemList = this.list;
+      
+      this.input.val( value ).autocomplete({
+          delay: 0,
+          minLength: 0,
+          source: $.proxy( this, "_source" )
+        });
+      this._on( this.input, {
+        autocompleteselect: function( event, ui ) {
+          if (this._customOnSelect != null) {
+            this._customOnSelect(ui.item.option);
+          } else {
+            this.list.val(ui.item.option.value);
+          }
+          this.parent_div.children("span.input-group-btn").children("button").focus();
+        },
+        blur: function() {
+          this.input.val(this.list.find(":selected").text());
+        }
+      });
+    },
+
+    _createShowAllButton: function() {
+      var input = this.input, wasOpen = false;
+      this.parent_div.children("span.input-group-btn").children("button").click(function() {
+        if ( wasOpen ) { return; }
+        input.autocomplete( "search", "" );
+      });
+    },
+
+    _source: function( request, response ) {
+      var matcher = new RegExp( $.ui.autocomplete.escapeRegex(request.term), "i" );
+      response( this.element.children( "option" ).map(function() {
+        var text = $( this ).text();
+        if ( this.value && ( !request.term || matcher.test(text) ) )
+          return {
+            label: text,
+            value: text,
+            option: this
+          };
+      }) );
+    },
+
+    _removeIfInvalid: function( event, ui ) {
+
+      // Selected an item, nothing to do
+      if ( ui.item ) {
+        return;
+      }
+
+      // Search for a match (case-insensitive)
+      var value = this.input.val(),
+        valueLowerCase = value.toLowerCase(),
+        valid = false;
+      this.element.children( "option" ).each(function() {
+        if ( $( this ).text().toLowerCase() === valueLowerCase ) {
+          this.selected = valid = true;
+          return false;
+        }
+      });
+
+      // Found a match, nothing to do
+      if ( valid ) {
+        return;
+      }
+
+      // Remove invalid value
+      this.input
+        .val( "" )
+        .attr( "title", value + " didn't match any item" )
+        .tooltip( "open" );
+      this.element.val( "" );
+      this._delay(function() {
+        this.input.tooltip( "close" ).attr( "title", "" );
+      }, 2500 );
+      this.input.data( "ui-autocomplete" ).term = "";
+    },
+
+    _destroy: function() {
+      this.wrapper.remove();
+      this.element.show();
+    }
+  });
+})( jQuery );

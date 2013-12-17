@@ -6,8 +6,6 @@ class Schedule < ActiveRecord::Base
   validate :hours_greater_than_zero
   
   before_validation do
-    #self.from_time = Time.new(self.schedule_date.year, self.schedule_date.month, self.schedule_date.day, self.from_time.hour, self.from_time.min) unless self.from_time.nil?
-    #self.to_time = Time.new(self.schedule_date.year, self.schedule_date.month, self.schedule_date.day, self.to_time.hour, self.to_time.min) unless self.to_time.nil?
     self.hours = (self.to_time - self.from_time) / 3600.0 rescue nil
   end
   

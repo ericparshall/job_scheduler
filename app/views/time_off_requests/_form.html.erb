@@ -1,6 +1,16 @@
 <script type="text/javascript">
 $(function() {
   $("input[name='time_off_request[day_off_requested]']").datepicker();
+  $( "#time_off_request_manager_id" ).combobox({
+    list: $( "#time_off_request_manager_id" ),
+    parent_div: $("#manager_id_input_group"),
+    input: $("#manager_id_input")
+  });
+  $( "#time_off_request_user_id" ).combobox({
+    list: $( "#time_off_request_user_id" ),
+    parent_div: $("#user_id_input_group"),
+    input: $("#user_id_input")
+  });
 });
 </script>
 <%= form_for(@time_off_request) do |f| %>
@@ -15,16 +25,44 @@ $(function() {
       </ul>
     </div>
   <% end %>
+  <div class="row-fluid">
+    <div class="col-md-4">
+      <% if current_user.user_type.manager? %>
+        <%= f.select :user_id, User.all.collect{|u| [u.full_name, u.id] }, include_blank: false %>
+        <input id="user_id_input" title="" placeholder="Employee" class="form-control custom-combobox-input ui-autocomplete-input" autocomplete="on" data-original-title="">
+        <div id="user_id_input_group" class="input-group">
+          <span class="input-group-btn">
+            <button class="btn btn-default" type="button">Show</button>
+          </span>
+        </div>
+      <% end %>
+      <br />
 
-  <div class="field">
-    <%= f.label :day_off_requested %><br>
-    <%= f.text_field :day_off_requested %>
+      <% if current_user.user_type.manager? %>
+        <%= f.select :manager_id, User.joins(:user_type).where("user_types.manager" => true).collect {|u| [u.full_name, u.id] }, include_blank: true %>
+        <input id="manager_id_input" title="" placeholder="Manager" class="form-control custom-combobox-input ui-autocomplete-input" autocomplete="on" data-original-title="">
+        <div id="manager_id_input_group" class="input-group">
+          <span class="input-group-btn">
+            <button class="btn btn-default" type="button">Show</button>
+          </span>
+        </div>
+      <% else %>
+        <label>Manger: </label><%= @time_off_request.manager.full_name %>
+      <% end %>
+      <br />
+      <%= f.text_field :day_off_requested, class: "form-control", placeholder: "Day Requested" %>
+      <br />
+      <%= f.text_field :comment, class: "form-control", placeholder: "Comment" %>
+      <br />
+    </div>
   </div>
-  <div class="field">
-    <%= f.label :comment %><br>
-    <%= f.text_area :comment %>
-  </div>
-  <div class="actions">
-    <%= f.submit %>
+
+  <div style="clear:both" />
+  <div class="row-fluid">
+    <div class="col-md-4">
+      <%= f.submit class: "btn btn-lg btn-primary btn-block" %>
+    </div>
   </div>
 <% end %>
+<div style="clear:both" />
+<br />
