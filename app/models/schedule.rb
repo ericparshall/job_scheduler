@@ -9,8 +9,11 @@ class Schedule < ActiveRecord::Base
     self.hours = (self.to_time - self.from_time) / 3600.0 rescue nil
   end
   
-  def to_schedule_event(link_to_url = nil)
+  def to_schedule_event(color, link_to_url = nil)
     event = {
+      borderColor: "black",
+      textColor: "black",
+      backgroundColor: color,
       title: "#{self.job.name}, #{self.hours} hrs",
       start: "#{self.schedule_date.strftime("%Y-%m-%d")} #{self.from_time.strftime("%H:%M:%S")}",
       end: "#{self.schedule_date.strftime("%Y-%m-%d")} #{self.to_time.strftime("%H:%M:%S")}",
