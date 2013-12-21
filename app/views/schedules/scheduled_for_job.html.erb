@@ -6,9 +6,11 @@
 <div class="panel panel-default">
   <div class="panel-heading"><h3><%= @job.name %></h3></div>
   <div class="panel-body">
+    <% unless @job.description.blank? %>
     <p>
       <label>Description: </label><pre><%= @job.description %></pre>
     </p>
+    <% end %>
     <p>
       <label>Point-of-contact: </label><%= @job.point_of_contact %>
     </p>
@@ -18,11 +20,11 @@
     <p>
       <label>Email: </label><a href="mailto:<%= @job.email_address %>" target="_blank"><%= @job.email_address %></a>
     </p>
-    
-      <p>
-        <label>Address: </label><pre><a href="<%= "https://maps.google.com/?#{{q: @job.address}.to_query}" %>" target="_blank" class="list-group-item active"><%= @job.address %></a></pre>
-      </p>
-    
+    <% unless @job.address.blank? %>
+    <p>
+      <label>Address: </label><pre><a href="<%= "https://maps.google.com/?#{{q: @job.address}.to_query}" %>" target="_blank" class="list-group-item active"><%= @job.address %></a></pre>
+    </p>
+    <% end %>
   </div>
   <table class="table table-bordered table-striped">
     <tr>
