@@ -1,10 +1,12 @@
 <h3>Jobs</h3>
-
+<ul class="nav nav-tabs">
+  <li class="<%= tab_active["Default"] %>"><%= link_to "Default", jobs_path %></li>
+  <li class="<%= tab_active["Archived"] %>"><%= link_to "Archived", jobs_path(archived: true) %></li>
+</ul>
 <table class="table table-bordered table-striped">
   <tr>
     <th>Name</th>
     <th>Description</th>
-    <th></th>
     <th></th>
   </tr>
 
@@ -12,8 +14,11 @@
   <tr>
     <td><%= link_to job.name, job %></td>
     <td><%= link_to job.description, job %></td>
-    <td><%= link_to 'Edit', edit_job_path(job) %></td>
-    <td><%= link_to 'Destroy', job, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+    <td>
+      <%= link_to 'Edit', edit_job_path(job) %>
+      |
+      <%= link_to job.archived? ? "Unarchive" : "Archive", archive_job_path(job, params), method: :post %>
+    </td>
   </tr>
 <% end %>
 </table>

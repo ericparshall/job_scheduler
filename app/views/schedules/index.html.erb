@@ -1,4 +1,10 @@
 <h3>Schedules</h3>
+<ul class="nav nav-tabs">
+  <li class="<%= tab_active_schedules["Default"] %>"><%= link_to "Default", schedules_path(params.merge(archived: "")) %></li>
+  <li class="<%= tab_active_schedules["All Jobs"] %>"><%= link_to "All Jobs", schedules_path(params.merge(archived: "jobs")) %></li>
+  <li class="<%= tab_active_schedules["All Employees"] %>"><%= link_to "All Employees", schedules_path(params.merge(archived: "employees")) %></li>
+  <li class="<%= tab_active_schedules["All Schedules"] %>"><%= link_to "All Schedules", schedules_path(params.merge(archived: "all")) %></li>
+</ul>
 <%= render 'date_range_form' %>
 <br />
 <%= render 'schedule_matrix' %>

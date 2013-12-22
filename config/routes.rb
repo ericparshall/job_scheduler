@@ -1,28 +1,34 @@
 JobScheduler::Application.routes.draw do
-  resources :time_off_requests
-
+  root to: "home#index"
   resources :user_types
+
+  match 'my_schedule' => "home#my_schedule", via: [:get]
 
   match 'schedules/search' => "schedules#search", via: [:get, :post]
-  match 'my_schedule' => "home#my_schedule", via: [:get]
-  get "schedules/scheduled_for_job" => "schedules#scheduled_for_job"
+  match "schedules/scheduled_for_job" => "schedules#scheduled_for_job", via: [:get]
   resources :schedules do
     get :scheduled_for_job
+    member do
+      post :archive
+    end
   end
-
-
-  resources :jobs
-
 
   devise_for :users
-
-  root to: "home#index"
-  resources :jobs
-  match "employees/employee_list" => "employees#employee_list", via: [:get]
-  resources :employees do
-    get :schedule
+  
+  resources :jobs, except: [:destroy] do
+    member do
+      post :archive
+    end
   end
-  resources :user_types
+  
+  match "employees/employee_list" => "employees#employee_list", via: [:get]
+  resources :employees, except: [:destroy] do
+    get :schedule
+    member do
+      post :archive
+    end
+  end
+  
   resources :time_off_requests do
     member do
       post :approve

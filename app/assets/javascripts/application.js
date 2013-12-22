@@ -59,6 +59,9 @@
         if ( wasOpen ) { return; }
         input.autocomplete( "search", "" );
       });
+      this.parent_div.children("span.input-group-btn").children("button").blur(function() {
+        input.blur();
+      });
     },
 
     _source: function( request, response ) {

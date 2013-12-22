@@ -1,12 +1,14 @@
 <h3>Employees</h3>
-
+<ul class="nav nav-tabs">
+  <li class="<%= tab_active["Default"] %>"><%= link_to "Default", employees_path %></li>
+  <li class="<%= tab_active["Archived"] %>"><%= link_to "Archived", employees_path(archived: true) %></li>
+</ul>
 <table class="table table-bordered table-striped">
   <tr>
     <th>Name</th>
     <th>Email</th>
     <th>Type</th>
     <th>Manager</th>
-    <th></th>
     <th></th>
   </tr>
 
@@ -16,8 +18,13 @@
     <td><%= link_to user.email, employee_path(user) %></td>
     <td><%= user.user_type.name %></td>
     <td><%= user.manager.try(:full_name) %></td>
-    <td><%= link_to 'Edit', edit_employee_path(user) %></td>
-    <td><%= link_to 'Delete', employee_path(user), method: :delete, data: { confirm: 'Are you sure?' } %></td>
+    <td>
+      <%= link_to 'Edit', edit_employee_path(user) %>
+      <% unless user.id == current_user.id %>
+      |
+      <%= link_to user.archived? ? "Unarchive" : "Archive", archive_employee_path(user, params), method: :post %>
+      <% end %>
+    </td>
   </tr>
 <% end %>
 </table>

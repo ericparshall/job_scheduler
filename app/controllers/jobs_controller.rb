@@ -1,9 +1,11 @@
 class JobsController < ApplicationController
   before_filter :require_admin_user
-  # GET /jobs
-  # GET /jobs.json
+
   def index
-    @jobs = Job.all
+    @jobs = case
+    when params[:archived] == "true" then Job.where(archived: true)
+    else Job.where(archived: false)
+    end
 
     respond_to do |format|
       format.html # index.html.erb
@@ -11,8 +13,6 @@ class JobsController < ApplicationController
     end
   end
 
-  # GET /jobs/1
-  # GET /jobs/1.json
   def show
     @job = Job.find(params[:id])
 
@@ -22,8 +22,6 @@ class JobsController < ApplicationController
     end
   end
 
-  # GET /jobs/new
-  # GET /jobs/new.json
   def new
     @job = Job.new
 
@@ -33,13 +31,10 @@ class JobsController < ApplicationController
     end
   end
 
-  # GET /jobs/1/edit
   def edit
     @job = Job.find(params[:id])
   end
 
-  # POST /jobs
-  # POST /jobs.json
   def create
     @job = Job.new(job_params)
 
@@ -54,8 +49,6 @@ class JobsController < ApplicationController
     end
   end
 
-  # PUT /jobs/1
-  # PUT /jobs/1.json
   def update
     @job = Job.find(params[:id])
 
@@ -70,8 +63,6 @@ class JobsController < ApplicationController
     end
   end
 
-  # DELETE /jobs/1
-  # DELETE /jobs/1.json
   def destroy
     @job = Job.find(params[:id])
     @job.destroy
@@ -80,6 +71,12 @@ class JobsController < ApplicationController
       format.html { redirect_to jobs_url }
       format.json { head :no_content }
     end
+  end
+  
+  def archive
+    @job = Job.find(params[:id])
+    @job.update_attribute(:archived, !@job.archived)
+    redirect_to jobs_url(params.reject {|k, v| ["_method", "authenticity_token", "id"].include?(k) })
   end
   
   private

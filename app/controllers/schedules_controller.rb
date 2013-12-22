@@ -41,7 +41,7 @@ class SchedulesController < ApplicationController
 
   def new
     params[:user_ids] ||= {}
-    params[:user_ids][params[:employee_id]] = User.find(params[:employee_id]).full_name
+    params[:user_ids][params[:employee_id]] = User.find(params[:employee_id]).full_name if params[:employee_id]
     @schedule = Schedule.new
 
     respond_to do |format|
@@ -111,8 +111,8 @@ class SchedulesController < ApplicationController
   
   private
   def initialize_collections
-    @users = User.all.sort_by{|u| u.full_name }.collect {|u| [u.full_name, u.id] }
-    @jobs = Job.all.sort_by{|j| j.name }.collect {|j| [j.name, j.id] }
+    @users = User.where(archived: false).sort_by{|u| u.full_name }.collect {|u| [u.full_name, u.id] }
+    @jobs = Job.where(archived: false).all.sort_by{|j| j.name }.collect {|j| [j.name, j.id] }
   end
   
   def schedules_grid
@@ -120,13 +120,32 @@ class SchedulesController < ApplicationController
   end
   
   def schedules_data
-    schedule_query.select("job_id, user_id, sum(hours) as hours").group("job_id, user_id").map {|s| OpenStruct.new(job_id: s.job_id, user_id: s.user_id, hours: s.hours) }
+    jobs_users = {}
+    schedule_query.each do |s|
+      jobs_users[s.job_id] ||= {}
+      jobs_users[s.job_id][s.user_id] ||= 0
+      jobs_users[s.job_id][s.user_id] += s.hours
+    end
+    sd = []
+    jobs_users.each do |job_id, users|
+      jobs_users[job_id].each do |user_id, hours|  
+        sd << OpenStruct.new(job_id: job_id, user_id: user_id, hours: hours)
+      end
+    end
+    sd
+    #schedule_query.select("job_id, user_id, sum(hours) as hours").group("schedules.job_id, user_id").map {|s| OpenStruct.new(job_id: s.job_id, user_id: s.user_id, hours: s.hours) }
   end
   
   def schedule_query
-    schedule_query = Schedule.where(["schedule_date >= ? and schedule_date <= ?", @from_date, @to_date]).includes(:user, :job)
+    schedule_query = Schedule.where(["schedule_date >= ? and schedule_date <= ?", @from_date, @to_date]).joins(:user, :job).includes(:user, :job)
     schedule_query = schedule_query.where(job_id: params[:job_id]) unless params[:job_id].blank?
     schedule_query = schedule_query.where(user_id: params[:user_id]) unless params[:user_id].blank?
+    schedule_query = case
+      when params[:archived] == "jobs" then schedule_query.where("users.archived" => false)
+      when params[:archived] == "employees" then schedule_query.where("jobs.archived" => false)
+      when params[:archived] == "all" then schedule_query
+      else schedule_query.where("jobs.archived" => false, "users.archived" => false)
+    end
     schedule_query
   end
   

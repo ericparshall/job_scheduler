@@ -1,4 +1,13 @@
 module SchedulesHelper
+  def tab_active_schedules
+    case
+      when params[:archived] == "jobs" then { "All Jobs" => "active" }
+      when params[:archived] == "employees" then { "All Employees" => "active" }
+      when params[:archived] == "all" then { "All Schedules" => "active" }
+      else { "Default" => "active" }
+    end
+  end
+  
   def page_back_dates
     @page_back_dates ||= case params[:unit]
     when "today"
