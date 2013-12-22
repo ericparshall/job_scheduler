@@ -41,7 +41,7 @@ $(function() {
     
       <br />
       <%= f.select :manager_id, User.joins(:user_type).where("user_types.manager" => true).collect {|u| [u.full_name, u.id] }, include_blank: true %>
-      <input id="manager_id_input" title="" placeholder="Manager" class="form-control custom-combobox-input ui-autocomplete-input" autocomplete="on" data-original-title="">
+      <input id="manager_id_input" title="" placeholder="Manager / Point-of-Contact" class="form-control custom-combobox-input ui-autocomplete-input" autocomplete="on" data-original-title="">
       <div id="manager_id_input_group" class="input-group">
         <span class="input-group-btn">
           <button class="btn btn-default" type="button">Show</button>
