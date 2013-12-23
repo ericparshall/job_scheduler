@@ -1,0 +1,29 @@
+<%= form_for(@skill) do |f| %>
+  <% if @skill.errors.any? %>
+    <div id="error_explanation" class="alert alert-error">
+      <strong><%= pluralize(@skill.errors.count, "error") %> prohibited this skill from being saved:</strong>
+
+      <ul>
+      <% @skill.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="row-fluid">
+    <div class="col-md-4">
+      <%= f.text_field :name, class: "form-control", placeholder: "Name", autofocus: true %>
+    </div>
+  </div>
+  <br />
+  <br />
+  <div style="clear:both" />
+  <div class="row-fluid">
+    <div class="col-md-4">
+      <%= f.submit class: "btn btn-lg btn-primary btn-block" %>
+      <br />
+    </div>
+  </div>
+<% end %>
+<div style="clear:both" />

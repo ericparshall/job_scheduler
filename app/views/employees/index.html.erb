@@ -1,7 +1,70 @@
+<script type="text/javascript">
+  $(document).ready(function() {
+    $( "#skill_id" ).combobox({
+      list: $( "#skill_id" ),
+      parent_div: $("#skill_id_input_group"),
+      input: $("#skill_id_input"),
+      custom_on_select: function(option) {
+        addSkillId(option.value);
+      }
+    });
+  });
+  
+  function addSkillId(skillId) {
+    var skillIds = $("#skill_list").val().split(",");
+    skillIds.push(skillId);
+    $("#skill_list").val(skillIds.unique().join(","));
+    $("#filter_employees_form").submit();
+  }
+  
+  function removeSkillId(skillId) {
+    var skillIds = $("#skill_list").val().split(",").unique();
+    var index = skillIds.indexOf(skillId);
+    if (index > -1) {
+      skillIds.splice(index, 1);
+      $("#skill_list").val(skillIds.join(","));
+      $("#filter_employees_form").submit();
+    }
+  }
+</script>
 <h3>Employees</h3>
+<nav class="navbar navbar-default" role="navigation">
+  <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+    <%= form_tag employees_path, method: :get, class: "navbar-form navbar-left", role: "search", id: "filter_employees_form" do %>
+      <div class="form-group">
+        <div class="row-fluid">
+          <div class="col-md-4">
+            <%= select_tag :skill_id, options_for_select(@skills), include_blank: true %>
+            <input id="skill_id_input" title="" placeholder="Filter by Skill" class="form-control custom-combobox-input ui-autocomplete-input" autocomplete="on" data-original-title="">
+            <div id="skill_id_input_group" class="input-group">
+              <span class="input-group-btn">
+                <button class="btn btn-default" type="button">Show</button>
+              </span>
+            </div>
+          </div>
+          <div style="clear:both" />
+        </div>
+        
+        <div class="row-fluid" style="padding-top: 10px">
+          <div class="col-md-12 btn-group-xs">
+            <%= hidden_field_tag :skill_list, params[:skill_list] %>
+            <% @filter_skills.each do |filter_skill| %>
+              <button class="btn btn-default btn-danger" onclick="removeSkillId('<%= filter_skill.id %>')">
+                <i class="glyphicon glyphicon-remove"> 
+                  <%= filter_skill.name %>
+                </i>
+              </button>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</nav>
+
 <ul class="nav nav-tabs">
   <li class="<%= tab_active["Default"] %>"><%= link_to "Default", employees_path %></li>
-  <li class="<%= tab_active["Archived"] %>"><%= link_to "Archived", employees_path(archived: true) %></li>
+  <li class="<%= tab_active["Archived"] %>"><%= link_to "Archived", employees_path(params.merge(archived: true)) %></li>
 </ul>
 <table class="table table-bordered table-striped">
   <tr>

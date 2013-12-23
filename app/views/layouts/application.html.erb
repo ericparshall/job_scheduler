@@ -27,6 +27,7 @@
           <% show_admin_section do %><li class="<%= menu_class("employees") %>"><%= link_to("Employees", employees_path) %></li><% end %>
           <% show_admin_section do %><li class="<%= menu_class("jobs") %>"><%= link_to("Jobs", jobs_path) %></li><% end %>
           <% show_admin_section do %><li class="<%= menu_class("schedules") %>"><%= link_to("Schedules", schedules_path) %></li><% end %>
+          <% show_admin_section do %><li class="<%= menu_class("skills") %>"><%= link_to("Skills", skills_path) %></li><% end %>
           <% if user_signed_in? %><li class="<%= menu_class("time_off_requests") %>"><%= link_to("Time Off", time_off_requests_path) %></li><% end %>
           <li><%= link_to("Logout", destroy_user_session_path, method: :delete) if user_signed_in? %></li>
         </ul>

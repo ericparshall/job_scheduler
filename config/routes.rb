@@ -26,12 +26,20 @@ JobScheduler::Application.routes.draw do
     get :schedule
     member do
       post :archive
+      post :add_skill
+      delete :remove_skill
     end
   end
   
   resources :time_off_requests do
     member do
       post :approve
+    end
+  end
+  
+  resources :skills, except: [:destroy] do
+    member do
+      post :archive
     end
   end
   # The priority is based upon order of creation:

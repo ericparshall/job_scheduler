@@ -117,4 +117,12 @@
       this.element.show();
     }
   });
+  
+  Array.prototype.unique = function () {
+      var arr = this;
+      return $.grep(arr, function (v, i) {
+          return $.inArray(v, arr) === i;
+      });
+  }
 })( jQuery );
+

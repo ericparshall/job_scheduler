@@ -1,4 +1,11 @@
 module ApplicationHelper
+  def tab_active
+    case
+      when params[:archived] == "true" then { "Archived" => "active" }
+      else { "Default" => "active" }
+    end
+  end
+  
   def for_date_to_time(for_date)
     Time.at(for_date.to_i)# rescue nil
   end

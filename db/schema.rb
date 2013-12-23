@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20131222190221) do
+ActiveRecord::Schema.define(version: 20131222190756) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -28,6 +28,11 @@ ActiveRecord::Schema.define(version: 20131222190221) do
     t.boolean  "archived",         default: false
   end
 
+  create_table "jobs_skills", id: false, force: true do |t|
+    t.integer "job_id"
+    t.integer "skill_id"
+  end
+
   create_table "schedules", force: true do |t|
     t.integer  "job_id"
     t.integer  "user_id"
@@ -40,6 +45,13 @@ ActiveRecord::Schema.define(version: 20131222190221) do
   end
 
   add_index "schedules", ["user_id", "schedule_date"], name: "index_schedules_on_user_id_and_schedule_date", using: :btree
+
+  create_table "skills", force: true do |t|
+    t.string   "name"
+    t.boolean  "archived",   default: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "time_off_request_statuses", force: true do |t|
     t.string   "name"
@@ -89,5 +101,10 @@ ActiveRecord::Schema.define(version: 20131222190221) do
   add_index "users", ["email"], name: "index_users_on_email", unique: true, using: :btree
   add_index "users", ["manager_id"], name: "index_users_on_manager_id", using: :btree
   add_index "users", ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true, using: :btree
+
+  create_table "users_skills", id: false, force: true do |t|
+    t.integer "user_id"
+    t.integer "skill_id"
+  end
 
 end

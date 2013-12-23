@@ -1,0 +1,30 @@
+<h3>Skills</h3>
+<ul class="nav nav-tabs">
+  <li class="<%= tab_active["Default"] %>"><%= link_to "Default", skills_path %></li>
+  <li class="<%= tab_active["Archived"] %>"><%= link_to "Archived", skills_path(archived: true) %></li>
+</ul>
+<table class="table table-bordered table-striped">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @skills.each do |skill| %>
+      <tr>
+        <td><%= skill.name %></td>
+        <td>
+          <%= link_to 'Edit', edit_skill_path(skill) %>
+          |
+          <%= link_to skill.archived? ? "Unarchive" : "Archive", archive_skill_path(skill, params), method: :post %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Skill', new_skill_path %>

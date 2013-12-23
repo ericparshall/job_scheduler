@@ -1,0 +1,7 @@
+<div class="row-fluid">
+  <div class="col-md-8 label label-success"><%= skill.name %></div>
+  <div class="col-md-4">
+    <%= link_to 'remove', remove_skill_employee_path(@user, skill_id: skill.id), method: :delete, remote: true, onclick: "$(this).parent().parent().remove();" %>
+  </div>
+</div>
+<div style="clear:both" />

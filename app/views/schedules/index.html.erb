@@ -1,4 +1,6 @@
-<h3>Schedules</h3>
+<h3 style="float: left">Schedules</h3>
+<%= link_to 'New Schedule', new_schedule_path(employee_id: params[:user_id], job_id: params[:job_id], return_path: request.fullpath), class: "btn btn-lg btn-primary btn-block", style: "width: 200px; color: white; float: right" %>
+<div style="clear:both" />
 <ul class="nav nav-tabs">
   <li class="<%= tab_active_schedules["Default"] %>"><%= link_to "Default", schedules_path(params.merge(archived: "")) %></li>
   <li class="<%= tab_active_schedules["All Jobs"] %>"><%= link_to "All Jobs", schedules_path(params.merge(archived: "jobs")) %></li>
@@ -11,5 +13,3 @@
 <%= render 'schedule_list' %>
 <br />
 <div id="calendar"></div>
-
-<%= link_to 'New Schedule', new_schedule_path(employee_id: params[:user_id], job_id: params[:job_id], return_path: request.fullpath) %>

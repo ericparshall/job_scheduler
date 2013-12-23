@@ -7,7 +7,27 @@ class EmployeesController < ApplicationController
     when params[:archived] == "true" then User.where(archived: true)
     else User.where(archived: false)
     end
-
+    @skills = Skill.where(archived: false).sort_by{|s| s.name }.collect {|s| [s.name, s.id] }
+    @filter_skills = case
+      when !params[:skill_list].blank? then Skill.where(id: params[:skill_list].split(','))
+      else []
+    end
+    
+    unless @filter_skills.empty?
+      skill_ids = @filter_skills.map(&:id)
+      user_skills = {}
+      user_ids = []
+      
+      UsersSkill.where("users_skills.skill_id" => @filter_skills).each do |users_skill|
+        user_skills[users_skill.user_id] ||= []
+        user_skills[users_skill.user_id] << users_skill.skill_id
+      end
+      
+      user_skills.each {|k, v| user_ids << k if (skill_ids - v).empty? }
+      
+      @users = @users.where(id: user_ids)
+    end
+    
     respond_to do |format|
       format.html # index.html.erb
       format.json { render json: @users }
@@ -16,6 +36,7 @@ class EmployeesController < ApplicationController
 
   def show
     @user = User.find(params[:id])
+    @skills = Skill.where(archived: false).sort_by{|s| s.name }.collect {|s| [s.name, s.id] }
 
     respond_to do |format|
       format.html # show.html.erb
@@ -132,6 +153,24 @@ class EmployeesController < ApplicationController
     respond_to do |format|
       format.json { render json: matches.collect {|u| { value: u.full_name, id: u.id } } }
     end
+  end
+  
+  def add_skill
+    skill = Skill.find(params[:skill_id])
+    @user = User.find(params[:id])
+    if @user.users_skills.map(&:skill_id).include?(skill.id)
+      head :bad_request
+    else
+      @user.skills << skill
+      render partial: "skill_item", locals: {skill: skill}, status: :created
+    end
+  end
+  
+  def remove_skill
+    @user = User.find(params[:id])
+    @user.users_skills.where(skill_id: params[:skill_id]).delete_all
+    
+    head :ok
   end
   
   private
