@@ -42,6 +42,12 @@ JobScheduler::Application.routes.draw do
       post :archive
     end
   end
+  
+  resources :customers, except: [:destroy] do
+    member do
+      post :archive
+    end
+  end
   # The priority is based upon order of creation:
   # first created -> highest priority.
 

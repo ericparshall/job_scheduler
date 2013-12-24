@@ -25,6 +25,7 @@
       <div class="navbar-collapse collapse">
         <ul class="nav navbar-nav navbar-right" style="padding-top: 25px">
           <% show_admin_section do %><li class="<%= menu_class("employees") %>"><%= link_to("Employees", employees_path) %></li><% end %>
+          <% show_admin_section do %><li class="<%= menu_class("customers") %>"><%= link_to("Customers", customers_path) %></li><% end %>
           <% show_admin_section do %><li class="<%= menu_class("jobs") %>"><%= link_to("Jobs", jobs_path) %></li><% end %>
           <% show_admin_section do %><li class="<%= menu_class("schedules") %>"><%= link_to("Schedules", schedules_path) %></li><% end %>
           <% show_admin_section do %><li class="<%= menu_class("skills") %>"><%= link_to("Skills", skills_path) %></li><% end %>
@@ -36,8 +37,8 @@
   </div>
 
   <div class="container" style="padding-bottom: 20px;">
-    <% unless notice.nil? %><p class="notice"><%= notice %></p><% end %>
-    <% unless alert.nil? %><p class="alert"><%= alert %></p><% end %>  
+    <% unless notice.nil? %><p id="notice" class="notice"><%= notice %></p><% end %>
+    <% unless alert.nil? %><p id="alert" class="alert"><%= alert %></p><% end %>  
     <%= yield %>
   </div>
   <script src="/js/bootstrap.min.js"></script>

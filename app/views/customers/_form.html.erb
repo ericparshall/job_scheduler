@@ -1,29 +1,27 @@
-<%= form_for(@job) do |f| %>
-  <% if @job.errors.any? %>
+<%= form_for(@customer) do |f| %>
+  <% if @customer.errors.any? %>
     <div id="error_explanation" class="alert alert-error">
-      <strong><%= pluralize(@job.errors.count, "error") %> prohibited this job from being saved:</strong>
+      <strong><%= pluralize(@customer.errors.count, "error") %> prohibited this customer from being saved:</strong>
 
       <ul>
-      <% @job.errors.full_messages.each do |msg| %>
+      <% @customer.errors.full_messages.each do |msg| %>
         <li><%= msg %></li>
       <% end %>
       </ul>
     </div>
   <% end %>
-  
+
   <div class="row-fluid">
     <div class="col-md-4">
       <%= f.text_field :name, class: "form-control", placeholder: "Name" %>
       <br />
-      <%= f.text_area :description, cols: 30, rows: 3, class: "form-control", placeholder: "Description" %>
+      <%= f.text_field :point_of_contact, class: "form-control", placeholder: "Point-of-Contact" %>
       <br />
-      <%= f.text_field :point_of_contact, class: "form-control", placeholder: "Point of Contact" %>
+      <%= f.text_area :address, cols: 30, rows: 3, class: "form-control", placeholder: "Address" %>
       <br />
       <%= f.text_field :phone_number, class: "form-control", placeholder: "Phone Number" %>
       <br />
       <%= f.text_field :email_address, class: "form-control", placeholder: "Email Address" %>
-      <br />
-      <%= f.text_area :address, cols: 30, rows: 3, class: "form-control", placeholder: "Address" %>
       <br />
     </div>
   </div>

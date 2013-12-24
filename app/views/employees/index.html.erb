@@ -27,7 +27,9 @@
     }
   }
 </script>
-<h3>Employees</h3>
+<h3 style="float: left">Employees</h3>
+<%= link_to 'New Employee', new_employee_path, class: "btn btn-lg btn-primary btn-block", style: "width: 200px; color: white; float: right" %>
+<div style="clear:both" />
 <nav class="navbar navbar-default" role="navigation">
   <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
     <%= form_tag employees_path, method: :get, class: "navbar-form navbar-left", role: "search", id: "filter_employees_form" do %>
@@ -93,5 +95,3 @@
 </table>
 
 <br />
-
-<%= link_to 'New Employee', new_employee_path %>

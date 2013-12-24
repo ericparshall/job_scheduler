@@ -1,4 +1,6 @@
-<h3>Skills</h3>
+<h3 style="float: left">Skills</h3>
+<%= link_to 'New Skill', new_skill_path, class: "btn btn-lg btn-primary btn-block", style: "width: 200px; color: white; float: right" %>
+<div style="clear:both" />
 <ul class="nav nav-tabs">
   <li class="<%= tab_active["Default"] %>"><%= link_to "Default", skills_path %></li>
   <li class="<%= tab_active["Archived"] %>"><%= link_to "Archived", skills_path(archived: true) %></li>
@@ -26,5 +28,3 @@
 </table>
 
 <br>
-
-<%= link_to 'New Skill', new_skill_path %>

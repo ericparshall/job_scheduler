@@ -1,0 +1,39 @@
+<h3 style="float: left">Customers</h3>
+<%= link_to 'New Customer', new_customer_path, class: "btn btn-lg btn-primary btn-block", style: "width: 200px; color: white; float: right" %>
+<div style="clear:both" />
+<ul class="nav nav-tabs">
+  <li class="<%= tab_active["Default"] %>"><%= link_to "Default", customers_path %></li>
+  <li class="<%= tab_active["Archived"] %>"><%= link_to "Archived", customers_path(archived: true) %></li>
+</ul>
+<table class="table table-bordered table-striped">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Point of contact</th>
+      <th>Address</th>
+      <th>Phone number</th>
+      <th>Email address</th>
+      <th></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @customers.each do |customer| %>
+      <tr>
+        <td><%= link_to customer.name, customer %></td>
+        <td><%= customer.point_of_contact %></td>
+        <td><pre><%= customer.address %></pre></td>
+        <td><%= customer.phone_number %></td>
+        <td><%= customer.email_address %></td>
+        <td>
+          <%= link_to 'Edit', edit_customer_path(customer) %>
+          |
+          <%= link_to customer.archived? ? "Unarchive" : "Archive", archive_customer_path(customer, params), method: :post %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
