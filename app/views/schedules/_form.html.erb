@@ -95,6 +95,8 @@ $(function() {
   $( "#schedule_to_time" ).change(function(e) {
     checkForScheduleConflicts();
   });
+  
+  checkForScheduleConflicts();
 });
 </script>
 <%= form_for(@schedule, html: { id: "schedule_form" }) do |f| %>
