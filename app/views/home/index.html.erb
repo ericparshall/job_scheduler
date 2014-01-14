@@ -6,6 +6,7 @@ $(document).ready(function() {
         center: 'agendaDay,agendaWeek,month',
         right:  'today prev,next'
       },
+      firstDay: 1,
       events: '/my_schedule.json',
       eventClick: function(calEvent, jsEvent, view) {
         window.location = "/schedules/scheduled_for_job?job_id=" + calEvent.job_id + "&schedule_date=" + encodeURIComponent(calEvent.schedule_date);

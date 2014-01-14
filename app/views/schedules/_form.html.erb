@@ -32,6 +32,7 @@ function addToMassAssignList(option) {
     remove_link.text("remove");
     remove_link.click(function() {
       removeRowFromMassAssign(row_id);
+      checkForScheduleConflicts();
       return false;
     });
     remove_link_div.append(remove_link);
@@ -47,6 +48,22 @@ function removeRowFromMassAssign(row_id) {
   $("#" + row_id).remove();
 }
 
+function checkForScheduleConflicts() {
+  var postData = $("#schedule_form").serializeArray();
+  var formURL = "<%= schedules_schedule_conflicts_path %>";
+  $.ajax({
+    url : formURL,
+    type: "get",
+    data : postData,
+    success:function(data, textStatus, jqXHR) {
+      $("#schedule_conflicts").empty();
+      $("#schedule_conflicts").append(data);
+    },
+    error: function(jqXHR, textStatus, errorThrown) {
+      
+    }
+  });
+}
 
 $(function() {
   $( "#schedule_job_id" ).combobox({
@@ -61,15 +78,30 @@ $(function() {
     input: $("#user_id_input"),
     custom_on_select: function(option) {
       addToMassAssignList(option);
+      checkForScheduleConflicts();
     }
   });
   <% end %>
   <% params[:user_ids].try(:each) do |k, v| %>
   addToMassAssignList({ value: '<%= k %>', label: '<%= v %>' });
   <% end %>
+  
+  $( "#schedule_schedule_date" ).change(function(e) {
+    checkForScheduleConflicts();
+  });
+  $( "#schedule_from_time" ).change(function(e) {
+    checkForScheduleConflicts();
+  });
+  $( "#schedule_to_time" ).change(function(e) {
+    checkForScheduleConflicts();
+  });
 });
 </script>
-<%= form_for(@schedule) do |f| %>
+<%= form_for(@schedule, html: { id: "schedule_form" }) do |f| %>
+  <input name="schedule_id" type="hidden" value="<%= @schedule.id %>">
+  <div id="schedule_conflicts">
+    
+  </div>
   <% if @schedule.errors.any? %>
     <div id="error_explanation" class="alert alert-error">
       <strong><%= pluralize(@schedule.errors.count, "error") %> prohibited this schedule from being saved:</strong>

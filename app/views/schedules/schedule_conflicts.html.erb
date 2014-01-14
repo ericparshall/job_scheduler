@@ -1,0 +1,18 @@
+<% if @errors.count > 0 %>
+<div class="alert alert-danger">
+  <ul>
+  <% @errors.each do |error| %>
+    <li><%= error %></li>
+  <% end %>
+  </ul>
+</div>
+<% end %>
+<% if @warnings.count > 0 %>
+<div class="alert alert-warning">
+  <ul>
+  <% @warnings.each do |warning| %>
+    <li><%= warning %></li>
+  <% end %>
+  </ul>
+</div>
+<% end %>

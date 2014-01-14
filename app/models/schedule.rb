@@ -6,6 +6,8 @@ class Schedule < ActiveRecord::Base
   validate :hours_greater_than_zero
   
   before_validation do
+    self.from_time = "#{self.schedule_date.strftime("%m/%d/%Y")} #{self.from_time.strftime("%I:%M%P")}"
+    self.to_time = "#{self.schedule_date.strftime("%m/%d/%Y")} #{self.to_time.strftime("%I:%M%P")}"
     self.hours = (self.to_time - self.from_time) / 3600.0 rescue nil
   end
   

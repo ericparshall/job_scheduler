@@ -1,6 +1,6 @@
 class SchedulesController < ApplicationController
   before_filter :require_admin_user, except: [ :scheduled_for_job ]
-  before_filter :initialize_collections
+  before_filter :initialize_collections, except: [ :schedule_conflicts ]
 
   def index
     @from_date = (Date.parse(params[:from_date]) rescue nil) || Date.today.beginning_of_month
@@ -113,7 +113,60 @@ class SchedulesController < ApplicationController
     @schedules = schedules.detect {|s| s.user_id == current_user.id } ? schedules : []
   end
   
+  def schedule_conflicts
+    @warnings = []
+    @errors = []
+    
+    schedule = Schedule.find(params[:schedule_id]) unless params[:schedule_id].blank?
+    
+    if !schedule.nil?
+      schedule.schedule_date = schedule_params[:schedule_date]
+      schedule.from_time = schedule_params[:from_time]
+      schedule.to_time = schedule_params[:to_time]
+      
+      check_schedule_for_conflicts(schedule)
+    else
+      employee_ids = params[:user_ids].map {|k, v| k } rescue []
+      employee_ids.each do |employee_id|
+        schedule = Schedule.new(schedule_params.merge(user_id: employee_id))
+        check_schedule_for_conflicts(schedule)
+      end
+    end
+
+    render layout: false
+  end
+  
   private
+  def schedules_conflict?(schedule_a, schedule_b)
+    (schedule_a.from_time - schedule_b.to_time) * (schedule_b.from_time - schedule_a.to_time) >= 0
+  end
+  
+  def check_schedule_for_conflicts(schedule)
+    hours = (schedule.from_time - schedule.to_time) / 3600.0
+    
+    query = Schedule.where([
+      "schedule_date >= ? AND schedule_date <= ? and user_id = ?", 
+      schedule.schedule_date.beginning_of_week, 
+      schedule.schedule_date.end_of_week, 
+      schedule.user_id])
+      
+    if schedule.persisted?
+      query = query.where(["id != ?", schedule.id])
+    end
+    
+    query.each do |s|
+        if schedules_conflict?(schedule, s)
+          @errors << "<strong>#{schedule.user.full_name}</strong>: The schedule conflicts with another schedule: <a href=\"#{schedule_path(s)}\">#{s.job.name}</a>".html_safe
+        end
+        
+        hours += s.hours
+    end
+    
+    if hours >= 40
+      @warnings << "Including this schedule, <strong>#{schedule.user.full_name}</strong> is scheduled for #{hours} hours during the week".html_safe
+    end
+  end
+  
   def initialize_collections
     @users = User.where(archived: false).sort_by{|u| u.full_name }.collect {|u| [u.full_name, u.id] }
     @jobs = Job.where(archived: false).all.sort_by{|j| j.name }.collect {|j| [j.name, j.id] }
@@ -154,8 +207,8 @@ class SchedulesController < ApplicationController
   end
   
   def schedule_params
-    params[:from_time] = "#{params[:schedule_date]} #{params[:from_time]}"
-    params[:to_time] = "#{params[:schedule_date]} #{params[:to_time]}"
+    params[:schedule][:from_time] = "#{params[:schedule][:schedule_date]} #{params[:schedule][:from_time]}"
+    params[:schedule][:to_time] = "#{params[:schedule][:schedule_date]} #{params[:schedule][:to_time]}"
     params.require(:schedule).permit(:job_id, :schedule_date, :from_time, :to_time)
   end
   
