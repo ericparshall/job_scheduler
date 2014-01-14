@@ -142,7 +142,7 @@ class SchedulesController < ApplicationController
   end
   
   def check_schedule_for_conflicts(schedule)
-    hours = (schedule.from_time - schedule.to_time) / 3600.0
+    hours = (schedule.to_time - schedule.from_time) / 3600.0
     
     query = Schedule.where([
       "schedule_date >= ? AND schedule_date <= ? and user_id = ?", 
@@ -158,10 +158,9 @@ class SchedulesController < ApplicationController
         if schedules_conflict?(schedule, s)
           @errors << "<strong>#{schedule.user.full_name}</strong>: The schedule conflicts with another schedule: <a href=\"#{schedule_path(s)}\">#{s.job.name}</a>".html_safe
         end
-        
         hours += s.hours
     end
-    
+
     if hours >= 40
       @warnings << "Including this schedule, <strong>#{schedule.user.full_name}</strong> is scheduled for #{hours} hours during the week".html_safe
     end
