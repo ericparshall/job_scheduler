@@ -1,4 +1,9 @@
-<p><%= @manager.fullname %>,</p>
+<p><%= @manager.full_name %>,</p>
 
-<p><%= @employee.full %> has requested <%= @time_off_request.day_off_requested %> off.  Please log in to approve or deny the time off request.</p>
+<p><%= @employee.full_name %> has requested <%= @time_off_request.day_off_requested %> off.</p>
+
+<% unless @time_off_request.blank? %>
+<p><%= @employee.full_name %> commented: <%= @time_off_request.comment %></p>
+<% end %>
+<p>Please log in to approve or deny the time off request.</p>
 
