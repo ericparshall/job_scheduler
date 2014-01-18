@@ -5,5 +5,5 @@
 <% unless @time_off_request.blank? %>
 <p><%= @employee.full_name %> commented: <%= @time_off_request.comment %></p>
 <% end %>
-<p>Please log in to approve or deny the time off request.</p>
+<p>Please <a href="<%= JobScheduler::Application.config.url_host + time_off_request_path(@time_off_request) %>">log in to approve or deny the time off request.</p>
 

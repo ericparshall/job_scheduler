@@ -75,4 +75,5 @@ JobScheduler::Application.configure do
   }
   ActionMailer::Base.delivery_method = :smtp
   config.action_mailer.default_options = {from: 'eric@parshall.us'}
+  config.url_host = "http://peaceful-shelf-1692.herokuapp.com"
 end
