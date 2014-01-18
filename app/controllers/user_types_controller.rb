@@ -53,6 +53,6 @@ class UserTypesController < ApplicationController
 
     # Only allow a trusted parameter "white list" through.
     def user_type_params
-      params[:user_type]
+      params.require(:user_type).permit(:name, :admin, :manager)
     end
 end

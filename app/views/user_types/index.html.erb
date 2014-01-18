@@ -3,6 +3,9 @@
 <table>
   <thead>
     <tr>
+      <th>Name</th>
+      <th>Admin</th>
+      <th>Manager</th>
       <th></th>
       <th></th>
       <th></th>
@@ -12,6 +15,9 @@
   <tbody>
     <% @user_types.each do |user_type| %>
       <tr>
+        <td><%= user_type.name %></td>
+        <td><%= user_type.admin ? "true" : "false" %></td>
+        <td><%= user_type.manager ? "true" : "false" %></td>
         <td><%= link_to 'Show', user_type %></td>
         <td><%= link_to 'Edit', edit_user_type_path(user_type) %></td>
         <td><%= link_to 'Destroy', user_type, method: :delete, data: { confirm: 'Are you sure?' } %></td>
