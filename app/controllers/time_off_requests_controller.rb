@@ -28,7 +28,11 @@ class TimeOffRequestsController < ApplicationController
     @time_off_request = TimeOffRequest.new(time_off_request_params.merge(manager_id: manager_id, user_id: user_id))
 
     if @time_off_request.save
-      TimeOffMailer.time_off_request(current_user, @time_off_request).deliver
+      manager_type_ids = UserType.where(manager: true).map(&:id)
+      User.all.where(user_type_id: manager_type_ids).each do |manager|
+        TimeOffMailer.time_off_request(current_user, manager, @time_off_request).deliver
+      end
+      
       redirect_to @time_off_request, notice: 'Time off request was successfully created.'
     else
       render action: 'new'
