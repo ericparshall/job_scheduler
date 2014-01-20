@@ -25,35 +25,11 @@ JobScheduler::Application.configure do
   # Expands the lines which load the assets
   config.assets.debug = false
   
-  config.action_mailer.default_url_options = { :host => 'localhost:3000' }
-  
   config.eager_load = false
   
-  config.action_mailer.default_url_options = { :host => 'localhost:3000' }
-  
-  config.action_mailer.delivery_method = :smtp
-  config.action_mailer.smtp_settings = {
-    address:              'smtp.postmarkapp.com',
-    from: 'eric@parshall.us',
-    port:                 25,
-    domain:               'peaceful-shelf-1692.herokuapp.com',
-    user_name:            '701e29bc-cabc-43ba-853b-e5248dc3a0ae',
-    password:             '701e29bc-cabc-43ba-853b-e5248dc3a0ae',
-    authentication:       'plain',
-  }
-  ActionMailer::Base.delivery_method = :smtp
+  config.action_mailer.delivery_method = :postmark
+  config.action_mailer.postmark_settings = { :api_key => '701e29bc-cabc-43ba-853b-e5248dc3a0ae' }
   config.action_mailer.default_options = {from: 'eric@parshall.us'}
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
   
   # Disable Rails's static asset server (Apache or nginx will already do this)
   config.serve_static_assets = true
@@ -66,4 +42,5 @@ JobScheduler::Application.configure do
 
   # Generate digests for assets URLs
   config.assets.digest = true
+  config.url_host = "http://localhost:3000"
 end

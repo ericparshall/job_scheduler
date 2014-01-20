@@ -63,17 +63,9 @@ JobScheduler::Application.configure do
 
   config.eager_load = true
   
-  config.action_mailer.default_url_options = { :host => 'peaceful-shelf-1692.herokuapp.com' }
-  config.action_mailer.smtp_settings = {
-    from: 'eric@parshall.us',
-    address:              ENV['POSTMARK_SMTP_SERVER'],
-    port:                 25,
-    domain:               'peaceful-shelf-1692.herokuapp.com',
-    user_name:            ENV['POSTMARK_API_KEY'],
-    password:             ENV['POSTMARK_API_KEY'],
-    authentication:       'plain',
-  }
-  ActionMailer::Base.delivery_method = :smtp
+  
+  config.action_mailer.delivery_method = :postmark
+  config.action_mailer.postmark_settings = { :api_key => ENV['POSTMARK_API_KEY'] }
   config.action_mailer.default_options = {from: 'eric@parshall.us'}
   config.url_host = "http://peaceful-shelf-1692.herokuapp.com"
 end

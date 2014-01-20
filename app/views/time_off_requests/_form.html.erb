@@ -1,11 +1,6 @@
 <script type="text/javascript">
 $(function() {
   $("input[name='time_off_request[day_off_requested]']").datepicker();
-  $( "#time_off_request_manager_id" ).combobox({
-    list: $( "#time_off_request_manager_id" ),
-    parent_div: $("#manager_id_input_group"),
-    input: $("#manager_id_input")
-  });
   $( "#time_off_request_user_id" ).combobox({
     list: $( "#time_off_request_user_id" ),
     parent_div: $("#user_id_input_group"),
@@ -35,19 +30,6 @@ $(function() {
             <button class="btn btn-default" type="button">Show</button>
           </span>
         </div>
-      <% end %>
-      <br />
-
-      <% if current_user.user_type.manager? %>
-        <%= f.select :manager_id, User.joins(:user_type).where("user_types.manager" => true).collect {|u| [u.full_name, u.id] }, include_blank: true %>
-        <input id="manager_id_input" title="" placeholder="Manager" class="form-control custom-combobox-input ui-autocomplete-input" autocomplete="on" data-original-title="">
-        <div id="manager_id_input_group" class="input-group">
-          <span class="input-group-btn">
-            <button class="btn btn-default" type="button">Show</button>
-          </span>
-        </div>
-      <% else %>
-        <label>Manger: </label><%= @time_off_request.manager.full_name %>
       <% end %>
       <br />
       <%= f.text_field :day_off_requested, class: "form-control", placeholder: "Day Requested" %>

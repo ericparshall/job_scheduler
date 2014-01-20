@@ -29,8 +29,8 @@ class TimeOffRequestsController < ApplicationController
 
     if @time_off_request.save
       manager_type_ids = UserType.where(manager: true).map(&:id)
-      User.all.where(user_type_id: manager_type_ids).each do |manager|
-        TimeOffMailer.time_off_request(current_user, manager, @time_off_request).deliver
+      User.all.where(user_type_id: manager_type_ids, archived: false).each do |manager|
+        TimeOffMailer.time_off_request(@time_off_request.user, manager, @time_off_request).deliver
       end
       
       redirect_to @time_off_request, notice: 'Time off request was successfully created.'
@@ -55,7 +55,8 @@ class TimeOffRequestsController < ApplicationController
   end
   
   def approve
-    @time_off_request.approve
+    @time_off_request.approve(current_user)
+    TimeOffMailer.time_off_approved(@time_off_request).deliver
     redirect_to time_off_requests_url, notice: 'Time off request has been approved.'
   end
 

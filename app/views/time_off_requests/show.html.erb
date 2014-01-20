@@ -4,8 +4,8 @@
 </p>
 
 <p>
-  <strong>Manager:</strong>
-  <%= @time_off_request.manager.full_name %>
+  <strong>Approved By:</strong>
+  <%= @time_off_request.manager.full_name unless @time_off_request.manager.nil? %>
 </p>
 
 <p>
@@ -25,3 +25,7 @@
 
 <%= link_to 'Edit', edit_time_off_request_path(@time_off_request) %> |
 <%= link_to 'Back', time_off_requests_path %>
+<% if current_user.user_type.manager? %>
+ | <%= link_to 'Approve', approve_time_off_request_path(@time_off_request), method: :post, data: { confirm: 'Approve the request?' } %>
+<% end %>
+ | <%= link_to 'Delete', @time_off_request, method: :delete, data: { confirm: 'Delete the request?' } %>

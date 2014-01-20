@@ -3,14 +3,15 @@ class TimeOffRequest < ActiveRecord::Base
   belongs_to :manager, class_name: "User", foreign_key: "manager_id"
   belongs_to :status, class_name: "TimeOffRequestStatus", foreign_key: "status_id"
   
-  validates :day_off_requested, :user_id, :manager_id, presence: true
+  validates :day_off_requested, :user_id, presence: true
   
   before_save do
     self.status ||= TimeOffRequestStatus.where(name: "Requested").first
   end
   
-  def approve
+  def approve(manager)
     self.status = TimeOffRequestStatus.where(name: "Approved").first
+    self.manager = manager
     self.save
     
     job = Job.find_or_create_by(name: "Time Off")

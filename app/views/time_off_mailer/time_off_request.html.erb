@@ -2,8 +2,7 @@
 
 <p><%= @employee.full_name %> has requested <%= @time_off_request.day_off_requested %> off.</p>
 
-<% unless @time_off_request.blank? %>
+<% unless @time_off_request.comment.blank? %>
 <p><%= @employee.full_name %> commented: <%= @time_off_request.comment %></p>
 <% end %>
-<p>Please <a href="<%= JobScheduler::Application.config.url_host + time_off_request_path(@time_off_request) %>">log in to approve or deny the time off request.</p>
-
+<p>Please <a href="<%= JobScheduler::Application.config.url_host + time_off_request_path(@time_off_request) %>">log in</a> to approve or deny the time off request.</p>

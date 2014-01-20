@@ -8,4 +8,11 @@ class TimeOffMailer < ActionMailer::Base
     
     mail(to: @manager.email, subject: "Time off requested")
   end
+  
+  def time_off_approved(time_off_request)
+    @employee = time_off_request.user
+    @manager = time_off_request.manager
+    @time_off_request = time_off_request
+    mail(to: @employee.email, subject: "Time off request approved")
+  end
 end
