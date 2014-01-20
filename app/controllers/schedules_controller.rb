@@ -27,6 +27,10 @@ class SchedulesController < ApplicationController
     @schedules = schedule_query.sort_by(&:schedule_date)
     @schedules_grid = schedules_grid
     @schedules_grid.build
+
+    user_ids = @schedules_grid.source_data.map(&:user_id).uniq
+    job_ids = @schedules_grid.source_data.map(&:job_id).uniq
+    @schedules = schedule_query.where(user_id: user_ids, job_id: job_ids).sort_by(&:schedule_date)
     
     @user = User.find(params[:user_id]) rescue nil
     @job = Job.find(params[:job_id]) rescue nil
@@ -188,8 +192,44 @@ class SchedulesController < ApplicationController
         sd << OpenStruct.new(job_id: job_id, user_id: user_id, hours: hours)
       end
     end
+    
+    sd = filter_hours_per(sd)
+    
     sd
-    #schedule_query.select("job_id, user_id, sum(hours) as hours").group("schedules.job_id, user_id").map {|s| OpenStruct.new(job_id: s.job_id, user_id: s.user_id, hours: s.hours) }
+  end
+  
+  def filter_hours_per(schedule_data)
+    filter_hours = params[:filter_hours].try(:to_f)
+    
+    unless filter_hours.nil?
+      if params[:filter_hours_per] == "Employee"
+        hours = {}
+        schedule_data.each do |sd|
+          hours[sd.user_id] ||= 0
+          hours[sd.user_id] += sd.hours
+        end
+        
+        user_ids = hours.find_all {|k, v| v.send(params[:filter_hours_sign].to_sym, filter_hours) }.map {|v| v[0] }
+        schedule_data.delete_if do |sd|
+          !user_ids.include?(sd.user_id)
+        end
+      elsif params[:filter_hours_per] == "Job"
+        hours = {}
+        schedule_data.each do |sd|
+          hours[sd.job_id] ||= 0
+          hours[sd.job_id] += sd.hours
+        end
+        
+        job_ids = hours.find_all {|k, v| v.send(params[:filter_hours_sign].to_sym, filter_hours) }.map {|v| v[0] }
+        schedule_data.delete_if do |sd|
+          !job_ids.include?(sd.job_id)
+        end
+      else
+        schedule_data
+      end
+    else
+      schedule_data
+    end
   end
   
   def schedule_query

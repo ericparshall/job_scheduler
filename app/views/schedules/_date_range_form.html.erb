@@ -111,6 +111,18 @@ $(function() {
     <% end %>
   </div>
 </div>
+<div class="row-fluid">
+  <div class="col-md-2 input-group input-group-sm" style="float: left">
+    <span class="input-group-addon">
+    Filter Hours per:
+    </span>
+    <%= select_tag "filter_hours_per", options_for_select(["Employee", "Job"], params[:filter_hours_per]), class: "form-control" %>
+  </div>
+  <div class="col-md-2 input-group input-group-sm" style="float: left;">
+    <%= select_tag "filter_hours_sign", options_for_select([">", ">=", "=", "<=", "<"], params[:filter_hours_sign]), class: "form-control", style: "width: 50%" %>
+    <%= text_field_tag "filter_hours", params[:filter_hours], class: "form-control", style: "width: 50%" %>
+  </div>
+</div>
 
 <div style="clear: both"></div>
 <br />
