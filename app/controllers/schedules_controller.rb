@@ -131,6 +131,10 @@ class SchedulesController < ApplicationController
     @warnings = []
     @errors = []
     
+    from_date = Date.parse(params[:schedule][:schedule_date]) rescue nil
+    to_date = Date.parse(params[:schedule][:through_schedule_date]) rescue nil
+    to_date = from_date if to_date.nil?
+    
     schedule = Schedule.find(params[:schedule_id]) unless params[:schedule_id].blank?
     
     if !schedule.nil?
@@ -138,12 +142,20 @@ class SchedulesController < ApplicationController
       schedule.from_time = schedule_params[:from_time]
       schedule.to_time = schedule_params[:to_time]
       
-      check_schedule_for_conflicts(schedule)
+      check_schedule_for_conflicts([schedule])
     else
       employee_ids = params[:user_ids].map {|k, v| k } rescue []
       employee_ids.each do |employee_id|
-        schedule = Schedule.new(schedule_params.merge(user_id: employee_id))
-        check_schedule_for_conflicts(schedule)
+        schedules = []
+        (from_date..to_date).to_a.each do |schedule_date|
+          schedules << Schedule.new(schedule_params.merge(
+            user_id: employee_id, 
+            schedule_date: schedule_date, 
+            from_time: fmt_time(:from_time, schedule_date.strftime("%m/%d/%Y")), 
+            to_time: fmt_time(:to_time, schedule_date.strftime("%m/%d/%Y")))
+          )
+        end
+        check_schedule_for_conflicts(schedules)
       end
     end
 
@@ -155,8 +167,9 @@ class SchedulesController < ApplicationController
     (schedule_a.from_time - schedule_b.to_time) * (schedule_b.from_time - schedule_a.to_time) >= 0
   end
   
-  def check_schedule_for_conflicts(schedule)
-    hours = (schedule.to_time - schedule.from_time) / 3600.0
+  def check_schedule_for_conflicts(schedules)
+    schedule = schedules.first
+    hours = (schedule.to_time - schedule.from_time) / 3600.0 * schedules.count
     
     query = Schedule.where([
       "schedule_date >= ? AND schedule_date <= ? and user_id = ?", 
@@ -169,10 +182,14 @@ class SchedulesController < ApplicationController
     end
     
     query.each do |s|
-        if schedules_conflict?(schedule, s)
-          @errors << "<strong>#{schedule.user.full_name}</strong>: The schedule conflicts with another schedule: <a href=\"#{schedule_path(s)}\">#{s.job.name}</a>".html_safe
+      schedules.each do |t|
+        if schedules_conflict?(t, s)
+          puts t.inspect
+          puts s.inspect
+          @errors << "<strong>#{t.user.full_name}</strong>: The schedule conflicts with another schedule: <a href=\"#{schedule_path(s)}\">#{s.job.name}</a>".html_safe
         end
-        hours += s.hours
+      end
+      hours += s.hours
     end
 
     if hours >= 40
@@ -256,9 +273,13 @@ class SchedulesController < ApplicationController
   end
   
   def schedule_params
-    params[:schedule][:from_time] = "#{params[:schedule][:schedule_date]} #{params[:schedule][:from_time]}"
-    params[:schedule][:to_time] = "#{params[:schedule][:schedule_date]} #{params[:schedule][:to_time]}"
+    params[:schedule][:from_time] = fmt_time(:from_time, params[:schedule][:schedule_date])
+    params[:schedule][:to_time] = fmt_time(:to_time, params[:schedule][:schedule_date])
     params.require(:schedule).permit(:job_id, :schedule_date, :from_time, :to_time)
+  end
+  
+  def fmt_time(key, date)
+    "#{date} #{params[:schedule][key]}"
   end
   
   def update_date_range
