@@ -64,13 +64,23 @@ class SchedulesController < ApplicationController
 
   def create
     @schedule = Schedule.new(schedule_params)
-    params[:user_ids].try(:each) do |user_id, name|
-      begin
-        ActiveRecord::Base.transaction do
-          @schedule = Schedule.create(schedule_params.merge(user_id: user_id))
+    
+    from_date = Date.parse(params[:schedule][:schedule_date]) rescue nil
+    to_date = Date.parse(params[:schedule][:through_schedule_date]) rescue nil
+    
+    to_date = from_date if to_date.nil?
+    
+    unless from_date.nil? || to_date.nil?
+      ActiveRecord::Base.transaction do
+        (from_date..to_date).to_a.each do |schedule_date|
+          params[:user_ids].try(:each) do |user_id, name|
+            begin
+              @schedule = Schedule.create(schedule_params.merge(user_id: user_id, schedule_date: schedule_date))
+            rescue => e
+              raise ActiveRecord::Rollback
+            end
+          end
         end
-      rescue => e
-        break
       end
     end
 

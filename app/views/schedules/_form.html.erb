@@ -1,6 +1,7 @@
 <script type="text/javascript">
 $(function() {
   $("input[name='schedule[schedule_date]']").datepicker();
+  $("input[name='schedule[through_schedule_date]']").datepicker({ minDate: 0});
   $("input[name='schedule[from_time]']").timepicker();
   $("input[name='schedule[to_time]']").timepicker({
     'minTime': $("input[name='schedule[from_time]']").val(),
@@ -88,6 +89,29 @@ $(function() {
   
   $( "#schedule_schedule_date" ).change(function(e) {
     checkForScheduleConflicts();
+    var fromDate = new Date($( "#schedule_schedule_date" ).val());
+    var toDate = new Date($( "#schedule_through_schedule_date" ).val());
+
+    if (!isNaN(fromDate) && !isNaN(toDate)) {
+      if (toDate < fromDate) {
+        $( "#schedule_through_schedule_date" ).val($( "#schedule_schedule_date" ).val());
+      }
+    }
+    
+    if (!isNaN(fromDate)) {
+      var today = new Date();
+      today.setHours(0);
+      today.setMinutes(0);
+      today.setSeconds(0);
+
+      var dayOffset = Math.round((fromDate - today)/(1000*60*60*24));
+      
+      $("#schedule_through_schedule_date").datepicker("destroy");
+      $("#schedule_through_schedule_date").datepicker({ minDate: dayOffset});
+    }
+  });
+  $( "#schedule_through_schedule_date" ).change(function(e) {
+    checkForScheduleConflicts();
   });
   $( "#schedule_from_time" ).change(function(e) {
     checkForScheduleConflicts();
@@ -141,6 +165,10 @@ $(function() {
       <br />
       <%= f.text_field :schedule_date, value: default_schedule_date, class: "form-control", placeholder: "Date" %>
       <br />
+      <% unless @schedule.persisted? %>
+        <%= f.text_field :through_schedule_date, value: default_schedule_date, class: "form-control", placeholder: "Through Date" %>
+      <br />
+      <% end %>
       <%= f.text_field :from_time, value: default_from_time, class: "form-control", placeholder: "From Time" %>
       <br />
       <%= f.text_field :to_time, value: format_time_to_hour(@schedule.to_time), class: "form-control", placeholder: "To Time" %>

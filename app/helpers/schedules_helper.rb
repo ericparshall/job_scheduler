@@ -39,10 +39,6 @@ module SchedulesHelper
   end
   
   def default_schedule_date
-    puts @schedule.inspect
-    puts params[:for_date]
-    puts for_date_to_time(params[:for_date])
-    puts format_time_to_us(for_date_to_time(params[:for_date]))
     case 
     when @schedule.schedule_date then
       val = format_time_to_us(@schedule.try(:schedule_date))
