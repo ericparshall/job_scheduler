@@ -1,3 +1,49 @@
+<script type="text/javascript">
+function updatePointOfContacts(option) {
+  $("#customer_id option").prop('selected', false);
+  if (option.value != null && option.value != "") {
+    $("#customer_id option[value='" + option.value + "']").prop('selected', true);
+    var formURL = "/customers/" + option.value + "/point_of_contacts.json";
+    $.ajax({
+      url : formURL,
+      type: "get",
+      success:function(data, textStatus, jqXHR) {
+        $("#point_of_contact_id option").remove();
+        $("#point_of_contact_id_input").val("");
+        for(var j = 0; j < data.length; j++) {
+          var newOption = $('<option/>');
+          newOption.text(data[j].name);
+          newOption.attr('value', data[j].id);
+          $('#point_of_contact_id').append(newOption);
+        }
+      },
+      error: function(jqXHR, textStatus, errorThrown) {
+      
+      }
+    });
+  } else {
+    $("#point_of_contact_id option").remove();
+  }
+}
+
+$(function() {
+  $( "#customer_id" ).combobox({
+    list: $( "#customer_id" ),
+    parent_div: $("#customer_id_input_group"),
+    input: $("#customer_id_input"),
+    custom_on_select: function(option) {
+      updatePointOfContacts(option);
+    }
+  });
+  
+  $( "#point_of_contact_id" ).combobox({
+    list: $( "#point_of_contact_id" ),
+    parent_div: $("#point_of_contact_id_input_group"),
+    input: $("#point_of_contact_id_input")
+  });
+});
+</script>
+
 <%= form_for(@job) do |f| %>
   <% if @job.errors.any? %>
     <div id="error_explanation" class="alert alert-error">
@@ -17,14 +63,22 @@
       <br />
       <%= f.text_area :description, cols: 30, rows: 3, class: "form-control", placeholder: "Description" %>
       <br />
-      <%= f.text_field :point_of_contact, class: "form-control", placeholder: "Point of Contact" %>
-      <br />
-      <%= f.text_field :phone_number, class: "form-control", placeholder: "Phone Number" %>
-      <br />
-      <%= f.text_field :email_address, class: "form-control", placeholder: "Email Address" %>
-      <br />
-      <%= f.text_area :address, cols: 30, rows: 3, class: "form-control", placeholder: "Address" %>
-      <br />
+      <%= select_tag :customer_id, options_for_select(@customers, @job.customer_id), include_blank: true %>
+      <input id="customer_id_input" title="" placeholder="Customer" class="form-control custom-combobox-input ui-autocomplete-input" autocomplete="on" data-original-title="">
+      <div id="customer_id_input_group" class="input-group">
+        <span class="input-group-btn">
+          <button class="btn btn-default" type="button">Show</button>
+        </span>
+      </div>
+      </br />
+      <%= select_tag :point_of_contact_id, options_for_select(@point_of_contacts, @job.point_of_contact_id), include_blank: true %>
+      <input id="point_of_contact_id_input" title="" placeholder="Point of Contact" class="form-control custom-combobox-input ui-autocomplete-input" autocomplete="on" data-original-title="">
+      <div id="point_of_contact_id_input_group" class="input-group">
+        <span class="input-group-btn">
+          <button class="btn btn-default" type="button">Show</button>
+        </span>
+      </div>
+      </br />
     </div>
   </div>
   <br />

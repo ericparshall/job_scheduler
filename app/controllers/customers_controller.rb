@@ -13,6 +13,10 @@ class CustomersController < ApplicationController
 
   # GET /customers/1
   def show
+    @point_of_contacts = case
+    when params[:archived] == "true" then @customer.point_of_contacts.where(archived: true)
+    else @customer.point_of_contacts.where(archived: false)
+    end
   end
 
   # GET /customers/new

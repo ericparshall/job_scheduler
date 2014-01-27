@@ -11,18 +11,14 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140114044704) do
+ActiveRecord::Schema.define(version: 20140125235317) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
   create_table "customers", force: true do |t|
     t.string   "name"
-    t.string   "point_of_contact"
-    t.string   "address"
-    t.string   "phone_number"
-    t.string   "email_address"
-    t.boolean  "archived",         default: false
+    t.boolean  "archived",   default: false
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -30,18 +26,27 @@ ActiveRecord::Schema.define(version: 20140114044704) do
   create_table "jobs", force: true do |t|
     t.string   "name"
     t.text     "description"
-    t.datetime "created_at",                       null: false
-    t.datetime "updated_at",                       null: false
-    t.string   "point_of_contact"
-    t.string   "phone_number"
-    t.string   "email_address"
-    t.text     "address"
-    t.boolean  "archived",         default: false
+    t.datetime "created_at",                          null: false
+    t.datetime "updated_at",                          null: false
+    t.boolean  "archived",            default: false
+    t.integer  "customer_id"
+    t.integer  "point_of_contact_id"
   end
 
   create_table "jobs_skills", id: false, force: true do |t|
     t.integer "job_id"
     t.integer "skill_id"
+  end
+
+  create_table "point_of_contacts", force: true do |t|
+    t.integer  "customer_id"
+    t.string   "name"
+    t.string   "address"
+    t.string   "phone_number"
+    t.string   "email_address"
+    t.boolean  "archived",      default: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
   create_table "schedules", force: true do |t|
@@ -73,11 +78,12 @@ ActiveRecord::Schema.define(version: 20140114044704) do
   create_table "time_off_requests", force: true do |t|
     t.integer  "user_id"
     t.integer  "manager_id"
-    t.date     "day_off_requested"
+    t.date     "from_date"
     t.text     "comment"
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "status_id"
+    t.date     "to_date"
   end
 
   create_table "user_types", force: true do |t|

@@ -9,8 +9,8 @@
 </p>
 
 <p>
-  <strong>Day off requested:</strong>
-  <%= @time_off_request.day_off_requested %>
+  <strong>Day(s) off requested:</strong>
+  <%= @time_off_request.from_date %> - <%= @time_off_request.to_date %>
 </p>
 
 <p>
@@ -27,5 +27,6 @@
 <%= link_to 'Back', time_off_requests_path %>
 <% if current_user.user_type.manager? %>
  | <%= link_to 'Approve', approve_time_off_request_path(@time_off_request), method: :post, data: { confirm: 'Approve the request?' } %>
+ | <%= link_to 'Deny', deny_time_off_request_path(@time_off_request), method: :post, data: { confirm: 'Deny the request?' } %>
 <% end %>
  | <%= link_to 'Delete', @time_off_request, method: :delete, data: { confirm: 'Delete the request?' } %>

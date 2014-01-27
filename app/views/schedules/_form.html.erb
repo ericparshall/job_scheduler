@@ -1,7 +1,7 @@
 <script type="text/javascript">
 $(function() {
   $("input[name='schedule[schedule_date]']").datepicker();
-  $("input[name='schedule[through_schedule_date]']").datepicker({ minDate: 0});
+  $("input[name='schedule[through_schedule_date]']").datepicker();
   $("input[name='schedule[from_time]']").timepicker();
   $("input[name='schedule[to_time]']").timepicker({
     'minTime': $("input[name='schedule[from_time]']").val(),
@@ -120,7 +120,7 @@ $(function() {
     checkForScheduleConflicts();
   });
   
-  checkForScheduleConflicts();
+  $( "#schedule_schedule_date" ).change();
 });
 </script>
 <%= form_for(@schedule, html: { id: "schedule_form" }) do |f| %>

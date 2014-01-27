@@ -1,6 +1,6 @@
 class TimeOffRequestsController < ApplicationController
-  before_filter :require_admin_user, only: [ :approve ]
-  before_action :set_time_off_request, only: [:show, :edit, :update, :destroy, :approve]
+  before_filter :require_manager_user, only: [ :approve, :deny ]
+  before_action :set_time_off_request, only: [:show, :edit, :update, :destroy, :approve, :deny]
   before_filter :filter_time_off_requests, only: [:index]
 
   # GET /time_off_requests
@@ -59,6 +59,12 @@ class TimeOffRequestsController < ApplicationController
     TimeOffMailer.time_off_approved(@time_off_request).deliver
     redirect_to time_off_requests_url, notice: 'Time off request has been approved.'
   end
+  
+  def deny
+    @time_off_request.deny(current_user)
+    TimeOffMailer.time_off_denied(@time_off_request).deliver
+    redirect_to time_off_requests_url, notice: 'Time off request has been denied.'
+  end
 
   private
     # Use callbacks to share common setup or constraints between actions.
@@ -68,10 +74,14 @@ class TimeOffRequestsController < ApplicationController
 
     # Only allow a trusted parameter "white list" through.
     def time_off_request_params
-      params.require(:time_off_request).permit(:day_off_requested, :comment)
+      params.require(:time_off_request).permit(:from_date, :to_date, :comment)
     end
     
     def filter_time_off_requests
-      @time_off_requests = TimeOffRequest.joins(:status).where(["user_id = ? or (manager_id = ? and time_off_request_statuses.name = 'Requested')", current_user.id, current_user.id])
+      if current_user.user_type.manager?
+        @time_off_requests = TimeOffRequest.joins(:status).where(["user_id = ? or time_off_request_statuses.name = 'Requested'", current_user.id])
+      else
+        @time_off_requests = TimeOffRequest.where(["user_id = ?", current_user.id])
+      end
     end
 end

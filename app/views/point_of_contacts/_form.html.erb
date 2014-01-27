@@ -1,0 +1,35 @@
+<%= form_for([@customer, @point_of_contact]) do |f| %>
+  <% if @point_of_contact.errors.any? %>
+    <div id="error_explanation" class="alert alert-error">
+      <strong><%= pluralize(@point_of_contact.errors.count, "error") %> prohibited this point of contact from being saved:</strong>
+
+      <ul>
+      <% @point_of_contact.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+  
+  <div class="row-fluid">
+    <div class="col-md-4">
+      <%= f.text_field :name, class: "form-control", placeholder: "Name" %>
+      <br />
+      <%= f.text_field :phone_number, class: "form-control", placeholder: "Phone Number" %>
+      <br />
+      <%= f.text_field :email_address, class: "form-control", placeholder: "Email Address" %>
+      <br />
+      <%= f.text_area :address, cols: 30, rows: 3, class: "form-control", placeholder: "Address" %>
+      <br />
+    </div>
+  </div>
+  <br />
+  <div style="clear:both" />
+  <div class="row-fluid">
+    <div class="col-md-4">
+      <%= f.submit class: "btn btn-lg btn-primary btn-block" %>
+    </div>
+  </div>
+<% end %>
+<div style="clear:both" />
+<br />

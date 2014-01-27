@@ -1,0 +1,24 @@
+<h3 style="float: left">Point of Contacts</h3>
+<%= link_to 'New Point of Contact', new_customer_point_of_contact_path(@customer), class: "btn btn-lg btn-primary btn-block", style: "width: 200px; color: white; float: right" %>
+<div style="clear:both" />
+<ul class="nav nav-tabs">
+  <li class="<%= tab_active["Default"] %>"><%= link_to "Default", customer_point_of_contacts_path %></li>
+  <li class="<%= tab_active["Archived"] %>"><%= link_to "Archived", customer_point_of_contacts_path(archived: true) %></li>
+</ul>
+<table class="table table-bordered table-striped">
+  <tr>
+    <th>Name</th>
+    <th></th>
+  </tr>
+
+<% @point_of_contacts.each do |point_of_contact| %>
+  <tr>
+    <td><%= link_to point_of_contact.name, customer_point_of_contact_path(@customer, point_of_contact) %></td>
+    <td>
+      <%= link_to 'Edit', edit_customer_point_of_contact_path(@customer, point_of_contact) %>
+    </td>
+  </tr>
+<% end %>
+</table>
+
+<br />

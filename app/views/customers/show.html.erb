@@ -1,27 +1,39 @@
-<p>
-  <strong>Name:</strong>
-  <%= @customer.name %>
-</p>
+<h2><%= @customer.name %></h2>
+<%= link_to 'New Point of Contact', new_customer_point_of_contact_path(@customer), class: "btn btn-lg btn-primary btn-block", style: "width: 200px; color: white; float: right" %>
+<div style="clear:both" />
+<ul class="nav nav-tabs">
+  <li class="<%= tab_active["Default"] %>"><%= link_to "Default", customer_path(@customer) %></li>
+  <li class="<%= tab_active["Archived"] %>"><%= link_to "Archived", customer_path(@customer, archived: true) %></li>
+</ul>
+<table class="table table-bordered table-striped">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Phone</th>
+      <th>Email</th>
+      <th>Address</th>
+      <th></th>
+    </tr>
+  </thead>
 
-<p>
-  <strong>Point of contact:</strong>
-  <%= @customer.point_of_contact %>
-</p>
+  <tbody>
+    <% @point_of_contacts.each do |point_of_contact| %>
+      <tr>
+        <td><%= point_of_contact.name %></td>
+        <td><%= point_of_contact.phone_number %></td>
+        <td><%= point_of_contact.email_address %></td>
+        <td><pre><%= point_of_contact.address %></pre></td>
+        <td>
+          <%= link_to 'Edit', edit_customer_point_of_contact_path(@customer, point_of_contact) %>
+          |
+          <%= link_to point_of_contact.archived? ? "Unarchive" : "Archive", archive_customer_point_of_contact_path(@customer, point_of_contact, archived: params[:archived]), method: :post %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
 
-<p>
-  <strong>Address:</strong>
-  <%= @customer.address %>
-</p>
-
-<p>
-  <strong>Phone number:</strong>
-  <%= @customer.phone_number %>
-</p>
-
-<p>
-  <strong>Email address:</strong>
-  <%= @customer.email_address %>
-</p>
+<br />
 
 <%= link_to 'Edit', edit_customer_path(@customer) %> |
 <%= link_to 'Back', customers_path %>

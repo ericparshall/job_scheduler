@@ -36,6 +36,7 @@ JobScheduler::Application.routes.draw do
   resources :time_off_requests do
     member do
       post :approve
+      post :deny
     end
   end
   
@@ -46,6 +47,12 @@ JobScheduler::Application.routes.draw do
   end
   
   resources :customers, except: [:destroy] do
+    resources :point_of_contacts, only: [:new, :edit, :update, :index, :create] do
+      member do
+        post :archive
+      end
+    end
+    
     member do
       post :archive
     end

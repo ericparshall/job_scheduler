@@ -23,3 +23,22 @@
  background: white url("/assets/ui-anim_basic_16x16.gif") right center no-repeat;
 }
 .ui-helper-hidden-accessible { display:none; }
+
+table {
+    border-collapse: collapse;
+    width:100%;
+}
+
+table td.shrink {
+    white-space:nowrap
+}
+table td.expand {
+    width: 99%
+}
+
+table th.shrink {
+    white-space:nowrap
+}
+table th.expand {
+    width: 99%
+}

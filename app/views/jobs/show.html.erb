@@ -3,31 +3,39 @@
   <p class="list-group-item-text"><%= @job.name %></p>
 </div>
 <div class="list-group">
+  <h4 class="list-group-item-heading">Customer</h4>
+  <p class="list-group-item-text">
+    <%= @job.customer.try(:name) %>
+  </p>
+</div>
+<div class="list-group">
   <h4 class="list-group-item-heading">Description</h4>
   <p class="list-group-item-text">
     <pre><%= @job.description %></pre>
   </p>
 </div>
-<div class="list-group">
-  <h4 class="list-group-item-heading">POC</h4>
-  <p class="list-group-item-text"><%= @job.point_of_contact %></p>
-</div>
-<div class="list-group">
-  <h4 class="list-group-item-heading">Phone</h4>
-  <p class="list-group-item-text"><%= @job.phone_number %></p>
-</div>
-<div class="list-group">
-  <h4 class="list-group-item-heading">Email</h4>
-  <p class="list-group-item-text"><a href="mailto:<%= @job.email_address %>" target="_blank"><%= @job.email_address %></a></p>
-</div>
-<div class="list-group">
-  <h4 class="list-group-item-heading">Address</h4>
-  <a href="<%= "https://maps.google.com/?#{{q: @job.address}.to_query}" %>" target="_blank" class="list-group-item active">
-    <p class="list-group-item-text">
-      <pre><%= @job.address %></pre>
-    </p>
-  </a>
-</div>
+<% unless @job.point_of_contact.nil? %>
+  <div class="list-group">
+    <h4 class="list-group-item-heading">Point of Contact</h4>
+    <p class="list-group-item-text"><%= @job.point_of_contact.name %></p>
+  </div>
+  <div class="list-group">
+    <h4 class="list-group-item-heading">Phone</h4>
+    <p class="list-group-item-text"><%= @job.point_of_contact.phone_number %></p>
+  </div>
+  <div class="list-group">
+    <h4 class="list-group-item-heading">Email</h4>
+    <p class="list-group-item-text"><a href="mailto:<%= @job.point_of_contact.email_address %>" target="_blank"><%= @job.point_of_contact.email_address %></a></p>
+  </div>
+  <div class="list-group">
+    <h4 class="list-group-item-heading">Address</h4>
+    <a href="<%= "https://maps.google.com/?#{{q: @job.point_of_contact.address}.to_query}" %>" target="_blank" class="list-group-item active">
+      <p class="list-group-item-text">
+        <pre><%= @job.point_of_contact.address %></pre>
+      </p>
+    </a>
+  </div>
+<% end %>
 
 <%= link_to 'Edit', edit_job_path(@job) %> |
 <%= link_to 'Back', jobs_path %>

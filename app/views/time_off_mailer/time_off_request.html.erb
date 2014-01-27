@@ -1,6 +1,6 @@
 <p><%= @manager.full_name %>,</p>
 
-<p><%= @employee.full_name %> has requested <%= @time_off_request.day_off_requested %> off.</p>
+<p><%= @employee.full_name %> has requested <%= @time_off_request.from_date %> through <%= @time_off_request.to_date %> off.</p>
 
 <% unless @time_off_request.comment.blank? %>
 <p><%= @employee.full_name %> commented: <%= @time_off_request.comment %></p>

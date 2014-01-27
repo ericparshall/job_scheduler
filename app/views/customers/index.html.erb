@@ -8,24 +8,16 @@
 <table class="table table-bordered table-striped">
   <thead>
     <tr>
-      <th>Name</th>
-      <th>Point of contact</th>
-      <th>Address</th>
-      <th>Phone number</th>
-      <th>Email address</th>
-      <th></th>
+      <th class="expand">Name</th>
+      <th class="shrink"></th>
     </tr>
   </thead>
 
   <tbody>
     <% @customers.each do |customer| %>
       <tr>
-        <td><%= link_to customer.name, customer %></td>
-        <td><%= customer.point_of_contact %></td>
-        <td><pre><%= customer.address %></pre></td>
-        <td><%= customer.phone_number %></td>
-        <td><%= customer.email_address %></td>
-        <td>
+        <td class="expand"><%= link_to customer.name, customer %></td>
+        <td class="shrink">
           <%= link_to 'Edit', edit_customer_path(customer) %>
           |
           <%= link_to customer.archived? ? "Unarchive" : "Archive", archive_customer_path(customer, params), method: :post %>

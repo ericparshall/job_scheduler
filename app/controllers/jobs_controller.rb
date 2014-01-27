@@ -1,5 +1,6 @@
 class JobsController < ApplicationController
   before_filter :require_admin_user
+  before_action :get_customers, only: [:new, :edit]
 
   def index
     @jobs = case
@@ -24,6 +25,8 @@ class JobsController < ApplicationController
 
   def new
     @job = Job.new
+    @customers = Customer.all
+    @point_of_contacts = []
 
     respond_to do |format|
       format.html # new.html.erb
@@ -33,6 +36,7 @@ class JobsController < ApplicationController
 
   def edit
     @job = Job.find(params[:id])
+    @point_of_contacts = PointOfContact.where(customer_id: @job.customer_id, archived: false).sort_by{|u| u.name }.collect {|u| [u.name, u.id] }
   end
 
   def create
@@ -51,6 +55,8 @@ class JobsController < ApplicationController
 
   def update
     @job = Job.find(params[:id])
+    @job.customer_id = params[:customer_id]
+    @job.point_of_contact_id = params[:point_of_contact_id]
 
     respond_to do |format|
       if @job.update_attributes(job_params)
@@ -81,6 +87,10 @@ class JobsController < ApplicationController
   
   private
   def job_params
-    params.require(:job).permit(:name, :description, :point_of_contact, :phone_number, :email_address, :address)
+    params.require(:job).permit(:name, :description)
+  end
+  
+  def get_customers
+    @customers = Customer.where(archived: false).sort_by{|u| u.name }.collect {|u| [u.name, u.id] }
   end
 end
