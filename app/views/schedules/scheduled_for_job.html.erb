@@ -11,19 +11,22 @@
       <label>Description: </label><pre><%= @job.description %></pre>
     </p>
     <% end %>
-    <p>
-      <label>Point-of-contact: </label><%= @job.point_of_contact %>
-    </p>
-    <p>
-      <label>Phone: </label><a href="tel:<%= @job.phone_number %>"><%= @job.phone_number %></a>
-    </p>
-    <p>
-      <label>Email: </label><a href="mailto:<%= @job.email_address %>" target="_blank"><%= @job.email_address %></a>
-    </p>
-    <% unless @job.address.blank? %>
-    <p>
-      <label>Address: </label><pre><a href="<%= "https://maps.google.com/?#{{q: @job.address}.to_query}" %>" target="_blank" class="list-group-item active"><%= @job.address %></a></pre>
-    </p>
+    
+    <% unless @job.point_of_contact.nil?%>
+      <p>
+        <label>Point-of-contact: </label><%= @job.point_of_contact.name %>
+      </p>
+      <p>
+        <label>Phone: </label><a href="tel:<%= @job.point_of_contact.phone_number %>"><%= @job.point_of_contact.phone_number %></a>
+      </p>
+      <p>
+        <label>Email: </label><a href="mailto:<%= @job.point_of_contact.email_address %>" target="_blank"><%= @job.point_of_contact.email_address %></a>
+      </p>
+      <% unless @job.point_of_contact.address.blank? %>
+      <p>
+        <label>Address: </label><pre><a href="<%= "https://maps.google.com/?#{{q: @job.point_of_contact.address}.to_query}" %>" target="_blank" class="list-group-item active"><%= @job.point_of_contact.address %></a></pre>
+      </p>
+      <% end %>
     <% end %>
   </div>
   <table class="table table-bordered table-striped">
