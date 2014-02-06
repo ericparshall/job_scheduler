@@ -25,7 +25,6 @@ class JobsController < ApplicationController
 
   def new
     @job = Job.new
-    @customers = Customer.all
     @point_of_contacts = []
 
     respond_to do |format|
@@ -41,6 +40,8 @@ class JobsController < ApplicationController
 
   def create
     @job = Job.new(job_params)
+    @job.customer_id = params[:customer_id]
+    @job.point_of_contact_id = params[:point_of_contact_id]
 
     respond_to do |format|
       if @job.save
