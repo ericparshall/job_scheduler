@@ -10,7 +10,6 @@
       <th>Status</th>
       <th>Comment</th>
       <th></th>
-      <th></th>
     </tr>
   </thead>
 
@@ -27,9 +26,9 @@
             <%= link_to 'Edit', edit_time_off_request_path(time_off_request) %>
           <% else %>
             <%= link_to 'Approve', approve_time_off_request_path(time_off_request), method: :post, data: { confirm: 'Approve the request?' } %>
+            | <%= link_to 'Deny', deny_time_off_request_path( time_off_request), method: :post, data: { confirm: 'Deny the request?' } %>
           <% end %>
-        </td>
-        <td><%= link_to 'Delete', time_off_request, method: :delete, data: { confirm: 'Delete the request?' } %></td>
+          | <%= link_to 'Delete', time_off_request, method: :delete, data: { confirm: 'Delete the request?' } %></td>
       </tr>
     <% end %>
   </tbody>
