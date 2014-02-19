@@ -64,18 +64,18 @@ $(function() {
       <%= f.text_area :description, cols: 30, rows: 3, class: "form-control", placeholder: "Description" %>
       <br />
       <%= select_tag :customer_id, options_for_select(@customers, @job.customer_id), include_blank: true %>
-      <input id="customer_id_input" title="" placeholder="Customer" class="form-control custom-combobox-input ui-autocomplete-input" autocomplete="on" data-original-title="">
+      <input id="customer_id_input" title="Customer" placeholder="Customer" class="form-control custom-combobox-input ui-autocomplete-input" autocomplete="on" data-original-title="">
       <div id="customer_id_input_group" class="input-group">
         <span class="input-group-btn">
-          <button class="btn btn-default" type="button">Show</button>
+          <button class="btn btn-default" type="button">Customer</button>
         </span>
       </div>
       </br />
       <%= select_tag :point_of_contact_id, options_for_select(@point_of_contacts, @job.point_of_contact_id), include_blank: true %>
-      <input id="point_of_contact_id_input" title="" placeholder="Point of Contact" class="form-control custom-combobox-input ui-autocomplete-input" autocomplete="on" data-original-title="">
+      <input id="point_of_contact_id_input" title="Point of Contact" placeholder="Point of Contact" class="form-control custom-combobox-input ui-autocomplete-input" autocomplete="on" data-original-title="">
       <div id="point_of_contact_id_input_group" class="input-group">
         <span class="input-group-btn">
-          <button class="btn btn-default" type="button">Show</button>
+          <button class="btn btn-default" type="button">Point of Contact</button>
         </span>
       </div>
       </br />

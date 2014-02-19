@@ -49,7 +49,7 @@ class SchedulesController < ApplicationController
 
   def new
     params[:user_ids] ||= {}
-    params[:user_ids][params[:employee_id]] = User.find(params[:employee_id]).full_name if params[:employee_id]
+    params[:user_ids][params[:employee_id]] = User.find(params[:employee_id]).full_name unless params[:employee_id].blank?
     @schedule = Schedule.new
 
     respond_to do |format|

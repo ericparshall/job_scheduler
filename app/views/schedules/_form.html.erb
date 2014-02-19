@@ -143,10 +143,10 @@ $(function() {
   <div class="row-fluid">
     <div class="col-md-4">
       <%= f.select :job_id, @jobs, selected: @schedule.job.try(:id) || params[:job_id], include_blank: true %>
-      <input id="job_id_input" title="" placeholder="Job" class="form-control custom-combobox-input ui-autocomplete-input" autocomplete="on" data-original-title="">
+      <input id="job_id_input" title="Job" placeholder="Job" class="form-control custom-combobox-input ui-autocomplete-input" autocomplete="on" data-original-title="">
       <div id="job_id_input_group" class="input-group">
         <span class="input-group-btn">
-          <button class="btn btn-default" type="button">Show</button>
+          <button class="btn btn-default" type="button">Job</button>
         </span>
       </div>
       <br />
@@ -155,10 +155,10 @@ $(function() {
         <br />
       <% else %>
       <%= select_tag :user_id, options_for_select(@users, params[:employee_id]), include_blank: true %>
-      <input id="user_id_input" title="" placeholder="Employee" class="form-control custom-combobox-input ui-autocomplete-input" autocomplete="on" data-original-title="">
+      <input id="user_id_input" title="Employee" placeholder="Employee" class="form-control custom-combobox-input ui-autocomplete-input" autocomplete="on" data-original-title="">
       <div id="user_id_input_group" class="input-group">
         <span class="input-group-btn">
-          <button class="btn btn-default" type="button">Show</button>
+          <button class="btn btn-default" type="button">Employee</button>
         </span>
       </div>
       <% end %>
