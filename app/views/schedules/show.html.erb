@@ -11,8 +11,12 @@
   });
 </script>
 <p>
+  <b>Customer:</b>
+  <%= @schedule.job.customer.try(:name) %>
+</p>
+<p>
   <b>Job:</b>
-  <%= @schedule.job_id %>
+  <%= @schedule.job.name %>
 </p>
 
 <p>

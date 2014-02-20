@@ -199,7 +199,7 @@ class SchedulesController < ApplicationController
   
   def initialize_collections
     @users = User.where(archived: false).sort_by{|u| u.full_name }.collect {|u| [u.full_name, u.id] }
-    @jobs = Job.where(archived: false).all.sort_by{|j| j.name }.collect {|j| [j.name, j.id] }
+    @jobs = Job.where(archived: false).all.sort_by{|j| "#{!j.customer.nil? ? j.customer.try(:name) + ": " : ""}#{j.name}" }.collect {|j| ["#{!j.customer.nil? ? j.customer.try(:name) + ": " : ""}#{j.name}", j.id] }
   end
   
   def schedules_grid
