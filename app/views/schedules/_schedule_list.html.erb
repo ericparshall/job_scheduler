@@ -1,6 +1,7 @@
 <% unless @schedules.nil? %>
   <table class="table table-bordered table-striped">
     <tr>
+      <th>Customer</th>
       <th>Job</th>
       <th>User</th>
       <th>Schedule Date</th>
@@ -12,6 +13,7 @@
 
   <% @schedules.each do |schedule| %>
     <tr>
+      <td><%= link_to schedule.job.customer.try(:name), schedule.job.customer unless schedule.job.customer.nil? %></td>
       <td><%= link_to schedule.job.name, schedule %></td>
       <td><%= link_to schedule.user.full_name, schedule %></td>
       <td><%= schedule.schedule_date %></td>

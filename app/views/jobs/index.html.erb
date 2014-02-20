@@ -7,13 +7,15 @@
 </ul>
 <table class="table table-bordered table-striped">
   <tr>
-    <th>Name</th>
+    <th>Customer</th>
+    <th>Job Name</th>
     <th>Description</th>
     <th></th>
   </tr>
 
 <% @jobs.each do |job| %>
   <tr>
+    <td><%= link_to job.customer.try(:name), job.customer unless job.customer.nil? %></td>
     <td><%= link_to job.name, job %></td>
     <td><%= link_to job.description, job %></td>
     <td>

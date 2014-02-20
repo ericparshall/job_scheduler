@@ -12,6 +12,12 @@
     </p>
     <% end %>
     
+    <% unless @job.customer.nil? %>
+      <p>
+        <label>Customer: </label><%= @job.customer.name %>
+      </p>
+    <% end %>
+    
     <% unless @job.point_of_contact.nil?%>
       <p>
         <label>Point-of-contact: </label><%= @job.point_of_contact.name %>

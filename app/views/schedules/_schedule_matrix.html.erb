@@ -15,7 +15,11 @@
     <tr>
       <th />
       <% @schedules_grid.columns.each do |job_column| %>
-      <th><%= link_to Job.find(job_column.header).name, "#", onclick: "refine_search({job_id: '#{job_column.header}'})" %></th>
+      <th style="vertical-align:top;">
+        <%= link_to Job.find(job_column.header).name, "#", onclick: "refine_search({job_id: '#{job_column.header}'})" %>
+        <br />
+        <%= Job.find(job_column.header).customer.try(:name) %>
+      </th>
       <% end %>
       <th />
     </tr>
