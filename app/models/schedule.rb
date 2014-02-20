@@ -16,7 +16,7 @@ class Schedule < ActiveRecord::Base
       borderColor: "black",
       textColor: "black",
       backgroundColor: color,
-      title: "#{self.job.name}, #{self.hours} hrs",
+      title: "#{!self.job.customer.nil? ? self.job.customer.name + ": " : ""}#{self.job.name}, #{self.hours} hrs",
       start: "#{self.schedule_date.strftime("%Y-%m-%d")} #{self.from_time.strftime("%H:%M:%S")}",
       end: "#{self.schedule_date.strftime("%Y-%m-%d")} #{self.to_time.strftime("%H:%M:%S")}",
       schedule_date: self.schedule_date.strftime("%Y-%m-%d"),
