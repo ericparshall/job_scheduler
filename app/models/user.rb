@@ -9,6 +9,7 @@ class User < ActiveRecord::Base
   has_many :schedules
   has_many :users_skills
   has_many :skills, through: :users_skills, class_name: "Skill"
+  has_many :jobs, inverse_of: :internal_point_of_contact
   
   validates :user_type, :full_name, :manager_id, presence: true
   

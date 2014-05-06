@@ -26,6 +26,7 @@ class JobsController < ApplicationController
   def new
     @job = Job.new
     @point_of_contacts = []
+    @internal_point_of_contacts = User.where(archived: false).sort_by{|u| u.full_name }.collect {|u| [u.full_name, u.id] }
 
     respond_to do |format|
       format.html # new.html.erb
@@ -36,12 +37,14 @@ class JobsController < ApplicationController
   def edit
     @job = Job.find(params[:id])
     @point_of_contacts = PointOfContact.where(customer_id: @job.customer_id, archived: false).sort_by{|u| u.name }.collect {|u| [u.name, u.id] }
+    @internal_point_of_contacts = User.where(archived: false).sort_by{|u| u.full_name }.collect {|u| [u.full_name, u.id] }
   end
 
   def create
     @job = Job.new(job_params)
     @job.customer_id = params[:customer_id]
     @job.point_of_contact_id = params[:point_of_contact_id]
+    @job.internal_point_of_contact_id = params[:internal_point_of_contact_id]
 
     respond_to do |format|
       if @job.save
@@ -58,6 +61,7 @@ class JobsController < ApplicationController
     @job = Job.find(params[:id])
     @job.customer_id = params[:customer_id]
     @job.point_of_contact_id = params[:point_of_contact_id]
+    @job.internal_point_of_contact_id = params[:internal_point_of_contact_id]
 
     respond_to do |format|
       if @job.update_attributes(job_params)

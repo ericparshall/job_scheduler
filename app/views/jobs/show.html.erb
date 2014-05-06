@@ -17,25 +17,27 @@
 <% unless @job.point_of_contact.nil? %>
   <div class="list-group">
     <h4 class="list-group-item-heading">Point of Contact</h4>
-    <p class="list-group-item-text"><%= @job.point_of_contact.name %></p>
-  </div>
-  <div class="list-group">
-    <h4 class="list-group-item-heading">Phone</h4>
-    <p class="list-group-item-text"><%= @job.point_of_contact.phone_number %></p>
-  </div>
-  <div class="list-group">
-    <h4 class="list-group-item-heading">Email</h4>
-    <p class="list-group-item-text"><a href="mailto:<%= @job.point_of_contact.email_address %>" target="_blank"><%= @job.point_of_contact.email_address %></a></p>
-  </div>
-  <div class="list-group">
-    <h4 class="list-group-item-heading">Address</h4>
-    <a href="<%= "https://maps.google.com/?#{{q: @job.point_of_contact.address}.to_query}" %>" target="_blank" class="list-group-item active">
-      <p class="list-group-item-text">
-        <pre><%= @job.point_of_contact.address %></pre>
-      </p>
-    </a>
+    <p class="list-group-item-text"><h5><%= @job.point_of_contact.name %></h5></p>
+    <p>
+      <strong>Phone: </strong><%= @job.point_of_contact.phone_number %><br>
+      <strong>Email: </strong><a href="mailto:<%= @job.point_of_contact.email_address %>" target="_blank"><%= @job.point_of_contact.email_address %></a><br>
+      <strong>Address: </strong><a href="<%= "https://maps.google.com/?#{{q: @job.point_of_contact.address}.to_query}" %>" target="_blank">Map</a><br>
+      <pre><%= @job.point_of_contact.address %></pre>
+    </p>
   </div>
 <% end %>
-
+<br>
+<% unless @job.internal_point_of_contact.nil? %>
+  <div class="list-group">
+    <h4 class="list-group-item-heading">Internal Point of Contact</h4>
+    <p class="list-group-item-text"><%= @job.internal_point_of_contact.full_name %></p>
+    <p>
+      <strong>Phone: </strong><%= @job.internal_point_of_contact.phone_number %><br>
+      <strong>Email: </strong><a href="mailto:<%= @job.internal_point_of_contact.email %>" target="_blank"><%= @job.internal_point_of_contact.email %></a><br>
+    </p>
+  </div>
+<% end %>
+<br>
+<br>
 <%= link_to 'Edit', edit_job_path(@job) %> |
 <%= link_to 'Back', jobs_path %>

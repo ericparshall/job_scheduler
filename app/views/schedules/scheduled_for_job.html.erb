@@ -18,21 +18,21 @@
       </p>
     <% end %>
     
-    <% unless @job.point_of_contact.nil?%>
-      <p>
-        <label>Point-of-contact: </label><%= @job.point_of_contact.name %>
-      </p>
-      <p>
-        <label>Phone: </label><a href="tel:<%= @job.point_of_contact.phone_number %>"><%= @job.point_of_contact.phone_number %></a>
-      </p>
-      <p>
-        <label>Email: </label><a href="mailto:<%= @job.point_of_contact.email_address %>" target="_blank"><%= @job.point_of_contact.email_address %></a>
-      </p>
+    <% unless @job.point_of_contact.nil? %>
+      <strong>Point-of-contact:</strong><%= @job.point_of_contact.name %>
+      <strong>Phone: </strong><a href="tel:<%= @job.point_of_contact.phone_number %>"><%= @job.point_of_contact.phone_number %></a><br>
+      <strong>Email: </strong><a href="mailto:<%= @job.point_of_contact.email_address %>" target="_blank"><%= @job.point_of_contact.email_address %></a><br>
+      
       <% unless @job.point_of_contact.address.blank? %>
-      <p>
-        <label>Address: </label><pre><a href="<%= "https://maps.google.com/?#{{q: @job.point_of_contact.address}.to_query}" %>" target="_blank" class="list-group-item active"><%= @job.point_of_contact.address %></a></pre>
-      </p>
+      <strong>Address: </strong><pre><a href="<%= "https://maps.google.com/?#{{q: @job.point_of_contact.address}.to_query}" %>" target="_blank" class="list-group-item active"><%= @job.point_of_contact.address %></a></pre>
       <% end %>
+    <% end %>
+    <br>
+    <br>
+    <% unless @job.internal_point_of_contact.nil? %>
+      <strong>Internal Point-of-Contact</strong><%= @job.internal_point_of_contact.full_name %><br>
+      <strong>Phone: </strong><a href="tel:<%= @job.point_of_contact.phone_number %>"><%= @job.internal_point_of_contact.phone_number %></a><br>
+      <strong>Email: </strong><a href="mailto:<%= @job.internal_point_of_contact.email %>" target="_blank"><%= @job.internal_point_of_contact.email %></a><br>
     <% end %>
   </div>
   <table class="table table-bordered table-striped">
