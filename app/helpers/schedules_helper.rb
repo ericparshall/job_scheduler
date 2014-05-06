@@ -8,6 +8,14 @@ module SchedulesHelper
     end
   end
   
+  def tab_active_schedules_section
+    case
+    when params[:selected_tab] == "Summary" then { "Summary" => "active" }
+    when params[:selected_tab] == "List" then { "List" => "active" }
+    else { "Summary" => "active" }
+    end
+  end
+  
   def page_back_dates
     @page_back_dates ||= case params[:unit]
     when "today"

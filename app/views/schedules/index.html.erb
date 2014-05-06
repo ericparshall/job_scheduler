@@ -9,7 +9,18 @@
 </ul>
 <%= render 'date_range_form' %>
 <br />
-<%= render 'schedule_matrix' %>
-<%= render 'schedule_list' %>
+
+<ul class="nav nav-tabs">
+  <li class="<%= tab_active_schedules_section["Summary"] %>"><%= link_to "Summary", schedules_path(params.merge(selected_tab: "Summary")) %></li>
+  <li class="<%= tab_active_schedules_section["List"] %>"><%= link_to "List", schedules_path(params.merge(selected_tab: "List")) %></li>
+  <li class="<%= tab_active_schedules_section["Calendar"] %>"><%= link_to "Calendar", schedules_path(params.merge(selected_tab: "Calendar")) %></li>
+</ul>
+
+<% if params[:selected_tab].blank? || params[:selected_tab] == "Summary" %>
+  <%= render 'schedule_matrix' %>
+<% elsif params[:selected_tab] == "List" %>
+  <%= render 'schedule_list' %>
+<% elsif params[:selected_tab] == "Calendar" %>
+  <%= render 'calendar_view' %>
+<% end %>
 <br />
-<div id="calendar"></div>

@@ -5,7 +5,7 @@ class SchedulesController < ApplicationController
   def index
     @from_date = (Date.parse(params[:from_date]) rescue nil) || Date.today.beginning_of_month
     @to_date = (Date.parse(params[:to_date]) rescue nil) || Date.today.end_of_month
-    params[:unit] = "month"
+    params[:unit] = "month" if params[:unit].blank?
     @schedules = schedule_query.sort_by(&:schedule_date)
     @schedules_grid = schedules_grid
     @schedules_grid.build

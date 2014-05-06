@@ -1,0 +1,12 @@
+<script type="text/javascript">
+$(document).ready(function() {
+    $('#calendar').fullCalendar({
+      firstDay: 1,
+      events: '/schedules/grouped_by_job_id.json?from_date=<%= params[:from_date] %>&to_date=<%= params[:to_date] %>',
+      eventClick: function(calEvent, jsEvent, view) {
+        window.location = "/schedules/scheduled_for_job?job_id=" + calEvent.job_id + "&schedule_date=" + encodeURIComponent(calEvent.schedule_date);
+      }
+    })
+  });
+</script>
+<div id="calendar"></div>
