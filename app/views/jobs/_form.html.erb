@@ -41,6 +41,12 @@ $(function() {
     parent_div: $("#point_of_contact_id_input_group"),
     input: $("#point_of_contact_id_input")
   });
+  
+  $( "#internal_point_of_contact_id" ).combobox({
+    list: $( "#internal_point_of_contact_id" ),
+    parent_div: $("#internal_point_of_contact_id_input_group"),
+    input: $("#internal_point_of_contact_id_input")
+  });
 });
 </script>
 
@@ -58,11 +64,14 @@ $(function() {
   <% end %>
   
   <div class="row-fluid">
-    <div class="col-md-4">
+    <div class="col-md-6">
+      <label for="job_name">Job Name:</label>
       <%= f.text_field :name, class: "form-control", placeholder: "Name" %>
       <br />
+      <label for="job_description">Description:</label>
       <%= f.text_area :description, cols: 30, rows: 3, class: "form-control", placeholder: "Description" %>
       <br />
+      <label for="customer_id_input">Customer:</label>
       <%= select_tag :customer_id, options_for_select(@customers, @job.customer_id), include_blank: true %>
       <input id="customer_id_input" title="Customer" placeholder="Customer" class="form-control custom-combobox-input ui-autocomplete-input" autocomplete="on" data-original-title="">
       <div id="customer_id_input_group" class="input-group">
@@ -71,11 +80,21 @@ $(function() {
         </span>
       </div>
       </br />
+      <label for="point_of_contact_id_input">Point-of-Contact:</label>
       <%= select_tag :point_of_contact_id, options_for_select(@point_of_contacts, @job.point_of_contact_id), include_blank: true %>
-      <input id="point_of_contact_id_input" title="Point of Contact" placeholder="Point of Contact" class="form-control custom-combobox-input ui-autocomplete-input" autocomplete="on" data-original-title="">
+      <input id="point_of_contact_id_input" title="Point-of-Contact" placeholder="Point-of-Contact" class="form-control custom-combobox-input ui-autocomplete-input" autocomplete="on" data-original-title="">
       <div id="point_of_contact_id_input_group" class="input-group">
         <span class="input-group-btn">
-          <button class="btn btn-default" type="button">Point of Contact</button>
+          <button class="btn btn-default" type="button">Point-of-Contact</button>
+        </span>
+      </div>
+      </br />
+      <label for="internal_point_of_contact_id_input">Internal Point-of-Contact:</label>
+      <%= select_tag :internal_point_of_contact_id, options_for_select(@internal_point_of_contacts, @job.internal_point_of_contact_id), include_blank: true %>
+      <input id="internal_point_of_contact_id_input" title="Internal Point-of-Contact" placeholder="Internal Point-of-Contact" class="form-control custom-combobox-input ui-autocomplete-input" autocomplete="on" data-original-title="">
+      <div id="internal_point_of_contact_id_input_group" class="input-group">
+        <span class="input-group-btn">
+          <button class="btn btn-default" type="button">Internal Point-of-Contact</button>
         </span>
       </div>
       </br />
@@ -84,7 +103,7 @@ $(function() {
   <br />
   <div style="clear:both" />
   <div class="row-fluid">
-    <div class="col-md-4">
+    <div class="col-md-6">
       <%= f.submit class: "btn btn-lg btn-primary btn-block" %>
     </div>
   </div>

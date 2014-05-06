@@ -49,6 +49,7 @@ $(function() {
   <div class="row-fluid">
     <div class="col-md-4">
       <% if current_user.user_type.manager? %>
+      <label for="user_id_input">Employee:</label>
         <%= f.select :user_id, User.all.collect{|u| [u.full_name, u.id] }, include_blank: false %>
         <input id="user_id_input" title="" placeholder="Employee" class="form-control custom-combobox-input ui-autocomplete-input" autocomplete="on" data-original-title="">
         <div id="user_id_input_group" class="input-group">
@@ -58,10 +59,13 @@ $(function() {
         </div>
       <% end %>
       <br />
+      <label for="time_off_request_from_date">From Date:</label>
       <%= f.text_field :from_date, class: "form-control", placeholder: "From Date" %>
       <br />
+      <label for="time_off_request_to_date">To Date:</label>
       <%= f.text_field :to_date, class: "form-control", placeholder: "To Date" %>
       <br />
+      <label for="time_off_request_comment">Comment:</label>
       <%= f.text_field :comment, class: "form-control", placeholder: "Comment" %>
       <br />
     </div>

@@ -26,10 +26,13 @@ $(function() {
   <% end %>
   <div class="row-fluid">
     <div class="col-md-4">
+      <label for="user_full_name">Full Name:</label>
       <%= f.text_field :full_name, class: "form-control", placeholder: "Full Name" %>
       <br />
+      <label for="user_email">Email:</label>
       <%= f.text_field :email, class: "form-control", placeholder: "Email" %>
       <br />
+      <label for="user_user_type_id_input">Type:</label>
       <%= f.select :user_type_id, UserType.all.collect {|ut| [ut.name, ut.id] } %>
       <input id="user_type_id_input" title="" placeholder="User Type" class="form-control custom-combobox-input ui-autocomplete-input" autocomplete="on" data-original-title="">
       <div id="user_type_id_input_group" class="input-group">
@@ -40,6 +43,7 @@ $(function() {
     
     
       <br />
+      <label for="manager_id_input">Manager:</label>
       <%= f.select :manager_id, User.joins(:user_type).where("user_types.manager" => true).collect {|u| [u.full_name, u.id] }, include_blank: true %>
       <input id="manager_id_input" title="Manager" placeholder="Manager" class="form-control custom-combobox-input ui-autocomplete-input" autocomplete="on" data-original-title="">
       <div id="manager_id_input_group" class="input-group">
@@ -48,12 +52,16 @@ $(function() {
         </span>
       </div>
       <br />
+      <label for="user_phone_number">Phone:</label>
       <%= f.text_field :phone_number, class: "form-control", placeholder: "Phone Number" %>
       <br />
+      <label for="user_address">Address:</label>
       <%= f.text_area :address, cols: 30, rows: 3, class: "form-control", placeholder: "Address" %>
       <br />
+      <label for="user_password">Password:</label>
       <%= f.text_field :password, class: "form-control", placeholder: "Password" %>
       <br />
+      <label for="user_password_confirmation">Password Confirmation:</label>
       <%= f.text_field :password_confirmation, class: "form-control", placeholder: "Password Confirmation" %>
       <br />
     </div>
