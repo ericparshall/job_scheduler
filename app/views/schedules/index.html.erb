@@ -11,9 +11,9 @@
 <br />
 
 <ul class="nav nav-tabs">
-  <li class="<%= tab_active_schedules_section["Summary"] %>"><%= link_to "Summary", schedules_path(params.merge(selected_tab: "Summary")) %></li>
-  <li class="<%= tab_active_schedules_section["List"] %>"><%= link_to "List", schedules_path(params.merge(selected_tab: "List")) %></li>
-  <li class="<%= tab_active_schedules_section["Calendar"] %>"><%= link_to "Calendar", schedules_path(params.merge(selected_tab: "Calendar")) %></li>
+  <li class="<%= tab_active_schedules_section["Summary"] %>"><%= link_to "Summary", "#", id: "selected_tab_summary" %></li>
+  <li class="<%= tab_active_schedules_section["List"] %>"><%= link_to "List", "#", id: "selected_tab_list" %></li>
+  <li class="<%= tab_active_schedules_section["Calendar"] %>"><%= link_to "Calendar", "#", id: "selected_tab_calendar" %></li>
 </ul>
 
 <% if params[:selected_tab].blank? || params[:selected_tab] == "Summary" %>

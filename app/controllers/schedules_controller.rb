@@ -51,9 +51,19 @@ class SchedulesController < ApplicationController
     params[:user_ids] ||= {}
     params[:user_ids][params[:employee_id]] = User.find(params[:employee_id]).full_name unless params[:employee_id].blank?
     @schedule = Schedule.new
+    if params[:future_schedule_id]
+      @future_schedule = FutureSchedule.find(params[:future_schedule_id]) rescue nil
+    end
+    
+    unless @future_schedule.nil?
+      @schedule.schedule_date = @future_schedule.from_date
+      @schedule.from_time = @future_schedule.from_time
+      @schedule.to_time = @future_schedule.to_time
+      @schedule.job_id = @future_schedule.job_id
+    end
 
     respond_to do |format|
-      format.html # new.html.erb
+      format.html
       format.json { render json: @schedule }
     end
   end
@@ -71,19 +81,57 @@ class SchedulesController < ApplicationController
     to_date = from_date if to_date.nil?
     
     unless from_date.nil? || to_date.nil?
-      ActiveRecord::Base.transaction do
-        (from_date..to_date).to_a.each do |schedule_date|
-          params[:user_ids].try(:each) do |user_id, name|
-            begin
-              @schedule = Schedule.create(schedule_params.merge(user_id: user_id, schedule_date: schedule_date))
-            rescue => e
-              raise ActiveRecord::Rollback
+      if params[:commit].try(:downcase) == "create pending schedule"
+        @future_schedule = FutureSchedule.new
+        @future_schedule.from_date = from_date
+        @future_schedule.to_date = to_date
+        @future_schedule.from_time = @schedule.from_time
+        @future_schedule.to_time = @schedule.to_time
+        @future_schedule.job_id = @schedule.job_id
+        @future_schedule.save
+        
+        respond_to do |format|
+          format.html { redirect_to new_schedule_path(future_schedule_id: @future_schedule.id), notice: "Pending schedule was successfully created." }
+        end
+        return
+      elsif params[:commit].try(:downcase) == "update pending schedule"
+        @future_schedule = FutureSchedule.find(params[:future_schedule_id])
+        unless @future_schedule.nil?
+          @future_schedule.from_date = from_date
+          @future_schedule.to_date = to_date
+          @future_schedule.from_time = @schedule.from_time
+          @future_schedule.to_time = @schedule.to_time
+          @future_schedule.job_id = @schedule.job_id
+          @future_schedule.save
+        end
+        respond_to do |format|
+          format.html { redirect_to new_schedule_path(future_schedule_id: @future_schedule.id), notice: "Pending schedule was successfully updated." }
+        end
+        return
+      elsif params[:commit].try(:downcase) == "delete pending schedule"
+        @future_schedule = FutureSchedule.find(params[:future_schedule_id])
+        unless @future_schedule.nil?
+          @future_schedule.delete
+        end
+        respond_to do |format|
+          format.html { redirect_to new_schedule_path, notice: "Pending schedule was successfully deleted." }
+        end
+        return
+      else
+        ActiveRecord::Base.transaction do
+          (from_date..to_date).to_a.each do |schedule_date|
+            params[:user_ids].try(:each) do |user_id, name|
+              begin
+                @schedule = Schedule.create(schedule_params.merge(user_id: user_id, schedule_date: schedule_date))
+              rescue => e
+                raise ActiveRecord::Rollback
+              end
             end
           end
         end
       end
     end
-
+    
     respond_to do |format|
       if @schedule.valid?
         format.html { redirect_to params[:return_path] || @schedule, notice: 'Schedule(s) was successfully created.' }
@@ -162,6 +210,50 @@ class SchedulesController < ApplicationController
     render layout: false
   end
   
+  def grouped_by_job_id
+    colors = [
+      "rgba( 0, 66, 255, 0.5 ) !important",
+      "rgba( 0, 230, 25, 0.5 ) !important",
+      "rgba( 0, 255, 115, 0.5 ) !important",
+      "rgba( 48, 255, 0, 0.5 ) !important",
+      "rgba( 207, 255, 0, 0.5 ) !important",
+      "rgba( 255, 197, 0, 0.5 ) !important",
+      "rgba( 255, 115, 0, 0.5 ) !important",
+      "rgba( 255, 33, 0, 0.5 ) !important",
+      "rgba( 0, 148, 255, 0.5 ) !important",
+      "rgba( 0, 255, 197, 0.5 ) !important",
+      "rgba( 0, 255, 33, 0.5 ) !important",
+      "rgba( 128, 255, 0, 0.5 ) !important",
+      "rgba( 255, 238, 0, 0.5 ) !important",
+      "rgba( 255, 156, 0, 0.5 ) !important",
+      "rgba( 255, 74, 0, 0.5 ) !important"
+    ]
+    @schedules = []
+    job_color = {}
+    color_index = 0
+    
+    query = FutureSchedule.where(["from_date >= ? OR from_date <= ?", Time.at(params[:start].to_i), Time.at(params[:end].to_i)])
+    query = query.where(["to_date >= ? OR to_date <= ?", Time.at(params[:start].to_i), Time.at(params[:start].to_i)])
+    query.each do |result|
+      @schedules << result.to_schedule_event(colors[color_index], new_schedule_path(future_schedule_id: result.id))
+      color_index += 1
+      color_index = 0 if color_index >= colors.length
+    end
+    
+    query = Schedule.select(:job_id, :schedule_date).group(:job_id, :schedule_date).order(job_id: :asc)
+    query = query.where(["from_date >= ? OR from_date <= ?", Time.at(params[:start].to_i), Time.at(params[:end].to_i)])
+    query = query.where(["to_date >= ? OR to_date <= ?", Time.at(params[:start].to_i), Time.at(params[:start].to_i)])
+    
+    query.each do |result|
+      @schedules << result.to_schedule_event(colors[color_index], new_schedule_path(future_schedule_id: result.id))
+      color_index += 1
+      color_index = 0 if color_index >= colors.length
+    end
+    
+    respond_to do |format|
+      format.json { render json: @schedules }
+    end
+  end
   private
   def schedules_conflict?(schedule_a, schedule_b)
     (schedule_a.from_time - schedule_b.to_time) * (schedule_b.from_time - schedule_a.to_time) >= 0
@@ -199,7 +291,7 @@ class SchedulesController < ApplicationController
   
   def initialize_collections
     @users = User.where(archived: false).sort_by{|u| u.full_name }.collect {|u| [u.full_name, u.id] }
-    @jobs = Job.where(archived: false).all.sort_by{|j| "#{!j.customer.nil? ? j.customer.try(:name) + ": " : ""}#{j.name}" }.collect {|j| ["#{!j.customer.nil? ? j.customer.try(:name) + ": " : ""}#{j.name}", j.id] }
+    @jobs = Job.where(archived: false).load.sort_by{|j| "#{!j.customer.nil? ? j.customer.try(:name) + ": " : ""}#{j.name}" }.collect {|j| ["#{!j.customer.nil? ? j.customer.try(:name) + ": " : ""}#{j.name}", j.id] }
   end
   
   def schedules_grid

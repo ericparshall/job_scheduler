@@ -12,6 +12,7 @@ module SchedulesHelper
     case
     when params[:selected_tab] == "Summary" then { "Summary" => "active" }
     when params[:selected_tab] == "List" then { "List" => "active" }
+    when params[:selected_tab] == "Calendar" then { "Calendar" => "active" }
     else { "Summary" => "active" }
     end
   end
@@ -46,8 +47,10 @@ module SchedulesHelper
     @page_forward_dates
   end
   
-  def default_schedule_date
+  def default_schedule_date(for_attr = :schedule_date)
     case 
+    when defined?(@future_schedule) && !@future_schedule.nil? && for_attr == :through_schedule_date then 
+      val = format_time_to_us(@future_schedule.to_date)
     when @schedule.schedule_date then
       val = format_time_to_us(@schedule.try(:schedule_date))
     when params[:for_date] then 

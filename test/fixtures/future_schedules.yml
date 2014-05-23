@@ -1,0 +1,15 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  job_id: 1
+  from_date: 2014-05-15
+  to_date: 2014-05-15
+  from_time: 2014-05-15 22:16:16
+  to_time: 2014-05-15 22:16:16
+
+two:
+  job_id: 1
+  from_date: 2014-05-15
+  to_date: 2014-05-15
+  from_time: 2014-05-15 22:16:16
+  to_time: 2014-05-15 22:16:16
