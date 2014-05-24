@@ -235,19 +235,27 @@ class SchedulesController < ApplicationController
     query = FutureSchedule.where(["from_date >= ? OR from_date <= ?", Time.at(params[:start].to_i), Time.at(params[:end].to_i)])
     query = query.where(["to_date >= ? OR to_date <= ?", Time.at(params[:start].to_i), Time.at(params[:start].to_i)])
     query.each do |result|
-      @schedules << result.to_schedule_event(colors[color_index], new_schedule_path(future_schedule_id: result.id))
-      color_index += 1
-      color_index = 0 if color_index >= colors.length
+      if job_color[result.job_id].nil?
+        job_color[result.job_id] = color_index
+        color_index += 1
+        color_index = 0 if color_index >= colors.length
+      end
+      @schedules << result.to_schedule_event(colors[job_color[result.job_id]], new_schedule_path(future_schedule_id: result.id))
+      
     end
     
-    query = Schedule.select(:job_id, :schedule_date).group(:job_id, :schedule_date).order(job_id: :asc)
-    query = query.where(["from_date >= ? OR from_date <= ?", Time.at(params[:start].to_i), Time.at(params[:end].to_i)])
-    query = query.where(["to_date >= ? OR to_date <= ?", Time.at(params[:start].to_i), Time.at(params[:start].to_i)])
+    query = Schedule.select(:job_id, :schedule_date).includes(job: [:customer]).group(:job_id, :schedule_date).order(job_id: :asc)
+    query = query.where(["schedule_date >= ? AND schedule_date <= ?", Time.at(params[:start].to_i), Time.at(params[:end].to_i)])
+    
+    url_params = params.reject {|k, v| ["format"].include?(k) }
     
     query.each do |result|
-      @schedules << result.to_schedule_event(colors[color_index], new_schedule_path(future_schedule_id: result.id))
-      color_index += 1
-      color_index = 0 if color_index >= colors.length
+      if job_color[result.job_id].nil?
+        job_color[result.job_id] = color_index
+        color_index += 1
+        color_index = 0 if color_index >= colors.length
+      end
+      @schedules << result.to_schedule_event_grouped_by_job_id(colors[job_color[result.job_id]])
     end
     
     respond_to do |format|

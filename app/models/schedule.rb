@@ -33,6 +33,21 @@ class Schedule < ActiveRecord::Base
     event
   end
   
+  def to_schedule_event_grouped_by_job_id(color, link_to_url = nil)
+    event = {
+      borderColor: "black",
+      textColor: "black",
+      backgroundColor: color,
+      title: "#{!self.job.customer.nil? ? self.job.customer.name + ": " : ""}#{self.job.name}",
+      start: "#{self.schedule_date.strftime("%Y-%m-%d")}",
+      allDay: true,
+      schedule_date: self.schedule_date.strftime("%Y-%m-%d"),
+      job_id: self.job_id
+    }
+    event[:url] = link_to_url if link_to_url
+    event
+  end
+  
   private
   def hours_greater_than_zero
     errors.add(:to_time, "must be greater than From time") if self.hours.nil? || self.hours < 0

@@ -68,4 +68,12 @@ module SchedulesHelper
     else nil
     end
   end
+  
+  def calendar_view_default_view
+    case
+    when ["today","day"].include?(params[:unit]) then "basicDay"
+    when params[:unit] == "week" then "basicWeek"
+    else "month"
+    end
+  end
 end

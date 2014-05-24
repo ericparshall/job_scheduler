@@ -1,7 +1,8 @@
 <script type="text/javascript">
 $(document).ready(function() {
     $('#calendar').fullCalendar({
-      firstDay: 1,
+      firstDay: 0,
+      defaultView: '<%= calendar_view_default_view %>',
       header: {
         left: '',
         center: '',
@@ -9,9 +10,19 @@ $(document).ready(function() {
       },
       events: '/schedules/grouped_by_job_id.json?from_date=<%= params[:from_date] %>&to_date=<%= params[:to_date] %>',
       eventClick: function(calEvent, jsEvent, view) {
-        window.location = calEvent.url;
+        if (calEvent.url == null) {
+          $("#job_id").val(calEvent.job_id);
+          $("#from_date").val(calEvent.schedule_date);
+          $("#to_date").val(calEvent.schedule_date);
+          $("#selected_tab").val("List");
+          $("#schedule_search_form input[name='commit']").click(); 
+        }
+      },
+      viewRender: function(view, element) {
+        $('#calendar').fullCalendar( 'gotoDate', <%= @from_date.year %>, <%= @from_date.month - 1 %>, <%= @from_date.day %> );
       }
-    })
+    });
   });
+  
 </script>
 <div id="calendar"></div>
