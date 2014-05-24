@@ -24,13 +24,15 @@ class SchedulesController < ApplicationController
     @to_date = (Date.parse(params[:to_date]) rescue nil) || Date.today.end_of_month
     update_date_range
     
-    @schedules = schedule_query.sort_by(&:schedule_date)
-    @schedules_grid = schedules_grid
-    @schedules_grid.build
-
-    user_ids = @schedules_grid.source_data.map(&:user_id).uniq
-    job_ids = @schedules_grid.source_data.map(&:job_id).uniq
-    @schedules = schedule_query.where(user_id: user_ids, job_id: job_ids).sort_by(&:schedule_date)
+    unless params[:selected_tab] == "Calendar"
+      @schedules = schedule_query.sort_by(&:schedule_date)
+      @schedules_grid = schedules_grid
+      @schedules_grid.build
+      
+      user_ids = @schedules_grid.source_data.map(&:user_id).uniq
+      job_ids = @schedules_grid.source_data.map(&:job_id).uniq
+      @schedules = schedule_query.where(user_id: user_ids, job_id: job_ids).sort_by(&:schedule_date)
+    end
     
     @user = User.find(params[:user_id]) rescue nil
     @job = Job.find(params[:job_id]) rescue nil
@@ -240,7 +242,10 @@ class SchedulesController < ApplicationController
         color_index += 1
         color_index = 0 if color_index >= colors.length
       end
-      @schedules << result.to_schedule_event(colors[job_color[result.job_id]], new_schedule_path(future_schedule_id: result.id))
+      
+      return_params = params.reject {|k, v| k == "format" }
+      
+      @schedules << result.to_schedule_event(colors[job_color[result.job_id]], new_schedule_path(future_schedule_id: result.id, return_path: schedules_path(return_params)))
       
     end
     

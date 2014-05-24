@@ -8,12 +8,13 @@ $(document).ready(function() {
         center: '',
         right: ''
       },
-      events: '/schedules/grouped_by_job_id.json?from_date=<%= params[:from_date] %>&to_date=<%= params[:to_date] %>',
+      events: '/schedules/grouped_by_job_id.json?<%= params.to_query %>',
       eventClick: function(calEvent, jsEvent, view) {
         if (calEvent.url == null) {
           $("#job_id").val(calEvent.job_id);
-          $("#from_date").val(calEvent.schedule_date);
-          $("#to_date").val(calEvent.schedule_date);
+          $("input[name='from_date']").val(calEvent.schedule_date);
+          $("input[name='to_date']").val(calEvent.schedule_date);
+          $("#unit").val("day");
           $("#selected_tab").val("List");
           $("#schedule_search_form input[name='commit']").click(); 
         }
