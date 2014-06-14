@@ -6,7 +6,7 @@ class User < ActiveRecord::Base
   belongs_to :user_type
   belongs_to :manager, class_name: "User"
   has_many :subordinates, class_name: "User", foreign_key: "manager_id"
-  has_many :schedules
+  has_many :schedules, dependent: :delete_all
   has_many :users_skills
   has_many :skills, through: :users_skills, class_name: "Skill"
   has_many :jobs, inverse_of: :internal_point_of_contact

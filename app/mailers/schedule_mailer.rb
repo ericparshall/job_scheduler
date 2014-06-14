@@ -10,5 +10,6 @@ class ScheduleMailer < ActionMailer::Base
     @from_time = schedule_params[:from_time]
     @to_time = schedule_params[:to_time]
     @job = Job.find(schedule_params[:job_id])
+    mail(to: @user.email, subject: "Schedule created")
   end
 end

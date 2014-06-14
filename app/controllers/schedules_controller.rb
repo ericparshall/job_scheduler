@@ -136,7 +136,7 @@ class SchedulesController < ApplicationController
     
     respond_to do |format|
       if @schedule.valid?
-        if (!from_date.nil? && !to_date.nil?) && (to_date > from_date)
+        if (!from_date.nil? && !to_date.nil?) && (to_date >= from_date)
           params[:user_ids].try(:each) do |user_id, name|
             user = User.find(user_id)
             ScheduleMailer.schedule_created(user, from_date, to_date, schedule_params).deliver
@@ -201,18 +201,20 @@ class SchedulesController < ApplicationController
       
       check_schedule_for_conflicts([schedule])
     else
-      employee_ids = params[:user_ids].map {|k, v| k } rescue []
-      employee_ids.each do |employee_id|
-        schedules = []
-        (from_date..to_date).to_a.each do |schedule_date|
-          schedules << Schedule.new(schedule_params.merge(
-            user_id: employee_id, 
-            schedule_date: schedule_date, 
-            from_time: fmt_time(:from_time, schedule_date.strftime("%m/%d/%Y")), 
-            to_time: fmt_time(:to_time, schedule_date.strftime("%m/%d/%Y")))
-          )
+      unless from_date.nil? || to_date.nil?
+        employee_ids = params[:user_ids].map {|k, v| k } rescue []
+        employee_ids.each do |employee_id|
+          schedules = []
+          (from_date..to_date).to_a.each do |schedule_date|
+            schedules << Schedule.new(schedule_params.merge(
+              user_id: employee_id, 
+              schedule_date: schedule_date, 
+              from_time: fmt_time(:from_time, schedule_date.strftime("%m/%d/%Y")), 
+              to_time: fmt_time(:to_time, schedule_date.strftime("%m/%d/%Y")))
+            )
+          end
+          check_schedule_for_conflicts(schedules)
         end
-        check_schedule_for_conflicts(schedules)
       end
     end
 
@@ -385,9 +387,12 @@ class SchedulesController < ApplicationController
   end
   
   def schedule_params
-    params[:schedule][:from_time] = fmt_time(:from_time, params[:schedule][:schedule_date])
-    params[:schedule][:to_time] = fmt_time(:to_time, params[:schedule][:schedule_date])
-    params.require(:schedule).permit(:job_id, :schedule_date, :from_time, :to_time)
+    if @schedule_params.nil?
+      params[:schedule][:from_time] = fmt_time(:from_time, params[:schedule][:schedule_date])
+      params[:schedule][:to_time] = fmt_time(:to_time, params[:schedule][:schedule_date])
+      @schedule_params = params.require(:schedule).permit(:job_id, :schedule_date, :from_time, :to_time)
+    end
+    @schedule_params
   end
   
   def fmt_time(key, date)

@@ -121,6 +121,10 @@ $(function() {
   });
   
   $( "#schedule_schedule_date" ).change();
+  
+  $('#schedule_form').submit(function() {
+    $(this).find("input:submit").prop('disabled',true);
+  });
 });
 </script>
 <%= form_for(@schedule, html: { id: "schedule_form" }) do |f| %>
