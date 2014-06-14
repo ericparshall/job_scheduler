@@ -1,6 +1,6 @@
 <p><%= @user.full_name %>,</p>
 
-<p><%= @schedule_noun %> been created for you. You can go to <a href="http://<%= JobScheduler::Application.config.url_host %>">the schedule site</a> to view your current schedule.</p>
+<p><%= @schedule_noun %> been created for you. You can go to <%= link_to "the schedule site", root_url(host: JobScheduler::Application.config.url_host) %> to view your current schedule.</p>
 
 <p>
   <strong>Job name: </strong><%= "#{@job.customer.try(:name)}: #{@job.name}" %><br>
