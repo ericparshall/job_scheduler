@@ -136,6 +136,13 @@ class SchedulesController < ApplicationController
     
     respond_to do |format|
       if @schedule.valid?
+        if (!from_date.nil? && !to_date.nil?) && (to_date > from_date)
+          params[:user_ids].try(:each) do |user_id, name|
+            user = User.find(user_id)
+            ScheduleMailer.schedule_created(user, from_date, to_date, schedule_params).deliver
+          end
+        end
+        
         format.html { redirect_to params[:return_path] || @schedule, notice: 'Schedule(s) was successfully created.' }
         format.json { render json: @schedule, status: :created, location: @schedule }
       else

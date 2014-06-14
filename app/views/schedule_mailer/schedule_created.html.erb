@@ -1,0 +1,9 @@
+<p><%= @user.full_name %>,</p>
+
+<p><%= @schedule_noun %> been created for you. You can go to <a href="http://<%= JobScheduler::Application.config.url_host %>">the schedule site</a> to view your current schedule.</p>
+
+<p>
+  <strong>Job name: </strong><%= @job.name %><br>
+  <strong>Dates: </strong><%= @from_date %> - <%= @to_date %><br>
+  <strong>Times: </strong><%= @from_time %> - <%= @to_time %>
+</p>
