@@ -30,6 +30,7 @@ JobScheduler::Application.configure do
   config.action_mailer.delivery_method = :postmark
   config.action_mailer.postmark_settings = { :api_key => '701e29bc-cabc-43ba-853b-e5248dc3a0ae' }
   config.action_mailer.default_options = {from: 'eric@parshall.us'}
+  config.action_mailer.default_url_options = { :host => 'localhost:3000' }
   
   # Disable Rails's static asset server (Apache or nginx will already do this)
   config.serve_static_assets = true
