@@ -1,5 +1,4 @@
 class TimeOffMailer < ActionMailer::Base
-  default from: "eric@parshall.us"
   
   def time_off_request(user, manager, time_off_request)
     @employee = user

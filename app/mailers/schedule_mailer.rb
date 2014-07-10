@@ -1,5 +1,4 @@
 class ScheduleMailer < ActionMailer::Base
-  default from: "eric@parshall.us"
   
   def schedule_created(user, from_date, to_date, schedule_params)
     @user = user
