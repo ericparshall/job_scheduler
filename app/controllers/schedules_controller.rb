@@ -298,8 +298,6 @@ class SchedulesController < ApplicationController
     query.each do |s|
       schedules.each do |t|
         if schedules_conflict?(t, s)
-          puts t.inspect
-          puts s.inspect
           @errors << "<strong>#{t.user.full_name}</strong>: The schedule conflicts with another schedule: <a href=\"#{schedule_path(s)}\">#{s.job.name}</a>".html_safe
         end
       end
