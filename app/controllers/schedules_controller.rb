@@ -276,6 +276,12 @@ class SchedulesController < ApplicationController
       format.json { render json: @schedules }
     end
   end
+  
+  def delete_multiple
+    Schedule.where(id: params[:schedule].keys).delete_all
+    redirect_to(params[:return_path])
+  end
+  
   private
   def schedules_conflict?(schedule_a, schedule_b)
     (schedule_a.from_time - schedule_b.to_time) * (schedule_b.from_time - schedule_a.to_time) >= 0

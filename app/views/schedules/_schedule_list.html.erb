@@ -1,27 +1,39 @@
 <% unless @schedules.nil? %>
-  <table class="table table-bordered table-striped">
-    <tr>
-      <th>Customer</th>
-      <th>Job</th>
-      <th>User</th>
-      <th>Schedule Date</th>
-      <th>Hours</th>
-      <th>Total Hours</th>
-      <th></th>
-      <th></th>
-    </tr>
+  <%= form_tag(delete_multiple_schedules_path, method: :delete) do %>
+    <%= hidden_field_tag :return_path, request.fullpath %>
+    <div class="row">
+      <div class="col-md-10"></div>
+      <div class="col-md-2">
+        <%= submit_tag "Delete Selected", class: "btn btn-sm btn-primary btn-block", style: "float: left;", data: { confirm: "Are you sure" } %>
+      </div>
+    </div>
+    
+    <table class="table table-bordered table-striped">
+      <tr>
+        <th><%= check_box_tag :selectall, "", false, onclick: "jQuery('.schedule_check').prop('checked', jQuery('#selectall').prop('checked'));" %></th>
+        <th>Customer</th>
+        <th>Job</th>
+        <th>User</th>
+        <th>Schedule Date</th>
+        <th>Hours</th>
+        <th>Total Hours</th>
+        <th></th>
+        <th></th>
+      </tr>
 
-  <% @schedules.each do |schedule| %>
-    <tr>
-      <td><%= link_to schedule.job.customer.try(:name), schedule.job.customer unless schedule.job.customer.nil? %></td>
-      <td><%= link_to schedule.job.name, schedule %></td>
-      <td><%= link_to schedule.user.full_name, schedule %></td>
-      <td><%= schedule.schedule_date %></td>
-      <td><%= "#{schedule.from_time.strftime("%I:%M%P")} - #{schedule.to_time.strftime("%I:%M%P")}" unless schedule.from_time.nil? || schedule.to_time.nil? %></td>
-      <td><%= schedule.hours %></td>
-      <td><%= link_to 'Edit', edit_schedule_path(schedule, return_path: request.fullpath) %></td>
-      <td><%= link_to 'Delete', schedule, method: :delete, data: { confirm: 'Are you sure?' } %></td>
-    </tr>
+    <% @schedules.each do |schedule| %>
+      <tr>
+        <td><%= check_box_tag "schedule[#{schedule.id}]", "1", false, :class => "schedule_check" %></td>
+        <td><%= link_to schedule.job.customer.try(:name), schedule.job.customer unless schedule.job.customer.nil? %></td>
+        <td><%= link_to schedule.job.name, schedule %></td>
+        <td><%= link_to schedule.user.full_name, schedule %></td>
+        <td><%= schedule.schedule_date %></td>
+        <td><%= "#{schedule.from_time.strftime("%I:%M%P")} - #{schedule.to_time.strftime("%I:%M%P")}" unless schedule.from_time.nil? || schedule.to_time.nil? %></td>
+        <td><%= schedule.hours %></td>
+        <td><%= link_to 'Edit', edit_schedule_path(schedule, return_path: request.fullpath) %></td>
+        <td><%= link_to 'Delete', schedule, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+    </table>
   <% end %>
-  </table>
 <% end %>

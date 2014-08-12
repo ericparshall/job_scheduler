@@ -15,6 +15,10 @@ JobScheduler::Application.routes.draw do
     member do
       post :archive
     end
+    
+    collection do
+      delete :delete_multiple
+    end
   end
 
   devise_for :users
