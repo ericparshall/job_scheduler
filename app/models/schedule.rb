@@ -2,9 +2,9 @@ class Schedule < ActiveRecord::Base
   belongs_to :user
   belongs_to :job
   
-  validates :schedule_date, :from_time, :to_time, :job_id, :user_id, presence: true
+  validates :from_time, :to_time, :job_id, :user_id, presence: true
   validate :hours_greater_than_zero
-  
+=begin
   before_validation do
     unless self.schedule_date.nil?
       unless self.from_time.nil?
@@ -16,16 +16,16 @@ class Schedule < ActiveRecord::Base
     end
     self.hours = (self.to_time - self.from_time) / 3600.0 rescue nil
   end
-  
+=end
   def to_schedule_event(color, link_to_url = nil)
     event = {
       borderColor: "black",
       textColor: "black",
       backgroundColor: color,
       title: "#{!self.job.customer.nil? ? self.job.customer.name + ": " : ""}#{self.job.name}, #{self.hours} hrs",
-      start: "#{self.schedule_date.strftime("%Y-%m-%d")} #{self.from_time.strftime("%H:%M:%S")}",
-      end: "#{self.schedule_date.strftime("%Y-%m-%d")} #{self.to_time.strftime("%H:%M:%S")}",
-      schedule_date: self.schedule_date.strftime("%Y-%m-%d"),
+      start: "#{self.from_time.strftime("%Y-%m-%d")} #{self.from_time.strftime("%H:%M:%S")}",
+      end: "#{self.to_time.strftime("%Y-%m-%d")} #{self.to_time.strftime("%H:%M:%S")}",
+      schedule_date: self.from_time.strftime("%Y-%m-%d"),
       job_id: self.job_id,
       allDay: false
     }
@@ -39,9 +39,9 @@ class Schedule < ActiveRecord::Base
       textColor: "black",
       backgroundColor: color,
       title: "#{!self.job.customer.nil? ? self.job.customer.name + ": " : ""}#{self.job.name}",
-      start: "#{self.schedule_date.strftime("%Y-%m-%d")}",
+      start: "#{self.from_time.strftime("%Y-%m-%d")}",
       allDay: true,
-      schedule_date: self.schedule_date.strftime("%Y-%m-%d"),
+      schedule_date: self.from_time.strftime("%Y-%m-%d"),
       job_id: self.job_id
     }
     event[:url] = link_to_url if link_to_url

@@ -20,7 +20,7 @@ $(document).ready(function() {
         }
       },
       viewRender: function(view, element) {
-        $('#calendar').fullCalendar( 'gotoDate', <%= @from_date.year %>, <%= @from_date.month - 1 %>, <%= @from_date.day %> );
+        $('#calendar').fullCalendar( 'gotoDate', <%= @from_time.year %>, <%= @from_time.month - 1 %>, <%= @from_time.day %> );
       }
     });
   });

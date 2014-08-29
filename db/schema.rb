@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140516041616) do
+ActiveRecord::Schema.define(version: 20140820030329) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -64,14 +64,11 @@ ActiveRecord::Schema.define(version: 20140516041616) do
     t.integer  "job_id"
     t.integer  "user_id"
     t.decimal  "hours"
-    t.date     "schedule_date"
-    t.datetime "created_at",    null: false
-    t.datetime "updated_at",    null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.datetime "from_time"
     t.datetime "to_time"
   end
-
-  add_index "schedules", ["user_id", "schedule_date"], name: "index_schedules_on_user_id_and_schedule_date", using: :btree
 
   create_table "skills", force: true do |t|
     t.string   "name"

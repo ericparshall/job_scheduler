@@ -3,10 +3,10 @@ class SchedulesController < ApplicationController
   before_filter :initialize_collections, except: [ :schedule_conflicts ]
 
   def index
-    @from_date = (Date.parse(params[:from_date]) rescue nil) || Date.today.beginning_of_month
-    @to_date = (Date.parse(params[:to_date]) rescue nil) || Date.today.end_of_month
+    @from_time = (Time.parse(params[:from_date]) rescue nil) || Time.now.beginning_of_month
+    @to_time = (Time.parse(params[:to_date]).end_of_day rescue nil) || Time.now.end_of_month
     params[:unit] = "month" if params[:unit].blank?
-    @schedules = schedule_query.sort_by(&:schedule_date)
+    @schedules = schedule_query.sort_by(&:from_time)
     @schedules_grid = schedules_grid
     @schedules_grid.build
     
@@ -20,18 +20,18 @@ class SchedulesController < ApplicationController
   
   def search
     Date.beginning_of_week = :sunday
-    @from_date = (Date.parse(params[:from_date]) rescue nil) || Date.today.beginning_of_month
-    @to_date = (Date.parse(params[:to_date]) rescue nil) || Date.today.end_of_month
+    @from_time = (Time.parse(params[:from_date]) rescue nil) || Time.now.beginning_of_month
+    @to_time = (Time.parse(params[:to_date]).end_of_day rescue nil) || Time.now.end_of_month
     update_date_range
     
     unless params[:selected_tab] == "Calendar"
-      @schedules = schedule_query.sort_by(&:schedule_date)
+      @schedules = schedule_query.sort_by(&:from_time)
       @schedules_grid = schedules_grid
       @schedules_grid.build
       
       user_ids = @schedules_grid.source_data.map(&:user_id).uniq
       job_ids = @schedules_grid.source_data.map(&:job_id).uniq
-      @schedules = schedule_query.where(user_id: user_ids, job_id: job_ids).sort_by(&:schedule_date)
+      @schedules = schedule_query.where(user_id: user_ids, job_id: job_ids).sort_by(&:from_time)
     end
     
     @user = User.find(params[:user_id]) rescue nil
@@ -53,12 +53,20 @@ class SchedulesController < ApplicationController
     params[:user_ids] ||= {}
     params[:user_ids][params[:employee_id]] = User.find(params[:employee_id]).full_name unless params[:employee_id].blank?
     @schedule = Schedule.new
+    @schedule_time_ranges = [
+      {
+        "from_time_date" => "",
+        "from_time_time" => "",
+        "to_time_date" => "",
+        "from_time_time" => "",
+        "total_hours" => ""
+      }
+    ]
     if params[:future_schedule_id]
       @future_schedule = FutureSchedule.find(params[:future_schedule_id]) rescue nil
     end
     
     unless @future_schedule.nil?
-      @schedule.schedule_date = @future_schedule.from_date
       @schedule.from_time = @future_schedule.from_time
       @schedule.to_time = @future_schedule.to_time
       @schedule.job_id = @future_schedule.job_id
@@ -378,7 +386,7 @@ class SchedulesController < ApplicationController
   end
   
   def schedule_query
-    schedule_query = Schedule.where(["schedule_date >= ? and schedule_date <= ?", @from_date, @to_date]).joins(:user, :job).includes(:user, :job)
+    schedule_query = Schedule.where(["(from_time >= ? and from_time <= ?) or (to_time >= ? and to_time <= ?)", @from_time, @to_time, @from_time, @to_time]).joins(:user, :job).includes(:user, :job)
     schedule_query = schedule_query.where(job_id: params[:job_id]) unless params[:job_id].blank?
     schedule_query = schedule_query.where(user_id: params[:user_id]) unless params[:user_id].blank?
     schedule_query = case
@@ -406,21 +414,21 @@ class SchedulesController < ApplicationController
   def update_date_range
     case params[:unit]
     when "today"
-      @from_date = Date.today
-      @to_date = Date.today
+      @from_time = Time.now.beginning_of_day
+      @to_time = Time.now.end_of_day
     when "month"
-      @from_date = @from_date.beginning_of_month
-      @to_date = @from_date.end_of_month
+      @from_time = @from_time.beginning_of_month
+      @to_time = @from_time.end_of_month
     when "week"
-      @from_date = @from_date.beginning_of_week
-      @to_date = @from_date.end_of_week
+      @from_time = @from_time.beginning_of_week
+      @to_time = @from_time.end_of_week
     when "day"
-      @to_date = @from_date
+      @to_time = @from_time
     else
-      params[:unit] = "day" if @from_date == @to_date
-      params[:unit] = "month" if @from_date == @from_date.beginning_of_month && @to_date == @from_date.end_of_month
-      params[:unit] = "week" if @from_date == @from_date.beginning_of_week && @to_date == @from_date.end_of_week
-      params[:unit] = "today" if @from_date == Date.today && @to_date == Date.today
+      params[:unit] = "day" if @from_time == @to_time
+      params[:unit] = "month" if @from_time == @from_time.beginning_of_month && @to_time == @from_time.end_of_month
+      params[:unit] = "week" if @from_time == @from_time.beginning_of_week && @to_time == @from_time.end_of_week
+      params[:unit] = "today" if @from_time == Time.now.beginning_of_day && @to_time == Time.now.end_of_day
     end
   end
 end

@@ -20,39 +20,43 @@ module SchedulesHelper
   def page_back_dates
     @page_back_dates ||= case params[:unit]
     when "today"
-      [@from_date - 1.day, @from_date - 1.day]
+      [@from_time - 1.day, @from_time - 1.day]
     when "month"
-      [@from_date.prev_month.beginning_of_month, @from_date.prev_month.end_of_month]
+      [@from_time.prev_month.beginning_of_month, @from_time.prev_month.end_of_month]
     when "week"
-      [@from_date.prev_week.beginning_of_week, @from_date.prev_week.end_of_week]
+      [@from_time.prev_week.beginning_of_week, @from_time.prev_week.end_of_week]
     when "day"
-      [@from_date - 1.day, @from_date - 1.day]
+      [@from_time - 1.day, @from_time - 1.day]
     end
     
-    @page_back_dates
+    @page_back_dates.map {|d| d.strftime('%m/%d/%Y') }
   end
   
   def page_forward_dates
     @page_forward_dates ||= case params[:unit]
     when "today"
-      [@from_date + 1.day, @from_date + 1.day]
+      [@from_time + 1.day, @from_time + 1.day]
     when "month"
-      [@from_date.next_month.beginning_of_month, @from_date.next_month.end_of_month]
+      [@from_time.next_month.beginning_of_month, @from_time.next_month.end_of_month]
     when "week"
-      [@from_date.next_week.beginning_of_week, @from_date.next_week.end_of_week]
+      [@from_time.next_week.beginning_of_week, @from_time.next_week.end_of_week]
     when "day"
-      [@from_date + 1.day, @from_date + 1.day]
+      [@from_time + 1.day, @from_time + 1.day]
     end
     
-    @page_forward_dates
+    @page_forward_dates.map {|d| d.strftime('%m/%d/%Y') }
   end
   
-  def default_schedule_date(for_attr = :schedule_date)
+  def default_schedule_date(for_attr)
     case 
-    when defined?(@future_schedule) && !@future_schedule.nil? && for_attr == :through_schedule_date then 
-      val = format_time_to_us(@future_schedule.to_date)
-    when @schedule.schedule_date then
-      val = format_time_to_us(@schedule.try(:schedule_date))
+    when defined?(@future_schedule) && !@future_schedule.nil? then
+      if for_attr == :from_time
+        val = format_time_to_us(@future_schedule.from_date)
+      elsif for_attr == :to_time
+        val = format_time_to_us(@future_schedule.to_date)
+      end
+    when @schedule.try(for_attr) then
+      val = format_time_to_us(@schedule.try(for_attr))
     when params[:for_date] then 
       val = format_time_to_us(for_date_to_time(params[:for_date]))
     else 
@@ -61,10 +65,14 @@ module SchedulesHelper
     return val
   end
   
-  def default_from_time
+  def default_from_time(for_attr)
     case
-    when @schedule.schedule_date then format_time_to_hour(@schedule.from_time)
-    when params[:for_date]then format_time_to_hour(for_date_to_time(params[:for_date]))
+    when defined?(@future_schedule) && !@future_schedule.nil? then
+      format_time_to_hour(@future_schedule.send(for_attr))
+    when @schedule.send(for_attr) then 
+      format_time_to_hour(@schedule.send(for_attr))
+    when params[:for_date] then 
+      format_time_to_hour(for_date_to_time(params[:for_date]))
     else nil
     end
   end

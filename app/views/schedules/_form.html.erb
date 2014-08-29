@@ -1,7 +1,79 @@
 <script type="text/javascript">
+
+function convertDateTime(date, time){
+  try {
+    var date = date.split("/");
+    var yyyy = date[2];
+    var mm = date[0]-1;
+    var dd = date[1];
+
+    var time = time.split(":");
+    var h = parseInt(time[0]);
+    var m = parseInt(time[1].substring(0,2));
+    var meridian = time[1].substring(time[1].length - 2, time[1].length);
+    
+    if (meridian.toUpperCase() == "PM" && h > 12) {
+      h += 12;
+    } else if (meridian.toUpperCase() == "AM" && h == 12) {
+      h -= 12;
+    }
+    
+    var s = 0;
+
+    return new Date(yyyy,mm,dd,h,m,s);
+  } catch(e) { 
+    return null;
+  }
+}
+
+function onScheduleTimeChange(from_time_date, from_time_time, to_time_date, to_time_time, hours_for_range) {
+  var fromDateTime = convertDateTime(from_time_date.val(), from_time_time.val());
+  var toDateTime = convertDateTime(to_time_date.val(), to_time_time.val());
+  if (fromDateTime != null && toDateTime != null) {
+    console.log("fromDateTime: " + fromDateTime);
+    console.log("toDateTime: " + toDateTime);
+    var totalHours = ((toDateTime - fromDateTime) / 1000 / 60 / 60);
+    console.log("totalHours: " + totalHours);
+    if (totalHours != NaN)
+      hours_for_range.text(totalHours + " hours");
+    else
+      hours_for_range.text("");
+  } else {
+    hours_for_range.text("");
+  }
+}
+
+function makePickers() {
+  $.each($("#schedule_form input.date-picker.from"), function(index, value){
+    var from_time_date = $(value);
+    var to_time_date = $($("#schedule_form input.date-picker.to")[index]);
+    var from_time_time = $($("#schedule_form input.time-picker.from")[index]);
+    var to_time_time = $($("#schedule_form input.time-picker.to")[index]);
+    var hours_for_range = $($("label.hours_for_range")[index]);
+    
+    from_time_date.datepicker();
+    to_time_date.datepicker();
+    from_time_time.timepicker();
+    to_time_time.timepicker();
+    
+    var onChange = function() { 
+      onScheduleTimeChange(from_time_date, from_time_time, to_time_date, to_time_time, hours_for_range);
+    };
+    
+    from_time_date.on("change", onChange);
+    to_time_date.on("change", onChange);
+    from_time_time.on("changeTime", onChange);
+    to_time_time.on("changeTime", onChange);
+  });
+}
+
+
 $(function() {
-  $("input[name='schedule[schedule_date]']").datepicker();
-  $("input[name='schedule[through_schedule_date]']").datepicker();
+  makePickers();
+});
+/*$(function() {
+  $("input[name='schedule[from_time_date]']").datepicker();
+  $("input[name='schedule[to_time_date]']").datepicker();
   $("input[name='schedule[from_time]']").timepicker();
   $("input[name='schedule[to_time]']").timepicker({
     'minTime': $("input[name='schedule[from_time]']").val(),
@@ -13,14 +85,14 @@ $(function() {
       'showDuration': true
     });
   });  
-});
+});*/
 
 
 
 function addToMassAssignList(option) {
   var row_id = "user_id_" + option.value
   if ( $("#" + row_id).length == 0 ) {
-    var row_div = $("<div id='" + row_id + "' style='row-fluid'>");
+    var row_div = $("<div id='" + row_id + "' style='row'>");
     var label_div = $("<div style='float: left'>");
     label_div.text(option.label);
   
@@ -144,8 +216,8 @@ $(function() {
     </div>
   <% end %>
 
-  <div class="row-fluid">
-    <div class="col-md-4">
+  <div class="row">
+    <div class="col-md-8">
       <label for="job_id_input">Job:</label>
       <%= f.select :job_id, @jobs, selected: @schedule.job.try(:id) || params[:job_id], include_blank: true %>
       <input id="job_id_input" title="Job" placeholder="Job" class="form-control custom-combobox-input ui-autocomplete-input" autocomplete="on" data-original-title="">
@@ -169,20 +241,76 @@ $(function() {
       </div>
       <% end %>
       <br />
-      <label for="schedule_schedule_date">Date:</label>
-      <%= f.text_field :schedule_date, value: default_schedule_date, class: "form-control", placeholder: "Date" %>
-      <br />
-      <% unless @schedule.persisted? %>
-        <label for="shedule_through_schedule_date">Through Date:</label>
-        <%= f.text_field :through_schedule_date, value: default_schedule_date(:through_schedule_date), class: "form-control", placeholder: "Through Date" %>
-      <br />
+      <div class="row">
+        <div class="col-md-6">
+          <label>From Date/Time: </label>
+        </div>
+        <div class="col-md-6">
+          <label>Through Date/Time: </label>
+        </div>
+      </div>
+      <% @schedule_time_ranges.each_with_index do |schedule_time_range, index| %>
+      <!-- 
+        default_schedule_date(:from_time) 
+        default_from_time(:from_time)
+        default_schedule_date(:to_time)
+        default_from_time(:to_time)
+      -->
+      <div class="row">
+        <div class="col-md-3">
+          <%= text_field_tag "schedule_item[0][from_time_date]", schedule_time_range["from_time_date"], class: "form-control date-picker from", placeholder: "mm/dd/yyyy" %>
+        </div>
+
+        <div class="col-md-2">
+          <%= text_field_tag "schedule_item[0][from_time_time]", schedule_time_range["from_time_time"], class: "form-control time-picker from", placeholder: "h:mm" %>
+        </div>
+
+        <div class="col-md-3">
+          <%= text_field_tag "schedule_item[0][to_time_date]", schedule_time_range["to_time_date"], class: "form-control date-picker to", placeholder: "mm/dd/yyyy" %>
+        </div>
+
+        <div class="col-md-2">
+          <%= text_field_tag "schedule_item[0][to_time_time]", schedule_time_range["to_time_time"], class: "form-control time-picker to", placeholder: "h:mm" %>
+        </div>
+
+        <div class="col-md-2">
+          <label class="hours_for_range"><%= schedule_time_range["total_hours"] %></label>
+        </div>
+      </div>
       <% end %>
-      <label for="schedule_from_time">From Time:</label>
-      <%= f.text_field :from_time, value: default_from_time, class: "form-control", placeholder: "From Time" %>
+
+      <% unless @schedule.persisted? %>
       <br />
-      <label for="schedule_to_time">To Time:</label>
-      <%= f.text_field :to_time, value: format_time_to_hour(@schedule.to_time), class: "form-control", placeholder: "To Time" %>
-      <br />
+      <div class="row">
+        <div class="col-md-12">
+          Repeat through (customize times by day)
+        </div>
+      </div>
+      <% end %>
+          
+          
+          
+          
+          
+          
+          
+          
+          <!--
+          <br />
+          <% unless @schedule.persisted? %>
+            <label for="shedule_through_schedule_date">Through Date:</label>
+            <%= f.text_field :through_schedule_date, value: default_schedule_date(:through_schedule_date), class: "form-control", placeholder: "Through Date" %>
+          <br />
+          <% end %>
+          <label for="schedule_from_time">From Time:</label>
+          
+          <br />
+          <label for="schedule_to_time">To Time:</label>
+          <%= f.text_field :to_time, value: format_time_to_hour(@schedule.to_time), class: "form-control", placeholder: "To Time" %>
+        
+          <br />
+        </div>-->
+
       <%= hidden_field_tag :return_path, params[:return_path] %>
       <%= hidden_field_tag :future_schedule_id, params[:future_schedule_id] %>
     </div>
@@ -190,37 +318,38 @@ $(function() {
       
     </div>
   </div>
-  <div style="clear:both" />
-  <div class="row-fluid">
+  <br>
+
+  <div class="row">
     <div class="col-md-4">
       <%= f.submit class: "btn btn-lg btn-primary btn-block" %>
     </div>
   </div>
   <% unless @schedule.persisted? || (defined?(@future_schedule) && !@future_schedule.nil?) %>
-  <div style="clear:both" />
+
   <br>
-  <div class="row-fluid">
+  <div class="row">
     <div class="col-md-4">
       <%= f.submit class: "btn btn-lg btn-primary btn-block", value: "Create Pending Schedule" %>
     </div>
   </div>
   <% end %>
   <% if @future_schedule %>
-  <div style="clear:both" />
+
   <br>
-  <div class="row-fluid">
+  <div class="row">
     <div class="col-md-4">
       <%= f.submit class: "btn btn-lg btn-primary btn-block", value: "Update Pending Schedule" %>
     </div>
   </div>
-  <div style="clear:both" />
+
   <br>
-  <div class="row-fluid">
+  <div class="row">
     <div class="col-md-4">
       <%= f.submit class: "btn btn-lg btn-primary btn-block", value: "Delete Pending Schedule" %>
     </div>
   </div>
   <% end %>
 <% end %>
-<div style="clear:both" />
+
 <br />
