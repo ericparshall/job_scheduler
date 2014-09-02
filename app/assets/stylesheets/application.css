@@ -8,9 +8,9 @@
  * You're free to add application-wide styles to this file and they'll appear at the top of the
  * compiled file, but it's generally better to create a new file per style scope.
  *
- *= require_self
  *= require jquery.ui.all
  *= require_tree .
+ *= require_self
  */
 .horizontal-form {
  width: 100%;
@@ -41,4 +41,14 @@ table th.shrink {
 }
 table th.expand {
     width: 99%
+}
+
+input.form-control.date-picker {
+  width: 55%; 
+  float: left
+}
+
+input.form-control.time-picker {
+  width: 45%;
+  float: left
 }

@@ -1,4 +1,5 @@
 <script type="text/javascript">
+var daysOfWeek = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 
 function convertDateTime(date, time){
   try {
@@ -12,7 +13,7 @@ function convertDateTime(date, time){
     var m = parseInt(time[1].substring(0,2));
     var meridian = time[1].substring(time[1].length - 2, time[1].length);
     
-    if (meridian.toUpperCase() == "PM" && h > 12) {
+    if (meridian.toUpperCase() == "PM" && h != 12) {
       h += 12;
     } else if (meridian.toUpperCase() == "AM" && h == 12) {
       h -= 12;
@@ -26,15 +27,24 @@ function convertDateTime(date, time){
   }
 }
 
-function onScheduleTimeChange(from_time_date, from_time_time, to_time_date, to_time_time, hours_for_range) {
+function onScheduleTimeChange(from_time_date, from_time_time, to_time_date, to_time_time, hours_for_range, day_of_week) {
   var fromDateTime = convertDateTime(from_time_date.val(), from_time_time.val());
   var toDateTime = convertDateTime(to_time_date.val(), to_time_time.val());
+  
+  try {
+    var fromDate = convertDateTime(from_time_date.val(), "1:00am");
+    if (fromDate != null)
+      day_of_week.text(daysOfWeek[fromDate.getDay()]);
+    else
+      day_of_week.text("");
+  } catch(e) {
+    day_of_week.text("");
+  }
+  
   if (fromDateTime != null && toDateTime != null) {
-    console.log("fromDateTime: " + fromDateTime);
-    console.log("toDateTime: " + toDateTime);
     var totalHours = ((toDateTime - fromDateTime) / 1000 / 60 / 60);
-    console.log("totalHours: " + totalHours);
-    if (totalHours != NaN)
+
+    if (!isNaN(totalHours))
       hours_for_range.text(totalHours + " hours");
     else
       hours_for_range.text("");
@@ -50,42 +60,110 @@ function makePickers() {
     var from_time_time = $($("#schedule_form input.time-picker.from")[index]);
     var to_time_time = $($("#schedule_form input.time-picker.to")[index]);
     var hours_for_range = $($("label.hours_for_range")[index]);
-    
+    var day_of_week = $($(".day_of_week")[index]);
+
     from_time_date.datepicker();
     to_time_date.datepicker();
     from_time_time.timepicker();
     to_time_time.timepicker();
     
     var onChange = function() { 
-      onScheduleTimeChange(from_time_date, from_time_time, to_time_date, to_time_time, hours_for_range);
+      onScheduleTimeChange(from_time_date, from_time_time, to_time_date, to_time_time, hours_for_range, day_of_week);
     };
     
     from_time_date.on("change", onChange);
     to_time_date.on("change", onChange);
+    from_time_time.on("change", onChange);
+    to_time_time.on("change", onChange);
     from_time_time.on("changeTime", onChange);
     to_time_time.on("changeTime", onChange);
   });
 }
 
+function padString(num, size) {
+    var s = "000000000" + num;
+    return s.substr(s.length-size);
+}
+
+function addDays(dateString, daysToAdd) {
+  var dateArray = dateString.split("/");
+  var yyyy = parseInt(dateArray[2]);
+  var mm = parseInt(dateArray[0]) - 1;
+  var dd = parseInt(dateArray[1]);
+  
+  var newDate = new Date(yyyy, mm, dd);
+  newDate.setTime(newDate.getTime() + (24 * 60 * 60 * 1000 * daysToAdd));
+  return padString(newDate.getMonth() + 1, 2) + "/" + padString(newDate.getDate(), 2) + "/" + newDate.getFullYear();
+}
+
+function customizeSchedulesByDay() {
+  var fromDate = convertDateTime($("#schedule_item_0_from_time_date").val(), $("#schedule_item_0_from_time_time").val());
+  var throughDate = convertDateTime($("#schedule_item_0_through_date").val(), $("#schedule_item_0_from_time_time").val());
+  
+  if (fromDate != null && !isNaN(fromDate) && throughDate != null && !isNaN(throughDate) && throughDate.getTime() > fromDate.getTime()) {
+    var i = 1;
+    $("#customize_times_by_day_section").hide();
+    while (fromDate.getTime() < throughDate.getTime()) {
+      fromDate.setTime(fromDate.getTime() + (24 * 60 * 60 * 1000));
+      
+      $.each($("#primary_schedule_section").find("input.date-picker"), function(index, value) {
+        $(value).datepicker("destroy");
+      });
+      
+      var template = $("#primary_schedule_section").clone();
+      
+      $.each(template.find("input"), function(index, value) {
+        var newId = $(value).attr("id").replace("0", i.toString());
+        var newName = $(value).attr("name").replace("0", i.toString());
+        $(value).attr("id", newId);
+        $(value).attr("name", newName);
+      });
+      
+      $.each(template.find("input.date-picker"), function(index, value) {
+        var newDate = addDays($(value).val(), i);
+        $(value).val(newDate);
+      });
+      
+      template.appendTo("#customize_times_by_day_section");
+      i++;
+    }
+    
+    makePickers();
+    $("#repeat_through_section").hide();
+    $("#customize_times_by_day_section").show();
+    $("#pending_schedule_button_section").hide();
+  }
+  return false;
+}
+
+function toggleCustomizeSchedulesByDayButton() {
+  var fromDate = convertDateTime($("#schedule_item_0_from_time_date").val(), $("#schedule_item_0_from_time_time").val());
+  var toDate = convertDateTime($("#schedule_item_0_to_time_date").val(), $("#schedule_item_0_to_time_time").val());
+  var throughDate = convertDateTime($("#schedule_item_0_through_date").val(), $("#schedule_item_0_from_time_time").val());
+  
+  if (fromDate != null && toDate != null && throughDate != null && 
+    toDate.getTime() > fromDate.getTime() && throughDate.getTime() > fromDate.getTime()) {
+    $("#customize_schedules_by_day").show()
+  } else {
+    $("#customize_schedules_by_day").hide()
+  }
+}
 
 $(function() {
   makePickers();
-});
-/*$(function() {
-  $("input[name='schedule[from_time_date]']").datepicker();
-  $("input[name='schedule[to_time_date]']").datepicker();
-  $("input[name='schedule[from_time]']").timepicker();
-  $("input[name='schedule[to_time]']").timepicker({
-    'minTime': $("input[name='schedule[from_time]']").val(),
+  $("#schedule_item_0_through_date").datepicker();
+  $("#schedule_item_0_from_time_date").on("change", function() {
+    $("#schedule_item_0_through_date").val($("#schedule_item_0_from_time_date").val());
   });
-  $("input[name='schedule[from_time]']").on("changeTime", function(){
-    $("input[name='schedule[to_time]']").timepicker('remove');
-    $("input[name='schedule[to_time]']").timepicker({
-      'minTime': $(this).val(),
-      'showDuration': true
-    });
-  });  
-});*/
+  $("#customize_schedules_by_day").on("click", customizeSchedulesByDay);
+  toggleCustomizeSchedulesByDayButton();
+  
+  $("#schedule_item_0_from_time_date").on("change", toggleCustomizeSchedulesByDayButton);
+  $("#schedule_item_0_from_time_time").on("change", toggleCustomizeSchedulesByDayButton);
+  $("#schedule_item_0_to_time_date").on("change", toggleCustomizeSchedulesByDayButton);
+  $("#schedule_item_0_to_time_time").on("change", toggleCustomizeSchedulesByDayButton);
+  $("#schedule_item_0_through_date").on("change", toggleCustomizeSchedulesByDayButton);
+});
 
 
 
@@ -242,10 +320,11 @@ $(function() {
       <% end %>
       <br />
       <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-2"></div>
+        <div class="col-md-3">
           <label>From Date/Time: </label>
         </div>
-        <div class="col-md-6">
+        <div class="col-md-3">
           <label>Through Date/Time: </label>
         </div>
       </div>
@@ -256,21 +335,18 @@ $(function() {
         default_schedule_date(:to_time)
         default_from_time(:to_time)
       -->
-      <div class="row">
-        <div class="col-md-3">
-          <%= text_field_tag "schedule_item[0][from_time_date]", schedule_time_range["from_time_date"], class: "form-control date-picker from", placeholder: "mm/dd/yyyy" %>
-        </div>
-
+      <div class="row" id="primary_schedule_section">
         <div class="col-md-2">
-          <%= text_field_tag "schedule_item[0][from_time_time]", schedule_time_range["from_time_time"], class: "form-control time-picker from", placeholder: "h:mm" %>
+          <div class="day_of_week"><%= schedule_time_range["day_of_week"] %></div>
+        </div>
+        <div class="col-md-3">
+          <%= text_field_tag "schedule_item[0][from_time_date]", schedule_time_range["from_time_date"], class: "input-sm form-control date-picker from", placeholder: "mm/dd/yyyy" %>
+          <%= text_field_tag "schedule_item[0][from_time_time]", schedule_time_range["from_time_time"], class: "input-sm form-control time-picker from", placeholder: "h:mm" %>
         </div>
 
         <div class="col-md-3">
-          <%= text_field_tag "schedule_item[0][to_time_date]", schedule_time_range["to_time_date"], class: "form-control date-picker to", placeholder: "mm/dd/yyyy" %>
-        </div>
-
-        <div class="col-md-2">
-          <%= text_field_tag "schedule_item[0][to_time_time]", schedule_time_range["to_time_time"], class: "form-control time-picker to", placeholder: "h:mm" %>
+          <%= text_field_tag "schedule_item[0][to_time_date]", schedule_time_range["to_time_date"], class: "input-sm form-control date-picker to", placeholder: "mm/dd/yyyy" %>
+          <%= text_field_tag "schedule_item[0][to_time_time]", schedule_time_range["to_time_time"], class: "input-sm form-control time-picker to", placeholder: "h:mm" %>
         </div>
 
         <div class="col-md-2">
@@ -281,10 +357,25 @@ $(function() {
 
       <% unless @schedule.persisted? %>
       <br />
-      <div class="row">
-        <div class="col-md-12">
-          Repeat through (customize times by day)
+      <div id="repeat_through_section">
+        <div class="row">
+          <div class="col-md-2"></div>
+          <div class="col-md-10">
+            <label>Repeat through:</label>
+          </div>
         </div>
+        <div class="row">
+          <div class="col-md-2"></div>
+          <div class="col-md-3">
+            <%= text_field_tag "schedule_item[0][through_date]", @schedule_time_ranges[0]["through_date"], class: "form-control date-picker input-sm", placeholder: "mm/dd/yyyy" %>
+          </div>
+          <div class="col-md-4">
+            <a href="#" id="customize_schedules_by_day" class="btn btn-sm btn-primary" role="button" style="color: #FFFFFF">Customize Times by Day</a>
+          </div>
+        </div>
+      </div>
+      <div id="customize_times_by_day_section">
+        
       </div>
       <% end %>
           
@@ -326,30 +417,30 @@ $(function() {
     </div>
   </div>
   <% unless @schedule.persisted? || (defined?(@future_schedule) && !@future_schedule.nil?) %>
-
-  <br>
-  <div class="row">
-    <div class="col-md-4">
-      <%= f.submit class: "btn btn-lg btn-primary btn-block", value: "Create Pending Schedule" %>
+  <div id="pending_schedule_button_section">
+    <br>
+    <div class="row">
+      <div class="col-md-4">
+        <%= f.submit class: "btn btn-lg btn-primary btn-block", value: "Create Pending Schedule" %>
+      </div>
     </div>
-  </div>
-  <% end %>
-  <% if @future_schedule %>
-
-  <br>
-  <div class="row">
-    <div class="col-md-4">
-      <%= f.submit class: "btn btn-lg btn-primary btn-block", value: "Update Pending Schedule" %>
+    <% end %>
+    <% if @future_schedule %>
+    <br>
+    <div class="row">
+      <div class="col-md-4">
+        <%= f.submit class: "btn btn-lg btn-primary btn-block", value: "Update Pending Schedule" %>
+      </div>
     </div>
-  </div>
 
-  <br>
-  <div class="row">
-    <div class="col-md-4">
-      <%= f.submit class: "btn btn-lg btn-primary btn-block", value: "Delete Pending Schedule" %>
+    <br>
+    <div class="row">
+      <div class="col-md-4">
+        <%= f.submit class: "btn btn-lg btn-primary btn-block", value: "Delete Pending Schedule" %>
+      </div>
     </div>
+    <% end %>
   </div>
-  <% end %>
 <% end %>
 
 <br />

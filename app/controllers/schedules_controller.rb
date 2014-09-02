@@ -59,7 +59,9 @@ class SchedulesController < ApplicationController
         "from_time_time" => "",
         "to_time_date" => "",
         "from_time_time" => "",
-        "total_hours" => ""
+        "total_hours" => "",
+        "through_date" => "",
+        "day_of_week" => ""
       }
     ]
     if params[:future_schedule_id]

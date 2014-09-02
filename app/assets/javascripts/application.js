@@ -12,7 +12,13 @@
 //= require jquery
 //= require jquery_ujs
 //= require jquery.ui.all
-//= require_tree .
+//= require jquery.timepicker.min.js
+//= require bootstrap.js.coffee
+//= require fullcalendar.js
+//= require gcal.js
+//= require modernizr.js
+//= require_self
+
 
 (function( $ ) {
   $.widget( "custom.combobox", {
