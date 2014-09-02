@@ -31,16 +31,6 @@ function onScheduleTimeChange(from_time_date, from_time_time, to_time_date, to_t
   var fromDateTime = convertDateTime(from_time_date.val(), from_time_time.val());
   var toDateTime = convertDateTime(to_time_date.val(), to_time_time.val());
   
-  try {
-    var fromDate = convertDateTime(from_time_date.val(), "1:00am");
-    if (fromDate != null)
-      day_of_week.text(daysOfWeek[fromDate.getDay()]);
-    else
-      day_of_week.text("");
-  } catch(e) {
-    day_of_week.text("");
-  }
-  
   if (fromDateTime != null && toDateTime != null) {
     var totalHours = ((toDateTime - fromDateTime) / 1000 / 60 / 60);
 
@@ -50,6 +40,18 @@ function onScheduleTimeChange(from_time_date, from_time_time, to_time_date, to_t
       hours_for_range.text("");
   } else {
     hours_for_range.text("");
+  }
+}
+
+function updateDayOfWeek(from_time_date, day_of_week) {
+  try {
+    var fromDate = convertDateTime(from_time_date.val(), "1:00am");
+    if (fromDate != null)
+      day_of_week.text(daysOfWeek[fromDate.getDay()]);
+    else
+      day_of_week.text("");
+  } catch(e) {
+    day_of_week.text("");
   }
 }
 
@@ -72,6 +74,12 @@ function makePickers() {
     };
     
     from_time_date.on("change", onChange);
+    from_time_date.on("change", function() {
+      updateDayOfWeek(from_time_date, day_of_week);
+    });
+    
+    updateDayOfWeek(from_time_date, day_of_week);
+
     to_time_date.on("change", onChange);
     from_time_time.on("change", onChange);
     to_time_time.on("change", onChange);
