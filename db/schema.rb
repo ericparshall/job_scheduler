@@ -36,8 +36,8 @@ ActiveRecord::Schema.define(version: 20140820030329) do
   create_table "jobs", force: true do |t|
     t.string   "name"
     t.text     "description"
-    t.datetime "created_at",                                   null: false
-    t.datetime "updated_at",                                   null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
     t.boolean  "archived",                     default: false
     t.integer  "customer_id"
     t.integer  "point_of_contact_id"
@@ -64,8 +64,8 @@ ActiveRecord::Schema.define(version: 20140820030329) do
     t.integer  "job_id"
     t.integer  "user_id"
     t.decimal  "hours"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
     t.datetime "from_time"
     t.datetime "to_time"
   end
@@ -113,8 +113,8 @@ ActiveRecord::Schema.define(version: 20140820030329) do
     t.datetime "last_sign_in_at"
     t.string   "current_sign_in_ip"
     t.string   "last_sign_in_ip"
-    t.datetime "created_at",                             null: false
-    t.datetime "updated_at",                             null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
     t.string   "full_name"
     t.integer  "user_type_id"
     t.integer  "manager_id"

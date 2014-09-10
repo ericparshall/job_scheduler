@@ -195,40 +195,64 @@ class SchedulesController < ApplicationController
   end
   
   def schedule_conflicts
-    @warnings = []
-    @errors = []
+    conflicts = nil
     
-    from_date = Date.parse(params[:schedule][:schedule_date]) rescue nil
-    to_date = Date.parse(params[:schedule][:through_schedule_date]) rescue nil
-    to_date = from_date if to_date.nil?
+    schedule_blocks = get_schedule_blocks(params["schedule_item"])
     
     schedule = Schedule.find(params[:schedule_id]) unless params[:schedule_id].blank?
     
     if !schedule.nil?
-      schedule.schedule_date = schedule_params[:schedule_date]
-      schedule.from_time = schedule_params[:from_time]
-      schedule.to_time = schedule_params[:to_time]
+      schedule.from_time = schedule_blocks.first[:from_time]
+      schedule.to_time = schedule_blocks.first[:to_time]
       
-      check_schedule_for_conflicts([schedule])
+      conflicts = ScheduleConflictChecker.check_schedule_for_conflicts([schedule])
     else
-      unless from_date.nil? || to_date.nil?
-        employee_ids = params[:user_ids].map {|k, v| k } rescue []
-        employee_ids.each do |employee_id|
-          schedules = []
-          (from_date..to_date).to_a.each do |schedule_date|
-            schedules << Schedule.new(schedule_params.merge(
-              user_id: employee_id, 
-              schedule_date: schedule_date, 
-              from_time: fmt_time(:from_time, schedule_date.strftime("%m/%d/%Y")), 
-              to_time: fmt_time(:to_time, schedule_date.strftime("%m/%d/%Y")))
-            )
-          end
-          check_schedule_for_conflicts(schedules)
+      employee_ids = params[:user_ids].map {|k, v| k } rescue []
+      employee_ids.each do |employee_id|
+        schedules = []
+        schedule_blocks.each do |schedule_block|
+          schedules << Schedule.new(schedule_params.merge(
+            user_id: employee_id, 
+            from_time: schedule_block[:from_time], 
+            to_time: schedule_block[:to_time]
+          ))
         end
+        
+        conflicts = ScheduleConflictChecker.check_schedule_for_conflicts(schedules)
       end
     end
-
+    
+    @errors = conflicts.try(:[], :errors) || []
+    @warnings = conflicts.try(:[], :warnings) || []
+    
     render layout: false
+  end
+  
+  def get_schedule_blocks(schedule_item)
+    schedule_blocks = []
+    
+    if schedule_item.size == 1
+      start_date = Date.parse(schedule_item["0"]["from_time_date"])
+      end_date = Date.parse(schedule_item["0"]["to_time_date"])
+      through_date = Date.parse(schedule_item["0"]["through_date"]) rescue start_date
+      while start_date <= through_date
+        schedule_blocks << {
+          from_time: Time.parse("#{start_date.strftime("%m/%d/%Y")} #{schedule_item["0"]["from_time_time"]}"),
+          to_time: Time.parse("#{end_date.strftime("%m/%d/%Y")} #{schedule_item["0"]["to_time_time"]}")
+        }
+        start_date += 1.day
+        end_date += 1.day
+      end
+    else
+      schedule_item.each do |index, range|
+        schedule_blocks << {
+          from_time: Time.parse("#{range["from_time_date"]} #{range["from_time_time"]}"),
+          to_time: Time.parse("#{range["to_time_date"]} #{range["to_time_time"]}")
+        }
+      end
+    end
+    
+    schedule_blocks
   end
   
   def grouped_by_job_id
@@ -293,38 +317,6 @@ class SchedulesController < ApplicationController
   end
   
   private
-  def schedules_conflict?(schedule_a, schedule_b)
-    (schedule_a.from_time - schedule_b.to_time) * (schedule_b.from_time - schedule_a.to_time) >= 0
-  end
-  
-  def check_schedule_for_conflicts(schedules)
-    schedule = schedules.first
-    hours = (schedule.to_time - schedule.from_time) / 3600.0 * schedules.count
-    
-    query = Schedule.where([
-      "schedule_date >= ? AND schedule_date <= ? and user_id = ?", 
-      schedule.schedule_date.beginning_of_week, 
-      schedule.schedule_date.end_of_week, 
-      schedule.user_id])
-      
-    if schedule.persisted?
-      query = query.where(["id != ?", schedule.id])
-    end
-    
-    query.each do |s|
-      schedules.each do |t|
-        if schedules_conflict?(t, s)
-          @errors << "<strong>#{t.user.full_name}</strong>: The schedule conflicts with another schedule: <a href=\"#{schedule_path(s)}\">#{s.job.name}</a>".html_safe
-        end
-      end
-      hours += s.hours
-    end
-
-    if hours >= 40
-      @warnings << "Including this schedule, <strong>#{schedule.user.full_name}</strong> is scheduled for #{hours} hours during the week".html_safe
-    end
-  end
-  
   def initialize_collections
     @users = User.where(archived: false).sort_by{|u| u.full_name }.collect {|u| [u.full_name, u.id] }
     @jobs = Job.where(archived: false).load.sort_by{|j| "#{!j.customer.nil? ? j.customer.try(:name) + ": " : ""}#{j.name}" }.collect {|j| ["#{!j.customer.nil? ? j.customer.try(:name) + ": " : ""}#{j.name}", j.id] }

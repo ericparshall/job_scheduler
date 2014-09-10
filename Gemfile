@@ -33,6 +33,12 @@ gem 'mail'
 gem 'postmark'
 gem 'postmark-rails'
 
+group :development, :test do
+  gem 'rspec-rails', '~> 3.0.0'
+  gem 'fabrication'
+  gem 'faker'
+end
+
 # To use ActiveModel has_secure_password
 # gem 'bcrypt-ruby', '~> 3.0.0'
 
