@@ -1,8 +1,14 @@
 class FutureSchedule < ActiveRecord::Base
-  belongs_to :job
-  before_validation do
-    self.from_time = "#{self.from_date.strftime("%m/%d/%Y")} #{self.from_time.strftime("%I:%M%P")}" rescue nil
-    self.to_time = "#{self.to_date.strftime("%m/%d/%Y")} #{self.to_time.strftime("%I:%M%P")}"
+  belongs_to :job  
+  validates :job_id, presence: true
+  
+  def validate(record)
+    unless record.from_time <= record.to_time
+      errors[:to_time] << "To Date/Time must be greater than From Date/Time"
+    end
+    unless record.through_date >= record.from_time.to_date
+      errors[:through_date] << "Repeat Through date must be equal to or greater than the From Date"
+    end
   end
   
   def to_schedule_event(color, link_to_url = nil)

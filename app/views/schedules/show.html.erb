@@ -3,9 +3,9 @@
     $('#calendar').fullCalendar({
       firstDay: 1,
       defaultView: 'agendaDay',
-      year: <%= @schedule.schedule_date.year %>,
-      month: <%= @schedule.schedule_date.month - 1 %>,
-      date: <%= @schedule.schedule_date.day %>,
+      year: <%= @schedule.from_time.year %>,
+      month: <%= @schedule.from_time.month - 1 %>,
+      date: <%= @schedule.from_time.day %>,
       events: [<%= @schedule.to_schedule_event(edit_schedule_path(@schedule, return_path: schedule_path(@schedule))).to_json.html_safe %>]
     })
   });
@@ -21,7 +21,7 @@
 
 <p>
   <b>User:</b>
-  <%= @schedule.user_id %>
+  <%= @schedule.user.full_name %>
 </p>
 
 <p>
@@ -30,8 +30,8 @@
 </p>
 
 <p>
-  <b>Schedule date:</b>
-  <%= @schedule.schedule_date %>
+  <b>Schedule:</b>
+  <%= "#{@schedule.from_time.strftime("%m/%d/%Y %I:%M%P")}  to  #{@schedule.to_time.strftime("%m/%d/%Y %I:%M%P")}" %>
 </p>
 
 <div id="calendar" style="padding-top: 10px; padding-left: 10%; padding-right: 10%; padding-bottom: 10%"></div>

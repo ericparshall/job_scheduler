@@ -41,6 +41,7 @@ function onScheduleTimeChange(from_time_date, from_time_time, to_time_date, to_t
   } else {
     hours_for_range.text("");
   }
+  checkForScheduleConflicts();
 }
 
 function updateDayOfWeek(from_time_date, day_of_week) {
@@ -208,6 +209,7 @@ function addToMassAssignList(option) {
     $("#mass_assign_users").append(row_div);
     $("#mass_assign_users").append( "<div style='clear: both'>" );
   }
+  checkForScheduleConflicts();
 }
 
 function removeRowFromMassAssign(row_id) {
@@ -219,7 +221,7 @@ function checkForScheduleConflicts() {
   var formURL = "<%= schedules_schedule_conflicts_path %>";
   $.ajax({
     url : formURL,
-    type: "get",
+    type: "POST",
     data : postData,
     success:function(data, textStatus, jqXHR) {
       $("#schedule_conflicts").empty();
@@ -244,49 +246,13 @@ $(function() {
     input: $("#user_id_input"),
     custom_on_select: function(option) {
       addToMassAssignList(option);
-      checkForScheduleConflicts();
     }
   });
   <% end %>
   <% params[:user_ids].try(:each) do |k, v| %>
   addToMassAssignList({ value: '<%= k %>', label: '<%= v %>' });
   <% end %>
-  
-  $( "#schedule_schedule_date" ).change(function(e) {
-    checkForScheduleConflicts();
-    var fromDate = new Date($( "#schedule_schedule_date" ).val());
-    var toDate = new Date($( "#schedule_through_schedule_date" ).val());
-
-    if (!isNaN(fromDate) && !isNaN(toDate)) {
-      if (toDate < fromDate) {
-        $( "#schedule_through_schedule_date" ).val($( "#schedule_schedule_date" ).val());
-      }
-    }
     
-    if (!isNaN(fromDate)) {
-      var today = new Date();
-      today.setHours(0);
-      today.setMinutes(0);
-      today.setSeconds(0);
-
-      var dayOffset = Math.round((fromDate - today)/(1000*60*60*24));
-      
-      $("#schedule_through_schedule_date").datepicker("destroy");
-      $("#schedule_through_schedule_date").datepicker({ minDate: dayOffset});
-    }
-  });
-  $( "#schedule_through_schedule_date" ).change(function(e) {
-    checkForScheduleConflicts();
-  });
-  $( "#schedule_from_time" ).change(function(e) {
-    checkForScheduleConflicts();
-  });
-  $( "#schedule_to_time" ).change(function(e) {
-    checkForScheduleConflicts();
-  });
-  
-  $( "#schedule_schedule_date" ).change();
-  
   $('#schedule_form').submit(function() {
     $(this).find("input:submit").prop('disabled',true);
   });
@@ -303,6 +269,17 @@ $(function() {
 
       <ul>
       <% @schedule.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+  <% if @future_schedule.try(:errors).try(:any?) %>
+    <div id="error_explanation" class="alert alert-error">
+      <strong><%= pluralize(@future_schedule.errors.count, "error") %> prohibited this pending schedule from being saved:</strong>
+
+      <ul>
+      <% @future_schedule.errors.full_messages.each do |msg| %>
         <li><%= msg %></li>
       <% end %>
       </ul>
@@ -340,16 +317,10 @@ $(function() {
           <label>From Date/Time: </label>
         </div>
         <div class="col-md-3">
-          <label>Through Date/Time: </label>
+          <label>To Date/Time: </label>
         </div>
       </div>
       <% @schedule_time_ranges.each_with_index do |schedule_time_range, index| %>
-      <!-- 
-        default_schedule_date(:from_time) 
-        default_from_time(:from_time)
-        default_schedule_date(:to_time)
-        default_from_time(:to_time)
-      -->
       <div class="row" id="primary_schedule_section">
         <div class="col-md-2" data-column="day_of_week">
           <div class="day_of_week"><%= schedule_time_range["day_of_week"] %></div>

@@ -4,6 +4,10 @@
 
 <p>
   <strong>Job name: </strong><%= "#{@job.customer.try(:name)}: #{@job.name}" %><br>
-  <strong>Dates: </strong><%= @from_date %> - <%= @to_date %><br>
-  <strong>Times:</strong><%= Time.parse(@from_time).strftime("%l:%M %p") %> - <%= Time.parse(@to_time).strftime("%l:%M %p") %>
+  <strong>Scheduled Times:</strong><br>
+  <ul>
+    <% @schedule_blocks.each do |schedule_block| %>
+      <ul><%= schedule_block[:from_time].strftime("%m/%d/%Y %I:%M%P") %> - <%= schedule_block[:to_time].strftime("%m/%d/%Y %I:%M%P") %></ul>
+    <% end %>
+  </ul>
 </p>

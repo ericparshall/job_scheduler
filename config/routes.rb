@@ -6,12 +6,13 @@ JobScheduler::Application.routes.draw do
 
   match 'schedules/search' => "schedules#search", via: [:get, :post]
   match "schedules/scheduled_for_job" => "schedules#scheduled_for_job", via: [:get]
-  match "schedules/schedule_conflicts" => "schedules#schedule_conflicts", via: [:get]
+  match "schedules/schedule_conflicts" => "schedules#schedule_conflicts", via: :all
+  #match "schedules/:id" => "schedules#", via: :all
   match "schedules/grouped_by_job_id" => "schedules#grouped_by_job_id", via: [:get]
   resources :schedules do
     get :scheduled_for_job
-    get :schedule_conflicts
     get :grouped_by_job_id
+    
     member do
       post :archive
     end

@@ -3,20 +3,9 @@ class Schedule < ActiveRecord::Base
   belongs_to :job
   
   validates :from_time, :to_time, :job_id, :user_id, presence: true
+  before_validation { self.hours = (self.to_time - self.from_time) / 3600.0 rescue nil }
   validate :hours_greater_than_zero
-=begin
-  before_validation do
-    unless self.schedule_date.nil?
-      unless self.from_time.nil?
-        self.from_time = "#{self.schedule_date.strftime("%m/%d/%Y")} #{self.from_time.strftime("%I:%M%P")}"
-      end
-      unless self.to_time.nil?
-        self.to_time = "#{self.schedule_date.strftime("%m/%d/%Y")} #{self.to_time.strftime("%I:%M%P")}"
-      end
-    end
-    self.hours = (self.to_time - self.from_time) / 3600.0 rescue nil
-  end
-=end
+
   def to_schedule_event(color, link_to_url = nil)
     event = {
       borderColor: "black",

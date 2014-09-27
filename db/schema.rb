@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140820030329) do
+ActiveRecord::Schema.define(version: 20140924050902) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -25,12 +25,11 @@ ActiveRecord::Schema.define(version: 20140820030329) do
 
   create_table "future_schedules", force: true do |t|
     t.integer  "job_id"
-    t.date     "from_date"
-    t.date     "to_date"
     t.datetime "from_time"
     t.datetime "to_time"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.date     "through_date"
   end
 
   create_table "jobs", force: true do |t|

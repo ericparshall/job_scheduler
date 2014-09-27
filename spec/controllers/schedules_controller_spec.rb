@@ -14,8 +14,8 @@ RSpec.describe SchedulesController, :type => :controller do
       schedule_block = SchedulesController.new.get_schedule_blocks(schedule_item)
       
       expect(schedule_block.size).to eq 1
-      expect(schedule_block.first[:from_time]).to eq Time.parse("09/05/2014 1:00am")
-      expect(schedule_block.first[:to_time]).to eq Time.parse("09/05/2014 6:00am")
+      expect(schedule_block.first[:from_time]).to eq Time.parse("09/05/2014 1:00am UTC")
+      expect(schedule_block.first[:to_time]).to eq Time.parse("09/05/2014 6:00am UTC")
     end
     
     it "should return a range of schedule blocks" do
@@ -30,23 +30,23 @@ RSpec.describe SchedulesController, :type => :controller do
       schedule_block = SchedulesController.new.get_schedule_blocks(schedule_item)
       
       expect(schedule_block.size).to eq 6
-      expect(schedule_block[0][:from_time]).to eq Time.parse("09/05/2014 1:00am")
-      expect(schedule_block[0][:to_time]).to eq Time.parse("09/05/2014 6:00am")
+      expect(schedule_block[0][:from_time]).to eq Time.parse("09/05/2014 1:00am UTC")
+      expect(schedule_block[0][:to_time]).to eq Time.parse("09/05/2014 6:00am UTC")
       
-      expect(schedule_block[1][:from_time]).to eq Time.parse("09/06/2014 1:00am")
-      expect(schedule_block[1][:to_time]).to eq Time.parse("09/06/2014 6:00am")
+      expect(schedule_block[1][:from_time]).to eq Time.parse("09/06/2014 1:00am UTC")
+      expect(schedule_block[1][:to_time]).to eq Time.parse("09/06/2014 6:00am UTC")
       
-      expect(schedule_block[2][:from_time]).to eq Time.parse("09/07/2014 1:00am")
-      expect(schedule_block[2][:to_time]).to eq Time.parse("09/07/2014 6:00am")
+      expect(schedule_block[2][:from_time]).to eq Time.parse("09/07/2014 1:00am UTC")
+      expect(schedule_block[2][:to_time]).to eq Time.parse("09/07/2014 6:00am UTC")
       
-      expect(schedule_block[3][:from_time]).to eq Time.parse("09/08/2014 1:00am")
-      expect(schedule_block[3][:to_time]).to eq Time.parse("09/08/2014 6:00am")
+      expect(schedule_block[3][:from_time]).to eq Time.parse("09/08/2014 1:00am UTC")
+      expect(schedule_block[3][:to_time]).to eq Time.parse("09/08/2014 6:00am UTC")
       
-      expect(schedule_block[4][:from_time]).to eq Time.parse("09/09/2014 1:00am")
-      expect(schedule_block[4][:to_time]).to eq Time.parse("09/09/2014 6:00am")
+      expect(schedule_block[4][:from_time]).to eq Time.parse("09/09/2014 1:00am UTC")
+      expect(schedule_block[4][:to_time]).to eq Time.parse("09/09/2014 6:00am UTC")
       
-      expect(schedule_block[5][:from_time]).to eq Time.parse("09/10/2014 1:00am")
-      expect(schedule_block[5][:to_time]).to eq Time.parse("09/10/2014 6:00am")
+      expect(schedule_block[5][:from_time]).to eq Time.parse("09/10/2014 1:00am UTC")
+      expect(schedule_block[5][:to_time]).to eq Time.parse("09/10/2014 6:00am UTC")
     end
     
     it "should return a range when passed a list of schedule times" do
@@ -73,17 +73,17 @@ RSpec.describe SchedulesController, :type => :controller do
       schedule_block = SchedulesController.new.get_schedule_blocks(schedule_item)
       
       expect(schedule_block.size).to eq 4
-      expect(schedule_block[0][:from_time]).to eq Time.parse("09/05/2014 1:00am")
-      expect(schedule_block[0][:to_time]).to eq Time.parse("09/05/2014 6:00am")
+      expect(schedule_block[0][:from_time]).to eq Time.parse("09/05/2014 1:00am UTC")
+      expect(schedule_block[0][:to_time]).to eq Time.parse("09/05/2014 6:00am UTC")
       
-      expect(schedule_block[1][:from_time]).to eq Time.parse("09/06/2014 2:00pm")
-      expect(schedule_block[1][:to_time]).to eq Time.parse("09/06/2014 6:00pm")
+      expect(schedule_block[1][:from_time]).to eq Time.parse("09/06/2014 2:00pm UTC")
+      expect(schedule_block[1][:to_time]).to eq Time.parse("09/06/2014 6:00pm UTC")
       
-      expect(schedule_block[2][:from_time]).to eq Time.parse("09/07/2014 1:12am")
-      expect(schedule_block[2][:to_time]).to eq Time.parse("09/07/2014 6:55am")
+      expect(schedule_block[2][:from_time]).to eq Time.parse("09/07/2014 1:12am UTC")
+      expect(schedule_block[2][:to_time]).to eq Time.parse("09/07/2014 6:55am UTC")
       
-      expect(schedule_block[3][:from_time]).to eq Time.parse("09/09/2014 1:00am")
-      expect(schedule_block[3][:to_time]).to eq Time.parse("09/09/2014 6:00pm")
+      expect(schedule_block[3][:from_time]).to eq Time.parse("09/09/2014 1:00am UTC")
+      expect(schedule_block[3][:to_time]).to eq Time.parse("09/09/2014 6:00pm UTC")
     end
   end
   
@@ -98,7 +98,7 @@ RSpec.describe SchedulesController, :type => :controller do
     
     it "should check for conflics for each user" do
       expect(controller).to receive(:get_schedule_blocks).and_return(
-        [ { from_time: Time.parse("09/05/2014 1:00am"), to_time: Time.parse("09/05/2014 6:00am") } ]
+        [ { from_time: Time.parse("09/05/2014 1:00am"), to_time: Time.parse("09/05/2014 6:00am UTC") } ]
       )
       expect(ScheduleConflictChecker).to receive(:check_schedule_for_conflicts).exactly(4).times.and_return({errors: [], warnings: []})
       get :schedule_conflicts, user_ids: @user_ids, schedule: { job_id: "1" }

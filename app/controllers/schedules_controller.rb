@@ -1,10 +1,13 @@
 class SchedulesController < ApplicationController
+  include ApplicationHelper
+  include SchedulesHelper
+  
   before_filter :require_admin_user, except: [ :scheduled_for_job ]
   before_filter :initialize_collections, except: [ :schedule_conflicts ]
 
   def index
-    @from_time = (Time.parse(params[:from_date]) rescue nil) || Time.now.beginning_of_month
-    @to_time = (Time.parse(params[:to_date]).end_of_day rescue nil) || Time.now.end_of_month
+    @from_time = (Time.parse("#{params[:from_date]} 00:00:00 UTC") rescue nil) || Time.now.beginning_of_month
+    @to_time = (Time.parse("#{params[:to_date]} 00:00:00 UTC").end_of_day rescue nil) || Time.now.end_of_month
     params[:unit] = "month" if params[:unit].blank?
     @schedules = schedule_query.sort_by(&:from_time)
     @schedules_grid = schedules_grid
@@ -20,8 +23,8 @@ class SchedulesController < ApplicationController
   
   def search
     Date.beginning_of_week = :sunday
-    @from_time = (Time.parse(params[:from_date]) rescue nil) || Time.now.beginning_of_month
-    @to_time = (Time.parse(params[:to_date]).end_of_day rescue nil) || Time.now.end_of_month
+    @from_time = (Time.parse("#{params[:from_date]} 00:00:00 UTC") rescue nil) || Time.now.beginning_of_month
+    @to_time = (Time.parse("#{params[:to_date]} 00:00:00 UTC").end_of_day rescue nil) || Time.now.end_of_month
     update_date_range
     
     unless params[:selected_tab] == "Calendar"
@@ -53,17 +56,7 @@ class SchedulesController < ApplicationController
     params[:user_ids] ||= {}
     params[:user_ids][params[:employee_id]] = User.find(params[:employee_id]).full_name unless params[:employee_id].blank?
     @schedule = Schedule.new
-    @schedule_time_ranges = [
-      {
-        "from_time_date" => "",
-        "from_time_time" => "",
-        "to_time_date" => "",
-        "from_time_time" => "",
-        "total_hours" => "",
-        "through_date" => "",
-        "day_of_week" => ""
-      }
-    ]
+    
     if params[:future_schedule_id]
       @future_schedule = FutureSchedule.find(params[:future_schedule_id]) rescue nil
     end
@@ -73,6 +66,18 @@ class SchedulesController < ApplicationController
       @schedule.to_time = @future_schedule.to_time
       @schedule.job_id = @future_schedule.job_id
     end
+    
+    @schedule_time_ranges = [
+      {
+        "from_time_date" => default_schedule_date(:from_time),
+        "from_time_time" => default_from_time(:from_time),
+        "to_time_date" => default_schedule_date(:to_time),
+        "to_time_time" => default_from_time(:to_time),
+        "total_hours" => @schedule.hours,
+        "through_date" => "",
+        "day_of_week" => ""
+      }
+    ]
 
     respond_to do |format|
       format.html
@@ -82,91 +87,115 @@ class SchedulesController < ApplicationController
 
   def edit
     @schedule = Schedule.find(params[:id])
+    
+    @schedule_time_ranges = [
+      {
+        "from_time_date" => default_schedule_date(:from_time),
+        "from_time_time" => default_from_time(:from_time),
+        "to_time_date" => default_schedule_date(:to_time),
+        "to_time_time" => default_from_time(:to_time),
+        "total_hours" => @schedule.hours,
+        "through_date" => default_schedule_date(:through_date),
+        "day_of_week" => Date::DAYNAMES[@schedule.from_time.wday]
+      }
+    ]
   end
 
   def create
-    @schedule = Schedule.new(schedule_params)
+    @schedule = Schedule.new({ job_id: params[:schedule][:job_id] })
+    @schedule_time_ranges = params[:schedule_item].map {|k, v| v }
     
-    from_date = Date.parse(params[:schedule][:schedule_date]) rescue nil
-    to_date = Date.parse(params[:schedule][:through_schedule_date]) rescue nil
-    
-    to_date = from_date if to_date.nil?
-    
-    unless from_date.nil? || to_date.nil?
-      if params[:commit].try(:downcase) == "create pending schedule"
-        @future_schedule = FutureSchedule.new
-        @future_schedule.from_date = from_date
-        @future_schedule.to_date = to_date
-        @future_schedule.from_time = @schedule.from_time
-        @future_schedule.to_time = @schedule.to_time
-        @future_schedule.job_id = @schedule.job_id
-        @future_schedule.save
-        
+    if params[:commit].try(:downcase) == "create pending schedule"
+      @future_schedule = FutureSchedule.new
+      @future_schedule.from_time = "#{@schedule_time_ranges[0][:from_time_date]} #{@schedule_time_ranges[0][:from_time_time]}"
+      @future_schedule.to_time = "#{@schedule_time_ranges[0][:to_time_date]} #{@schedule_time_ranges[0][:to_time_time]}"
+      @future_schedule.job_id = @schedule.job_id
+      @future_schedule.through_date = @schedule_time_ranges[0][:through_date]
+      
+      if @future_schedule.valid?
         respond_to do |format|
+          @future_schedule.save
           format.html { redirect_to new_schedule_path(future_schedule_id: @future_schedule.id), notice: "Pending schedule was successfully created." }
         end
-        return
-      elsif params[:commit].try(:downcase) == "update pending schedule"
-        @future_schedule = FutureSchedule.find(params[:future_schedule_id])
-        unless @future_schedule.nil?
-          @future_schedule.from_date = from_date
-          @future_schedule.to_date = to_date
-          @future_schedule.from_time = @schedule.from_time
-          @future_schedule.to_time = @schedule.to_time
-          @future_schedule.job_id = @schedule.job_id
-          @future_schedule.save
+      else
+        respond_to do |format|
+          format.html { render action: "new" }
         end
+      end
+      return
+    elsif params[:commit].try(:downcase) == "update pending schedule"
+      @future_schedule = FutureSchedule.find(params[:future_schedule_id])
+      unless @future_schedule.nil?
+        @future_schedule.from_time = "#{@schedule_time_ranges[0][:from_time_date]} #{@schedule_time_ranges[0][:from_time_time]}"
+        @future_schedule.to_time = "#{@schedule_time_ranges[0][:to_time_date]} #{@schedule_time_ranges[0][:to_time_time]}"
+        @future_schedule.job_id = @schedule.job_id
+        @future_schedule.through_date = @schedule_time_ranges[0][:through_date]
+      end
+      if @future_schedule.valid?
+        @future_schedule.save
         respond_to do |format|
           format.html { redirect_to new_schedule_path(future_schedule_id: @future_schedule.id), notice: "Pending schedule was successfully updated." }
         end
-        return
-      elsif params[:commit].try(:downcase) == "delete pending schedule"
-        @future_schedule = FutureSchedule.find(params[:future_schedule_id])
-        unless @future_schedule.nil?
-          @future_schedule.delete
-        end
+      else
         respond_to do |format|
-          format.html { redirect_to new_schedule_path, notice: "Pending schedule was successfully deleted." }
-        end
-        return
-      else
-        ActiveRecord::Base.transaction do
-          (from_date..to_date).to_a.each do |schedule_date|
-            params[:user_ids].try(:each) do |user_id, name|
-              begin
-                @schedule = Schedule.create(schedule_params.merge(user_id: user_id, schedule_date: schedule_date))
-              rescue => e
-                raise ActiveRecord::Rollback
-              end
-            end
-          end
+          format.html { render action: "new" }
         end
       end
-    end
-    
-    respond_to do |format|
-      if @schedule.valid?
-        if (!from_date.nil? && !to_date.nil?) && (to_date >= from_date)
-          params[:user_ids].try(:each) do |user_id, name|
-            user = User.find(user_id)
-            ScheduleMailer.schedule_created(user, from_date, to_date, schedule_params).deliver
-          end
+      return
+    elsif params[:commit].try(:downcase) == "delete pending schedule"
+      @future_schedule = FutureSchedule.find(params[:future_schedule_id])
+      unless @future_schedule.nil?
+        @future_schedule.delete
+      end
+      respond_to do |format|
+        format.html { redirect_to new_schedule_path, notice: "Pending schedule was successfully deleted." }
+      end
+      return
+    else
+      schedule_blocks = get_schedule_blocks(params[:schedule_item])
+      schedules = []
+      
+      employee_ids = params[:user_ids].map {|k, v| k } rescue []
+      employee_ids.each do |employee_id|
+        schedule_blocks.each do |schedule_block|
+          schedules << Schedule.new({ job_id: params[:schedule][:job_id] }.merge(
+            user_id: employee_id, 
+            from_time: schedule_block[:from_time], 
+            to_time: schedule_block[:to_time]
+          ))
         end
+      end
         
-        format.html { redirect_to params[:return_path] || @schedule, notice: 'Schedule(s) was successfully created.' }
-        format.json { render json: @schedule, status: :created, location: @schedule }
-      else
-        format.html { render action: "new" }
-        format.json { render json: @schedule.errors, status: :unprocessable_entity }
+      schedules.each do |s|
+        if !s.valid?
+          @schedule = s
+          render action: "new"
+          return
+        end
       end
+      schedules.each {|s| s.save }
+      
+      employee_ids.each do |employee_id|
+        ScheduleMailer.schedule_created(employee_id, params[:schedule][:job_id], schedule_blocks).deliver
+      end
+      
+      respond_to do |format|
+        format.html { redirect_to params[:return_path] || @schedule, notice: 'Schedule(s) was successfully created.' }
+      end
+      return
     end
   end
 
   def update
     @schedule = Schedule.find(params[:id])
+    @schedule_time_ranges = [ params[:schedule_item]["0"] ]
+    @schedule.job_id = params[:schedule][:job_id]
+    @schedule.from_time = "#{@schedule_time_ranges.first["from_time_date"]} #{@schedule_time_ranges.first["from_time_time"]}"
+    @schedule.to_time = "#{@schedule_time_ranges.first["to_time_date"]} #{@schedule_time_ranges.first["to_time_time"]}"
 
     respond_to do |format|
-      if @schedule.update_attributes(schedule_params)
+      if @schedule.valid?
+        @schedule.save
         format.html { 
           redirect_to params[:return_path] || @schedule, notice: 'Schedule was successfully updated.' 
         }
@@ -195,8 +224,8 @@ class SchedulesController < ApplicationController
   end
   
   def schedule_conflicts
-    conflicts = nil
-    
+    @errors = []
+    @warnings = []
     schedule_blocks = get_schedule_blocks(params["schedule_item"])
     
     schedule = Schedule.find(params[:schedule_id]) unless params[:schedule_id].blank?
@@ -206,12 +235,14 @@ class SchedulesController < ApplicationController
       schedule.to_time = schedule_blocks.first[:to_time]
       
       conflicts = ScheduleConflictChecker.check_schedule_for_conflicts([schedule])
+      conflicts[:errors].each {|error| @errors << error}
+      conflicts[:warnings].each {|warning| @warnings << warning}
     else
       employee_ids = params[:user_ids].map {|k, v| k } rescue []
       employee_ids.each do |employee_id|
         schedules = []
         schedule_blocks.each do |schedule_block|
-          schedules << Schedule.new(schedule_params.merge(
+          schedules << Schedule.new({ job_id: params[:schedule][:job_id] }.merge(
             user_id: employee_id, 
             from_time: schedule_block[:from_time], 
             to_time: schedule_block[:to_time]
@@ -219,37 +250,39 @@ class SchedulesController < ApplicationController
         end
         
         conflicts = ScheduleConflictChecker.check_schedule_for_conflicts(schedules)
+        conflicts[:errors].each {|error| @errors << error}
+        conflicts[:warnings].each {|warning| @warnings << warning}
       end
     end
-    
-    @errors = conflicts.try(:[], :errors) || []
-    @warnings = conflicts.try(:[], :warnings) || []
     
     render layout: false
   end
   
   def get_schedule_blocks(schedule_item)
     schedule_blocks = []
-    
-    if schedule_item.size == 1
-      start_date = Date.parse(schedule_item["0"]["from_time_date"])
-      end_date = Date.parse(schedule_item["0"]["to_time_date"])
-      through_date = Date.parse(schedule_item["0"]["through_date"]) rescue start_date
-      while start_date <= through_date
-        schedule_blocks << {
-          from_time: Time.parse("#{start_date.strftime("%m/%d/%Y")} #{schedule_item["0"]["from_time_time"]}"),
-          to_time: Time.parse("#{end_date.strftime("%m/%d/%Y")} #{schedule_item["0"]["to_time_time"]}")
-        }
-        start_date += 1.day
-        end_date += 1.day
+    begin
+      if schedule_item.size == 1
+        start_date = Date.parse(schedule_item["0"]["from_time_date"])
+        end_date = Date.parse(schedule_item["0"]["to_time_date"])
+        through_date = Date.parse(schedule_item["0"]["through_date"]) rescue start_date
+        while start_date <= through_date
+          schedule_blocks << {
+            from_time: Time.parse("#{start_date.strftime("%m/%d/%Y")} #{schedule_item["0"]["from_time_time"]} UTC"),
+            to_time: Time.parse("#{end_date.strftime("%m/%d/%Y")} #{schedule_item["0"]["to_time_time"]} UTC")
+          }
+          start_date += 1.day
+          end_date += 1.day
+        end
+      else
+        schedule_item.each do |index, range|
+          schedule_blocks << {
+            from_time: Time.parse("#{range["from_time_date"]} #{range["from_time_time"]} UTC"),
+            to_time: Time.parse("#{range["to_time_date"]} #{range["to_time_time"]} UTC")
+          }
+        end
       end
-    else
-      schedule_item.each do |index, range|
-        schedule_blocks << {
-          from_time: Time.parse("#{range["from_time_date"]} #{range["from_time_time"]}"),
-          to_time: Time.parse("#{range["to_time_date"]} #{range["to_time_time"]}")
-        }
-      end
+    rescue
+      
     end
     
     schedule_blocks
@@ -390,19 +423,6 @@ class SchedulesController < ApplicationController
       else schedule_query.where("jobs.archived" => false, "users.archived" => false)
     end
     schedule_query
-  end
-  
-  def schedule_params
-    if @schedule_params.nil?
-      params[:schedule][:from_time] = fmt_time(:from_time, params[:schedule][:schedule_date])
-      params[:schedule][:to_time] = fmt_time(:to_time, params[:schedule][:schedule_date])
-      @schedule_params = params.require(:schedule).permit(:job_id, :schedule_date, :from_time, :to_time)
-    end
-    @schedule_params
-  end
-  
-  def fmt_time(key, date)
-    "#{date} #{params[:schedule][key]}"
   end
   
   def update_date_range

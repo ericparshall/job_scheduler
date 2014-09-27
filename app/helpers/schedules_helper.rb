@@ -51,9 +51,11 @@ module SchedulesHelper
     case 
     when defined?(@future_schedule) && !@future_schedule.nil? then
       if for_attr == :from_time
-        val = format_time_to_us(@future_schedule.from_date)
+        val = format_time_to_us(@future_schedule.from_time)
       elsif for_attr == :to_time
-        val = format_time_to_us(@future_schedule.to_date)
+        val = format_time_to_us(@future_schedule.to_time)
+      elsif for_attr == :through_date
+        val = format_time_to_us(@future_schedule.through_date)
       end
     when @schedule.try(for_attr) then
       val = format_time_to_us(@schedule.try(for_attr))

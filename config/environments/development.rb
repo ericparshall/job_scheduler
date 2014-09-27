@@ -27,6 +27,7 @@ JobScheduler::Application.configure do
   
   config.eager_load = false
   
+  config.action_mailer.perform_deliveries = true
   config.action_mailer.delivery_method = :postmark
   config.action_mailer.postmark_settings = { :api_key => '701e29bc-cabc-43ba-853b-e5248dc3a0ae' }
   config.action_mailer.default_options = {from: 'eric@parshall.us'}
