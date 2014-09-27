@@ -74,7 +74,7 @@ class SchedulesController < ApplicationController
         "to_time_date" => default_schedule_date(:to_time),
         "to_time_time" => default_from_time(:to_time),
         "total_hours" => @schedule.hours,
-        "through_date" => "",
+        "through_date" => default_schedule_date(:through_date),
         "day_of_week" => ""
       }
     ]
@@ -218,7 +218,8 @@ class SchedulesController < ApplicationController
   end
   
   def scheduled_for_job
-    schedules = Schedule.where(job_id: params[:job_id], schedule_date: Date.parse(params[:schedule_date]))
+    schedules = Schedule.where(job_id: params[:job_id])
+    schedules = schedules.where("from_time >= ? AND from_time < ?", Date.parse(params[:schedule_date]), Date.parse(params[:schedule_date]) + 1.day)
     @job = Job.find(params[:job_id])
     @schedules = schedules.detect {|s| s.user_id == current_user.id } ? schedules : []
   end
@@ -310,8 +311,10 @@ class SchedulesController < ApplicationController
     job_color = {}
     color_index = 0
     
-    query = FutureSchedule.where(["from_date >= ? OR from_date <= ?", Time.at(params[:start].to_i), Time.at(params[:end].to_i)])
-    query = query.where(["to_date >= ? OR to_date <= ?", Time.at(params[:start].to_i), Time.at(params[:start].to_i)])
+    min_time = Time.at(params[:start].to_i)
+    max_time = Time.at(params[:end].to_i)
+    
+    query = FutureSchedule.where(["from_time >= ? AND from_time <= ?", min_time, max_time])
     query.each do |result|
       if job_color[result.job_id].nil?
         job_color[result.job_id] = color_index
@@ -325,12 +328,22 @@ class SchedulesController < ApplicationController
       
     end
     
-    query = Schedule.select(:job_id, :schedule_date).includes(job: [:customer]).group(:job_id, :schedule_date).order(job_id: :asc)
-    query = query.where(["schedule_date >= ? AND schedule_date <= ?", Time.at(params[:start].to_i), Time.at(params[:end].to_i)])
+    
+    
+    query = Schedule.select(:job_id, :from_time).order(job_id: :asc)
+    query = query.where([
+      "((from_time >= ? AND from_time <= ?) OR (to_time >= ? AND to_time <= ?))", 
+      min_time,
+      max_time,
+      min_time,
+      max_time
+    ])
+    
+    schedules = query.map {|s| {job_id: s.job_id, from_time: s.from_time.strftime("%Y-%m-%d 00:00:00")} }.uniq.map {|r| Schedule.new(job_id: r[:job_id], from_time: r[:from_time]) }
     
     url_params = params.reject {|k, v| ["format"].include?(k) }
     
-    query.each do |result|
+    schedules.each do |result|
       if job_color[result.job_id].nil?
         job_color[result.job_id] = color_index
         color_index += 1

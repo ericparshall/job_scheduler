@@ -17,8 +17,8 @@ class FutureSchedule < ActiveRecord::Base
       textColor: "black",
       backgroundColor: color,
       title: "#{!self.job.try(:customer).nil? ? self.job.customer.name + ": " : ""}#{self.job.try(:name)}",
-      start: "#{self.from_date.strftime("%Y-%m-%d")} #{self.from_time.strftime("%H:%M:%S")}",
-      end: "#{self.to_date.strftime("%Y-%m-%d")} #{self.to_time.strftime("%H:%M:%S")}",
+      start: "#{self.from_time.strftime("%Y-%m-%d")} #{self.from_time.strftime("%H:%M:%S")}",
+      end: "#{self.through_date.strftime("%Y-%m-%d")} #{self.to_time.strftime("%H:%M:%S")}",
       future_schedule_id: self.id,
       allDay: true
     }

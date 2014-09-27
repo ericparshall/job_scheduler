@@ -23,9 +23,17 @@ class HomeController < ApplicationController
     ]
     @schedules = []
     
-    query = Schedule.where(user_id: current_user.id)
-    query = query.where(["schedule_date >= ?", Time.at(params[:start].to_i)]) unless params[:start].blank?
-    query = query.where(["schedule_date <= ?", Time.at(params[:end].to_i)]) unless params[:end].blank?
+    min_time = Time.at(params[:start].to_i)
+    max_time = Time.at(params[:end].to_i)
+    
+    query = Schedule.where([
+      "((from_time >= ? AND from_time <= ?) OR (to_time >= ? AND to_time <= ?)) and user_id = ?", 
+      min_time,
+      max_time,
+      min_time,
+      max_time,
+      current_user.id
+    ])
     
     job_ids = query.map &:job_id
     job_color = {}
