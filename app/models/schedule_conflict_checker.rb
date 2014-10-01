@@ -3,25 +3,27 @@ class ScheduleConflictChecker
     errors = []
     warnings = []
     
-    schedule_week_blocks = week_blocks(schedules)
-    existing_schedules = get_existing_schedules(schedule_week_blocks, schedules.first.user_id, schedules.first.persisted?, schedules.first)
+    if !schedules.first.nil?
+      schedule_week_blocks = week_blocks(schedules)
+      existing_schedules = get_existing_schedules(schedule_week_blocks, schedules.first.user_id, schedules.first.persisted?, schedules.first)
     
-    existing_schedules.each do |existing_schedule|
-      schedules.each do |schedule|
-        if schedules_conflict?(schedule, existing_schedule)
-          errors << "<strong>#{existing_schedule.user.full_name}</strong>: The schedule conflicts with another schedule: <a href=\"/schedules/#{existing_schedule.id}\">#{existing_schedule.job.name}</a>".html_safe
-          break
+      existing_schedules.each do |existing_schedule|
+        schedules.each do |schedule|
+          if schedules_conflict?(schedule, existing_schedule)
+            errors << "<strong>#{existing_schedule.user.full_name}</strong>: The schedule conflicts with another schedule: <a href=\"/schedules/#{existing_schedule.id}\">#{existing_schedule.job.name}</a>".html_safe
+            break
+          end
         end
       end
-    end
     
-    existing_schedule_week_blocks = week_blocks(existing_schedules)
-    schedule_week_blocks.each do |beginning_of_week, weeks_schedules|
-      existing_weeks_schedules = existing_schedule_week_blocks[beginning_of_week] || []
-      total_hours = total_schedules_hours(beginning_of_week, weeks_schedules.zip(existing_weeks_schedules).flatten.compact)
+      existing_schedule_week_blocks = week_blocks(existing_schedules)
+      schedule_week_blocks.each do |beginning_of_week, weeks_schedules|
+        existing_weeks_schedules = existing_schedule_week_blocks[beginning_of_week] || []
+        total_hours = total_schedules_hours(beginning_of_week, weeks_schedules.zip(existing_weeks_schedules).flatten.compact)
       
-      if total_hours >= 40
-        warnings << "Including this schedule, <strong>#{schedules.first.user.full_name}</strong> is scheduled for #{total_hours} hours during the week beginning #{beginning_of_week.strftime("%Y-%m-%d")}".html_safe
+        if total_hours >= 40
+          warnings << "Including this schedule, <strong>#{schedules.first.user.full_name}</strong> is scheduled for #{total_hours} hours during the week beginning #{beginning_of_week.strftime("%Y-%m-%d")}".html_safe
+        end
       end
     end
     

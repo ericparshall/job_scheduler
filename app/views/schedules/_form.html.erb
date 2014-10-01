@@ -188,10 +188,10 @@ function addToMassAssignList(option) {
   if ( $("#" + row_id).length == 0 ) {
     var row_div = $("<div id='" + row_id + "' style='row'>");
     var label_div = $("<div style='float: left'>");
-    label_div.text(option.label);
+    label_div.text(option.text);
   
     var user_id_field = $("<input id='user_ids_" + option.value + "' name='user_ids[" + option.value + "]' type='hidden'>");
-    user_id_field.val(option.label);
+    user_id_field.val(option.text);
     label_div.append(user_id_field);
   
     var remove_link_div = $("<div style='float: right'>");
@@ -250,7 +250,7 @@ $(function() {
   });
   <% end %>
   <% params[:user_ids].try(:each) do |k, v| %>
-  addToMassAssignList({ value: '<%= k %>', label: '<%= v %>' });
+  addToMassAssignList({ value: '<%= k %>', text: '<%= v %>' });
   <% end %>
     
   $('#schedule_form').submit(function() {

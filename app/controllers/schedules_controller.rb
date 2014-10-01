@@ -156,6 +156,12 @@ class SchedulesController < ApplicationController
       schedules = []
       
       employee_ids = params[:user_ids].map {|k, v| k } rescue []
+      
+      if schedule_blocks.count == 0 || employee_ids.count == 0
+        render action: "new"
+        return
+      end
+      
       employee_ids.each do |employee_id|
         schedule_blocks.each do |schedule_block|
           schedules << Schedule.new({ job_id: params[:schedule][:job_id] }.merge(
