@@ -11,12 +11,13 @@
 // GO AFTER THE REQUIRES BELOW.
 //= require jquery
 //= require jquery_ujs
-//= require jquery.ui.all
+//= require jquery-ui
 //= require jquery.timepicker.min.js
 //= require bootstrap.js.coffee
 //= require fullcalendar.js
 //= require gcal.js
 //= require modernizr.js
+//= require angular.min.js
 //= require_self
 
 
