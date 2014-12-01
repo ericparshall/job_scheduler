@@ -3,34 +3,19 @@ class EmployeesController < ApplicationController
   before_filter :require_admin_user
 
   def index
-    @users = case
-    when params[:archived] == "true" then User.where(archived: true)
-    else User.where(archived: false)
-    end
-    @skills = Skill.where(archived: false).sort_by{|s| s.name }.collect {|s| [s.name, s.id] }
-    @filter_skills = case
-      when !params[:skill_list].blank? then Skill.where(id: params[:skill_list].split(','))
-      else []
-    end
-    
-    unless @filter_skills.empty?
-      skill_ids = @filter_skills.map(&:id)
-      user_skills = {}
-      user_ids = []
-      
-      UsersSkill.where("users_skills.skill_id" => @filter_skills).each do |users_skill|
-        user_skills[users_skill.user_id] ||= []
-        user_skills[users_skill.user_id] << users_skill.skill_id
-      end
-      
-      user_skills.each {|k, v| user_ids << k if (skill_ids - v).empty? }
-      
-      @users = @users.where(id: user_ids)
-    end
-    
     respond_to do |format|
       format.html # index.html.erb
-      format.json { render json: @users }
+      format.json { 
+        @users = User.where(archived: params[:archived] == "true")
+        if !params[:skill_list].blank?
+          skill_ids = params[:skill_list].split(",")
+          @users = @users.joins(:users_skills).where(users_skills: { skill_id: skill_ids })
+        end
+        
+        render json: @users.to_json(include: { 
+        manager: { only: [ :id, :full_name ] }, 
+        user_type: { only: [ :name] }
+      })}
     end
   end
 
@@ -98,7 +83,8 @@ class EmployeesController < ApplicationController
   def archive
     @user = User.find(params[:id])
     @user.update_attribute(:archived, !@user.archived)
-    redirect_to employees_url(params.reject {|k, v| ["_method", "authenticity_token", "id"].include?(k) })
+    head :ok
+    #redirect_to employees_url(params.reject {|k, v| ["_method", "authenticity_token", "id"].include?(k) })
   end
   
   def schedule

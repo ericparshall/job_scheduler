@@ -18,8 +18,12 @@
 //= require gcal.js
 //= require modernizr.js
 //= require angular.min.js
+//= require angular-resource.min.js
+//= require schedulerApp.js
+//= require resources.js
+//= require controllers.js
+//= require services.js
 //= require_self
-
 
 (function( $ ) {
   $.widget( "custom.combobox", {

@@ -1,97 +1,68 @@
-<script type="text/javascript">
-  $(document).ready(function() {
-    $( "#skill_id" ).combobox({
-      list: $( "#skill_id" ),
-      parent_div: $("#skill_id_input_group"),
-      input: $("#skill_id_input"),
-      custom_on_select: function(option) {
-        addSkillId(option.value);
-      }
-    });
-  });
-  
-  function addSkillId(skillId) {
-    var skillIds = $("#skill_list").val().split(",");
-    skillIds.push(skillId);
-    $("#skill_list").val(skillIds.unique().join(","));
-    $("#filter_employees_form").submit();
-  }
-  
-  function removeSkillId(skillId) {
-    var skillIds = $("#skill_list").val().split(",").unique();
-    var index = skillIds.indexOf(skillId);
-    if (index > -1) {
-      skillIds.splice(index, 1);
-      $("#skill_list").val(skillIds.join(","));
-      $("#filter_employees_form").submit();
-    }
-  }
-</script>
-<h3 style="float: left">Employees</h3>
-<%= link_to 'New Employee', new_employee_path, class: "btn btn-lg btn-primary btn-block", style: "width: 200px; color: white; float: right" %>
-<div style="clear:both" />
-<nav class="navbar navbar-default" role="navigation">
-  <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-    <%= form_tag employees_path, method: :get, class: "navbar-form navbar-left", role: "search", id: "filter_employees_form" do %>
-      <div class="form-group">
-        <div class="row-fluid">
-          <div class="col-md-4">
-            <%= select_tag :skill_id, options_for_select(@skills), include_blank: true %>
-            <input id="skill_id_input" title="" placeholder="Filter by Skill" class="form-control custom-combobox-input ui-autocomplete-input" autocomplete="on" data-original-title="">
-            <div id="skill_id_input_group" class="input-group">
-              <span class="input-group-btn">
-                <button class="btn btn-default" type="button">Show</button>
-              </span>
+<div ng-app="schedulerApp" ng-controller="employeesController" ng-cloak>
+  <h3 style="float: left">Employees</h3>
+  <%= link_to 'New Employee', new_employee_path, class: "btn btn-lg btn-primary btn-block", style: "width: 200px; color: white; float: right" %>
+  <div style="clear:both"></div>
+  <nav class="navbar navbar-default" role="navigation">
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <div class="navbar-form navbar-left">
+        <div class="form-group">
+          <div class="row-fluid">
+            <div class="col-md-4">
+              <select id="skill_id" name="skill_id" style="display: none">
+                <option value=""></option>
+                <option ng-repeat="skill in skills" data-index="{{$index}}" value="{{skill.id}}">{{skill.name}}</option>
+              </select>
+              <input id="skill_id_input" title="" placeholder="Filter by Skill" class="form-control custom-combobox-input ui-autocomplete-input" autocomplete="on" data-original-title="">
+              <div id="skill_id_input_group" class="input-group">
+                <span class="input-group-btn">
+                  <button class="btn btn-default" type="button">Show</button>
+                </span>
+              </div>
             </div>
+            <div style="clear:both" />
           </div>
-          <div style="clear:both" />
-        </div>
         
-        <div class="row-fluid" style="padding-top: 10px">
-          <div class="col-md-12 btn-group-xs">
-            <%= hidden_field_tag :skill_list, params[:skill_list] %>
-            <% @filter_skills.each do |filter_skill| %>
-              <button class="btn btn-default btn-danger" onclick="removeSkillId('<%= filter_skill.id %>')">
-                <i class="glyphicon glyphicon-remove"> 
-                  <%= filter_skill.name %>
-                </i>
-              </button>
-            <% end %>
+          <div class="row-fluid" style="padding-top: 10px">
+            <div class="col-md-12 btn-group-xs">
+                <button ng-repeat="skill in selectedSkills" ng-click="removeSkillFilter($index)" class="btn btn-default btn-danger">
+                  <i class="glyphicon glyphicon-remove"> 
+                    {{skill.name}}
+                  </i>
+                </button>
+            </div>
           </div>
         </div>
       </div>
-    <% end %>
-  </div>
-</nav>
+    </div>
+  </nav>
 
-<ul class="nav nav-tabs">
-  <li class="<%= tab_active["Default"] %>"><%= link_to "Default", employees_path %></li>
-  <li class="<%= tab_active["Archived"] %>"><%= link_to "Archived", employees_path(params.merge(archived: true)) %></li>
-</ul>
-<table class="table table-bordered table-striped">
-  <tr>
-    <th>Name</th>
-    <th>Email</th>
-    <th>Type</th>
-    <th>Manager / Point-of-Contact</th>
-    <th class="shrink"></th>
-  </tr>
+  <ul class="nav nav-tabs">
+    <li ng-class="defaultTabStyle"><a ng-click="defaultTabClick()" href="#">Default</a></li>
+    <li ng-class="archivedTabStyle"><a ng-click="archivedTabClick()" href="#">Archived</a></li>
+  </ul>
+  <table class="table table-bordered table-striped" id="tblEmployeeList">
+    <tr ng-cloak>
+      <th><a href="" ng-click="toggleSort('full_name')">Name</a></th>
+      <th><a href="" ng-click="toggleSort('email')">Email</a></th>
+      <th><a href="" ng-click="toggleSort('user_type.name')">Type</a></th>
+      <th><a href="" ng-click="toggleSort('manager.full_name')">Manager / Point-of-Contact</a></th>
+      <th class="shrink"></th>
+    </tr>
 
-<% @users.each do |user| %>
-  <tr>
-    <td><%= link_to user.full_name, employee_path(user) %></td>
-    <td><%= link_to user.email, employee_path(user) %></td>
-    <td><%= user.user_type.name %></td>
-    <td><%= user.manager.try(:full_name) %></td>
-    <td class="shrink">
-      <%= link_to 'Edit', edit_employee_path(user) %>
-      <% unless user.id == current_user.id %>
-      |
-      <%= link_to user.archived? ? "Unarchive" : "Archive", archive_employee_path(user, params), method: :post %>
-      <% end %>
-    </td>
-  </tr>
-<% end %>
-</table>
-
+    <tr ng-repeat="employee in employees | orderBy:orderField" ng-cloak>
+      <td><a ng-href="/employees/{{employee.id}}">{{employee.full_name}}</a></td>
+      <td><a ng-href="/employees/{{employee.id}}">{{employee.email}}</a></td>
+      <td>{{employee.user_type.name}}</td>
+      <td>{{employee.manager.full_name}}</td>
+      <td>
+        <a ng-href="/employees/{{employee.id}}/edit">Edit</a>
+        <span ng-if="employee.id != <%= current_user.id %>">
+          |
+          <a ng-click="archiveEmployee($index, employee)" href="#">{{employee.archiveLabel()}}</a>
+        </span>
+      </td>
+    </tr>
+  </table>
+</div>
 <br />
+<script src="/js/controllers/employeesController.js"></script>

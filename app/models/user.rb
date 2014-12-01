@@ -18,4 +18,10 @@ class User < ActiveRecord::Base
       self.user_type_id = UserType.where(admin: false, manager: false).first.id
     end
   end
+  
+  def compact_skills
+    self.skills.map do |skill|
+      {skill.id => skill.name}
+    end
+  end
 end

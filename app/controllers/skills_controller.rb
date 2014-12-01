@@ -4,9 +4,14 @@ class SkillsController < ApplicationController
 
   # GET /skills
   def index
-    @skills = @jobs = case
+    @skills = case
     when params[:archived] == "true" then Skill.where(archived: true)
     else Skill.where(archived: false)
+    end
+    
+    respond_to do |format|
+      format.html # index.html.erb
+      format.json { render json: @skills }
     end
   end
 
