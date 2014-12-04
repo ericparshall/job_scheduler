@@ -41,57 +41,65 @@
     });
   });
 </script>
+<div ng-app="schedulerApp" ng-controller="employeeDetailController" ng-cloak>
+  <div class="panel panel-default">
+    <div style="width: 100%" class="panel-heading">
+      <h3 style="width: 20%" class="panel-title">Employee</h3>
+    </div>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th ng-if="<%= current_user.user_type.admin? %>">Rating</th>
+          <th>Email</th>
+          <th>Type</th>
+          <th>Manager / Point-of-Contact</th>
+          <th>Phone</th>
+          <th>Address</th>
+          <th />
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><%= @user.full_name %></td>
+          <td ng-if="<%= current_user.user_type.admin? %>">
+            <div star-rating max="5" ratable="employee"></div>
+          </td>
+          <td><%= @user.email %></td>
+          <td><%= @user.user_type.name %></td>
+          <td><%= @user.manager.try(:full_name) %></td>
+          <td><%= @user.phone_number %></td>
+          <td><pre><%= @user.address %></pre></td>
+          <td><%= link_to 'Edit', edit_employee_path(@user) %></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
-<div class="panel panel-default">
-  <div class="panel-heading">Employee</div>
-  <table class="table">
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Email</th>
-        <th>Type</th>
-        <th>Manager / Point-of-Contact</th>
-        <th>Phone</th>
-        <th>Address</th>
-        <th />
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><%= @user.full_name %></td>
-        <td><%= @user.email %></td>
-        <td><%= @user.user_type.name %></td>
-        <td><%= @user.manager.try(:full_name) %></td>
-        <td><%= @user.phone_number %></td>
-        <td><pre><%= @user.address %></pre></td>
-        <td><%= link_to 'Edit', edit_employee_path(@user) %></td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-<div class="row-fluid">
-  <div id="calendar" class="col-md-9"></div>
-  <div class="col-md-3">
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <h3 class="panel-title">Skills</h3>
-      </div>
-      <div id="skills_list" class="panel-body">
-        <%= form_for(@user, url: add_skill_employee_path(@user), method: :post, html: {id: "add_skill_form"}) do |f| %>
-          <%= select_tag :skill_id, options_for_select(@skills), include_blank: true %>
-          <input id="skill_id_input" title="" placeholder="Skill" class="form-control custom-combobox-input ui-autocomplete-input" autocomplete="on" data-original-title="">
-          <div id="skill_id_input_group" class="input-group">
-            <span class="input-group-btn">
-              <button class="btn btn-default" type="button">Show</button>
-            </span>
-          </div>
-        <% end %>
-        <br />
-        <% @user.skills.each do |skill| %>
-        <%= render partial: "skill_item", locals: {skill: skill} %>
-        <% end %>
+  <div class="row-fluid">
+    <div id="calendar" class="col-md-9"></div>
+    <div class="col-md-3">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">Skills</h3>
+        </div>
+        <div id="skills_list" class="panel-body">
+          <%= form_for(@user, url: add_skill_employee_path(@user), method: :post, html: {id: "add_skill_form"}) do |f| %>
+            <%= select_tag :skill_id, options_for_select(@skills), include_blank: true %>
+            <input id="skill_id_input" title="" placeholder="Skill" class="form-control custom-combobox-input ui-autocomplete-input" autocomplete="on" data-original-title="">
+            <div id="skill_id_input_group" class="input-group">
+              <span class="input-group-btn">
+                <button class="btn btn-default" type="button">Show</button>
+              </span>
+            </div>
+          <% end %>
+          <br />
+          <% @user.skills.each do |skill| %>
+          <%= render partial: "skill_item", locals: {skill: skill} %>
+          <% end %>
+        </div>
       </div>
     </div>
   </div>
 </div>
+<script src="/js/controllers/employeeDetailController.js"></script>

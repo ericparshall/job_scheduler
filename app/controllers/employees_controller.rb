@@ -57,6 +57,8 @@ class EmployeesController < ApplicationController
   end
 
   def update
+    puts request.body.read
+    request.body.rewind
     @user = User.find(params[:id])
 
     respond_to do |format|
@@ -170,7 +172,7 @@ class EmployeesController < ApplicationController
   private
   def user_params
     params[:user].delete_if {|k, v| [ "password", "password_confirmation" ].include?(k) && v.blank? }
-    params.require(:user).permit(:full_name, :email, :password, :password_confirmation, :user_type_id, :manager_id, :phone_number, :address)
+    params.require(:user).permit(:full_name, :email, :password, :password_confirmation, :user_type_id, :manager_id, :phone_number, :address, :rating)
   end
   
   def return_path

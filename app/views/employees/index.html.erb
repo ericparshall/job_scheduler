@@ -43,6 +43,7 @@
   <table class="table table-bordered table-striped" id="tblEmployeeList">
     <tr ng-cloak>
       <th><a href="" ng-click="toggleSort('full_name')">Name</a></th>
+      <th ng-if="<%= current_user.user_type.admin? %>"><a href="" ng-click="toggleSort('rating')">Rating</a></th>
       <th><a href="" ng-click="toggleSort('email')">Email</a></th>
       <th><a href="" ng-click="toggleSort('user_type.name')">Type</a></th>
       <th><a href="" ng-click="toggleSort('manager.full_name')">Manager / Point-of-Contact</a></th>
@@ -51,6 +52,9 @@
 
     <tr ng-repeat="employee in employees | orderBy:orderField" ng-cloak>
       <td><a ng-href="/employees/{{employee.id}}">{{employee.full_name}}</a></td>
+      <td ng-if="<%= current_user.user_type.admin? %>">
+        <div star-rating max="5" ratable="employee"></div>
+      </td>
       <td><a ng-href="/employees/{{employee.id}}">{{employee.email}}</a></td>
       <td>{{employee.user_type.name}}</td>
       <td>{{employee.manager.full_name}}</td>

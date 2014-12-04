@@ -20,9 +20,10 @@
 //= require angular.min.js
 //= require angular-resource.min.js
 //= require schedulerApp.js
-//= require resources.js
-//= require controllers.js
-//= require services.js
+//= require_tree ./resources
+//= require_tree ./controllers
+//= require_tree ./services
+//= require_tree ./directives
 //= require_self
 
 (function( $ ) {

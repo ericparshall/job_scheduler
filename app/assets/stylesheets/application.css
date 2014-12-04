@@ -12,6 +12,7 @@
  *= require_tree .
  *= require_self
  */
+ 
 .horizontal-form {
  width: 100%;
 }

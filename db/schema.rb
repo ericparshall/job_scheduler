@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140924050902) do
+ActiveRecord::Schema.define(version: 20141202023207) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -35,8 +35,8 @@ ActiveRecord::Schema.define(version: 20140924050902) do
   create_table "jobs", force: true do |t|
     t.string   "name"
     t.text     "description"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",                                   null: false
+    t.datetime "updated_at",                                   null: false
     t.boolean  "archived",                     default: false
     t.integer  "customer_id"
     t.integer  "point_of_contact_id"
@@ -63,8 +63,8 @@ ActiveRecord::Schema.define(version: 20140924050902) do
     t.integer  "job_id"
     t.integer  "user_id"
     t.decimal  "hours"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.datetime "from_time"
     t.datetime "to_time"
   end
@@ -112,14 +112,15 @@ ActiveRecord::Schema.define(version: 20140924050902) do
     t.datetime "last_sign_in_at"
     t.string   "current_sign_in_ip"
     t.string   "last_sign_in_ip"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",                             null: false
+    t.datetime "updated_at",                             null: false
     t.string   "full_name"
     t.integer  "user_type_id"
     t.integer  "manager_id"
     t.string   "phone_number"
     t.string   "address"
     t.boolean  "archived",               default: false
+    t.integer  "rating",                 default: 0
   end
 
   add_index "users", ["email"], name: "index_users_on_email", unique: true, using: :btree
@@ -130,5 +131,7 @@ ActiveRecord::Schema.define(version: 20140924050902) do
     t.integer "user_id"
     t.integer "skill_id"
   end
+
+  add_index "users_skills", ["user_id", "skill_id"], name: "index_users_skills_on_user_id_and_skill_id", using: :btree
 
 end
