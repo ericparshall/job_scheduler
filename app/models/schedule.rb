@@ -5,6 +5,8 @@ class Schedule < ActiveRecord::Base
   validates :from_time, :to_time, :job_id, :user_id, presence: true
   before_validation { self.hours = (self.to_time - self.from_time) / 3600.0 rescue nil }
   validate :hours_greater_than_zero
+  
+  attr_accessor :url
 
   def to_schedule_event(color, link_to_url = nil)
     event = {

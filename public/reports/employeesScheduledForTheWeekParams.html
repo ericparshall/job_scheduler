@@ -1,0 +1,12 @@
+<div class="row">
+  <div class="col-md-3"><label>For Week Beginning:</label>
+    <select class="form-control" ng-model="report.queryParams.selectedWeek" ng-options="week for week in report.weeks" selected="{{report.selected(week)}}">
+    </select>
+  </div>
+</div>
+<br>
+<div class="row">
+  <div class="col-md-2">
+    <button class="btn btn-primary btn-block" ng-click="report.runReport()">Run Report</button>
+  </div>
+</div>

@@ -17,8 +17,10 @@
 //= require fullcalendar.js
 //= require gcal.js
 //= require modernizr.js
-//= require angular.min.js
+//= require angular.js
+//= require angular-sanitize.js
 //= require angular-resource.min.js
+//= require angular-ui-date.js
 //= require schedulerApp.js
 //= require_tree ./resources
 //= require_tree ./controllers

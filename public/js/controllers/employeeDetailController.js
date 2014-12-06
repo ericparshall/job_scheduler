@@ -1,7 +1,6 @@
-schedulerApp.controller('employeeDetailController', ['$scope', 'Employee', 'Skill', function($scope, Employee, Skill) {
+schedulerApp.controller('employeeDetailController', ['$scope', '$resource', 'Employee', 'Skill', function($scope, $resource, Employee, Skill) {
   $scope.employee = {rating: 0};
-  Employee.get({id: '5'}, function(e) {
-    console.log(e);
+  $resource(window.location.pathname).get({format: "json"}, function(e) {
     $scope.employee = e;
   });
 }]);
