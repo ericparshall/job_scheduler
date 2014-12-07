@@ -174,4 +174,4 @@ DEPENDENCIES
   rspec-rails (~> 3.0.0)
   sass-rails
   therubyracer
-  uglifier (>= 1.0.3)
+  uglifier
