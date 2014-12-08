@@ -1,3 +1,10 @@
+class NoCompression
+   def compress(string)
+     # do nothing
+     string
+   end
+end
+     
 JobScheduler::Application.configure do
   # Settings specified here will take precedence over those in config/application.rb
 
@@ -12,7 +19,8 @@ JobScheduler::Application.configure do
   config.serve_static_assets = true
 
   # Compress JavaScripts and CSS
-  config.assets.compress = false
+  config.assets.compress = true
+  config.assets.js_compressor = NoCompression.new
 
   # Don't fallback to assets pipeline if a precompiled asset is missed
   config.assets.compile = false
