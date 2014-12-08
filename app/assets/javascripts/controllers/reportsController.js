@@ -1,4 +1,4 @@
-schedulerApp.controller('reportsController', ['$scope', '$http', '$compile', '$filter', function($scope, $http, $compile, $filter) {
+angular.module('schedulerApp').controller('reportsController', ['$scope', '$http', '$compile', '$filter', function($scope, $http, $compile, $filter) {
   $scope.report = {
     selectedReport: "Select Report...",
     paramsHtml: "",

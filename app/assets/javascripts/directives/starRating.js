@@ -1,4 +1,4 @@
-schedulerApp.directive('starRating', function() {
+angular.module('schedulerApp').directive('starRating', function() {
   return {
     restrict : 'A',
     template : "<ul class='rating'>" +

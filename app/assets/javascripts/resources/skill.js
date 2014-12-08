@@ -1,4 +1,4 @@
-schedulerApp.factory('Skill', ['$resource', '$http', function($resource, $http) {
+angular.module('schedulerApp').factory('Skill', ['$resource', '$http', function($resource, $http) {
   var Skill = $resource('/skills/:id', 
     {archived: "false", format: "json"}
   );

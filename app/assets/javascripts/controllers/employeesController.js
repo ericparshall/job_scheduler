@@ -1,4 +1,4 @@
-schedulerApp.controller('employeesController', ['$scope', 'Employee', 'Skill', function($scope, Employee, Skill) {
+angular.module("schedulerApp").controller('employeesController', ['$scope', 'Employee', 'Skill', function($scope, Employee, Skill) {
   $scope.queryParams = {
     archived: "false",
     skill_list: ""

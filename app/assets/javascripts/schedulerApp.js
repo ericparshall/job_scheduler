@@ -23,9 +23,7 @@ var schedulerApp = angular.module('schedulerApp', ['ngResource', 'ngSanitize', '
       );
     };
   });
-});
-schedulerApp.config([
-  "$httpProvider", function($httpProvider) {
+}).config(["$httpProvider", function($httpProvider) {
     $httpProvider.defaults.headers.common['X-CSRF-Token'] = angular.element(document.querySelector('meta[name=csrf-token]')).attr('content');
   }
 ]);
