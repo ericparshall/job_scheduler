@@ -20,7 +20,7 @@ JobScheduler::Application.configure do
 
   # Compress JavaScripts and CSS
   config.assets.compress = true
-  config.assets.js_compressor = NoCompression.new
+#  config.assets.js_compressor = NoCompression.new
 
   # Don't fallback to assets pipeline if a precompiled asset is missed
   config.assets.compile = false
@@ -54,7 +54,7 @@ JobScheduler::Application.configure do
   # config.action_controller.asset_host = "http://assets.example.com"
 
   # Precompile additional assets (application.js, application.css, and all non-JS/CSS are already added)
-  # config.assets.precompile += %w( search.js )
+  config.assets.precompile += %w( angular_group.js jquery_group.js )
 
   # Disable delivery errors, bad email addresses will be ignored
   # config.action_mailer.raise_delivery_errors = false
