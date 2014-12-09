@@ -28,8 +28,7 @@ JobScheduler::Application.configure do
 
   # Do not compress assets
 #  config.assets.compress = false
-  config.assets.compile = true
-  config.assets.compress = false
+  config.assets.compress = true
 #  config.assets.js_compressor = NoCompression.new
   # Expands the lines which load the assets
   config.assets.debug = true
@@ -51,4 +50,6 @@ JobScheduler::Application.configure do
   # Generate digests for assets URLs
   config.assets.digest = true
   config.url_host = "http://localhost:3000"
+  
+  config.assets.precompile += %w( angular_group.js jquery_group.js )
 end
