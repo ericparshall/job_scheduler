@@ -9,23 +9,11 @@
 //
 // WARNING: THE FIRST BLANK LINE MARKS THE END OF WHAT'S TO BE PROCESSED, ANY BLANK LINE SHOULD
 // GO AFTER THE REQUIRES BELOW.
-//= require jquery
-//= require jquery_ujs
-//= require jquery-ui
 //= require jquery.timepicker.min.js
 //= require bootstrap.js.coffee
 //= require fullcalendar.js
 //= require gcal.js
 //= require modernizr.js
-//= require angular.js
-//= require angular-resource.js
-//= require angular-sanitize.js
-//= require angular-ui-date.js
-//= require schedulerApp.js
-//= require_tree ./directives
-//= require_tree ./resources
-//= require_tree ./services
-//= require_tree ./controllers
 //= require_self
 
 (function( $ ) {

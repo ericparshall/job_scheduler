@@ -1,3 +1,10 @@
+class NoCompression
+   def compress(string)
+     # do nothing
+     string
+   end
+end
+
 JobScheduler::Application.configure do
   # Settings specified here will take precedence over those in config/application.rb
 
@@ -20,8 +27,10 @@ JobScheduler::Application.configure do
   config.action_dispatch.best_standards_support = :builtin
 
   # Do not compress assets
+#  config.assets.compress = false
+  config.assets.compile = true
   config.assets.compress = false
-
+#  config.assets.js_compressor = NoCompression.new
   # Expands the lines which load the assets
   config.assets.debug = true
   

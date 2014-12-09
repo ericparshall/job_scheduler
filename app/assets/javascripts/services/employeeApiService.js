@@ -1,5 +1,5 @@
-angular.module('schedulerApp.services', []).
-factory('employeeApiService', function($http, $log) {
+angular.module('schedulerApp').
+factory('employeeApiService', ["$http", "$log", function($http, $log) {
   var employeeApiService = {};
   employeeApiService.getEmployees = function(archived) {
     var resp = $http({
@@ -11,4 +11,4 @@ factory('employeeApiService', function($http, $log) {
   }
 
   return employeeApiService;
-});
+}]);

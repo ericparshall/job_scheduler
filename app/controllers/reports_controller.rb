@@ -1,5 +1,6 @@
 class ReportsController < ApplicationController
   before_filter :require_admin_user
+  layout "application_angular"
   
   def index
     

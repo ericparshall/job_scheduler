@@ -1,6 +1,7 @@
 class EmployeesController < ApplicationController
   skip_before_filter :require_no_authentication
   before_filter :require_admin_user
+  layout "application_angular", only: [:index, :show]
 
   def index
     respond_to do |format|

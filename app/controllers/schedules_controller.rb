@@ -6,8 +6,12 @@ class SchedulesController < ApplicationController
   before_filter :initialize_collections, except: [ :schedule_conflicts ]
 
   def index
-    @from_time = (Time.parse("#{params[:from_date]} 00:00:00 UTC") rescue nil) || Time.now.beginning_of_month
-    @to_time = (Time.parse("#{params[:to_date]} 00:00:00 UTC").end_of_day rescue nil) || Time.now.end_of_month
+    from_time_str = params[:from_date].blank? ? nil : "#{params[:from_date]} 00:00:00 UTC"
+    to_time_str = params[:to_date].blank? ? nil : "#{params[:to_date]} 00:00:00 UTC"
+    
+    @from_time = (Time.parse(from_time_str) rescue nil) || Time.now.beginning_of_month
+    @to_time = (Time.parse(to_time_str).end_of_day rescue nil) || Time.now.end_of_month
+
     params[:unit] = "month" if params[:unit].blank?
     @schedules = schedule_query.sort_by(&:from_time)
     @schedules_grid = schedules_grid
