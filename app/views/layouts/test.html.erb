@@ -3,6 +3,7 @@
 <head>
   <title>JobScheduler</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
   <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
   <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.5/angular.min.js"></script>
   <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.5/angular-resource.min.js"></script>
@@ -10,21 +11,20 @@
   
   <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/themes/smoothness/jquery-ui.css" />
   <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js"></script>
-  
 
-  
+  <%= javascript_include_tag "angular_group" %>
+  <%= csrf_meta_tags %>
   <script type="text/javascript">
-    var schedulerApp = angular.module('schedulerApp', ['ngResource', 'ngSanitize', 'ui.date']);
-    angular.module('schedulerApp').controller('employeeDetailController', ['$scope', function($scope) {
-      $scope.text = "LSKDFJSLDKFj";
+  
+  (function(angular) {
+    'use strict';
+    angular.module('schedulerApp').controller('testController', ['$scope', function($scope) {
+      $scope.test = "DO YOU SEE THIS?";
     }]);
+  })(window.angular);
   </script>
-  
-  <script src="/assets/resources/employee-98a699f237f017346fd51fd337afa964.js?body=1"></script>
-  
 </head>
-<body ng-app="schedulerApp" ng-controller="employeeDetailController">
-  <input ui-date />
-  {{text}}
+<body ng-app="schedulerApp" ng-controller="testController">
+  {{test}}
 </body>
 </html>

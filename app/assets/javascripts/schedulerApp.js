@@ -1,4 +1,5 @@
-var schedulerApp = angular.module('schedulerApp', ['ngResource', 'ngSanitize', 'ui.date'], function($compileProvider) {
+var schedulerApp = angular.module('schedulerApp', ['ngResource', 'ngSanitize', 'ui.date'], ["$compileProvider", function($compileProvider) {
+
   // configure new 'compile' directive by passing a directive
   // factory function. The factory function injects the '$compile'
   $compileProvider.directive('compile', ["$compile", function($compile) {
@@ -23,7 +24,7 @@ var schedulerApp = angular.module('schedulerApp', ['ngResource', 'ngSanitize', '
       );
     };
   }]);
-}).config(["$httpProvider", function($httpProvider) {
+}]).config(["$httpProvider", function($httpProvider) {
     $httpProvider.defaults.headers.common['X-CSRF-Token'] = angular.element(document.querySelector('meta[name=csrf-token]')).attr('content');
   }
 ]);

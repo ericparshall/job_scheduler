@@ -1,5 +1,10 @@
 class HomeController < ApplicationController
+  layout "test", only: [:test]
   def index
+    
+  end
+  
+  def test
     
   end
   

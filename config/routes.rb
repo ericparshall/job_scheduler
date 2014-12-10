@@ -1,7 +1,7 @@
 JobScheduler::Application.routes.draw do
   root to: "home#index"
   resources :user_types
-
+  match 'test' => "home#test", via: [:get]
   match 'my_schedule' => "home#my_schedule", via: [:get]
   
   match 'reports' => "reports#index", via: [:get]
