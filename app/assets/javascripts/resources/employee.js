@@ -3,6 +3,7 @@
     var Employee = $resource('/employees/:id', 
       {archived: "false", format: "json"}, 
       {
+        getOne: { method: "GET", url: "/employees/:id", isArray: false },
         update: { method: "PUT", url: "/employees/:id" },
         archive: {
           method: "POST", 

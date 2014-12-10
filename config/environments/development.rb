@@ -31,7 +31,7 @@ JobScheduler::Application.configure do
   config.assets.compress = true
 #  config.assets.js_compressor = NoCompression.new
   # Expands the lines which load the assets
-  config.assets.debug = true
+  #config.assets.debug = true
   
   config.eager_load = false
   

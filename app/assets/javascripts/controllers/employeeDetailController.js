@@ -1,9 +1,15 @@
 (function(angular) {
   'use strict';
-  angular.module('schedulerApp').controller('employeeDetailController', ['$scope', '$resource', 'Employee', 'Skill', function($scope, $resource, Employee, Skill) {
-    $scope.employee = {rating: 0};
-    $resource(window.location.pathname).get({format: "json"}, function(e) {
-      $scope.employee = e;
-    });
+  angular.module('schedulerApp').controller('employeeDetailController', ['$scope', 'Employee', '$location', function($scope, Employee) {
+    var pathSegments = window.location.pathname.split("/");
+    var index = pathSegments.length;
+    var employeeId;
+    for (var i = index - 1; i > 0; i--) {
+      if (pathSegments[i] != null && pathSegments[i] != "") {
+        employeeId = pathSegments[i];
+        break;
+      }
+    }
+    $scope.employee = Employee.getOne({id: employeeId});
   }]);
 })(window.angular);
