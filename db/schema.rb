@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20141202023207) do
+ActiveRecord::Schema.define(version: 20141210142507) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -22,6 +22,8 @@ ActiveRecord::Schema.define(version: 20141202023207) do
     t.datetime "created_at"
     t.datetime "updated_at"
   end
+
+  add_index "customers", ["archived"], name: "index_customers_on_archived", using: :btree
 
   create_table "future_schedules", force: true do |t|
     t.integer  "job_id"
@@ -42,6 +44,8 @@ ActiveRecord::Schema.define(version: 20141202023207) do
     t.integer  "point_of_contact_id"
     t.integer  "internal_point_of_contact_id"
   end
+
+  add_index "jobs", ["archived"], name: "index_jobs_on_archived", using: :btree
 
   create_table "jobs_skills", id: false, force: true do |t|
     t.integer "job_id"
@@ -125,6 +129,7 @@ ActiveRecord::Schema.define(version: 20141202023207) do
     t.integer  "rating",                 default: 0
   end
 
+  add_index "users", ["archived"], name: "index_users_on_archived", using: :btree
   add_index "users", ["email"], name: "index_users_on_email", unique: true, using: :btree
   add_index "users", ["manager_id"], name: "index_users_on_manager_id", using: :btree
   add_index "users", ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true, using: :btree
