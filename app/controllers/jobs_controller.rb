@@ -10,7 +10,7 @@ class JobsController < ApplicationController
 
     respond_to do |format|
       format.html # index.html.erb
-      format.json { render json: @jobs }
+      format.json { render json: @jobs.to_json(include: [:customer]) }
     end
   end
 

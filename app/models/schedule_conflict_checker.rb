@@ -10,7 +10,7 @@ class ScheduleConflictChecker
       existing_schedules.each do |existing_schedule|
         schedules.each do |schedule|
           if schedules_conflict?(schedule, existing_schedule)
-            errors << "<strong>#{existing_schedule.user.full_name}</strong>: The schedule conflicts with another schedule: <a href=\"/schedules/#{existing_schedule.id}\">#{existing_schedule.job.name}</a>".html_safe
+            errors << "<strong>#{existing_schedule.user.full_name}</strong>: The schedule conflicts with another schedule: <a target=\"_blank\" href=\"/schedules/#{existing_schedule.id}\">#{existing_schedule.job.name}</a>".html_safe
             break
           end
         end

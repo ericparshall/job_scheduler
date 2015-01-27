@@ -1,424 +1,168 @@
 <script type="text/javascript">
-var daysOfWeek = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-
-function convertDateTime(date, time){
-  try {
-    var date = date.split("/");
-    var yyyy = date[2];
-    var mm = date[0]-1;
-    var dd = date[1];
-
-    var time = time.split(":");
-    var h = parseInt(time[0]);
-    var m = parseInt(time[1].substring(0,2));
-    var meridian = time[1].substring(time[1].length - 2, time[1].length);
-    
-    if (meridian.toUpperCase() == "PM" && h != 12) {
-      h += 12;
-    } else if (meridian.toUpperCase() == "AM" && h == 12) {
-      h -= 12;
-    }
-    
-    var s = 0;
-
-    return new Date(yyyy,mm,dd,h,m,s);
-  } catch(e) { 
-    return null;
-  }
-}
-
-function onScheduleTimeChange(from_time_date, from_time_time, to_time_date, to_time_time, hours_for_range, day_of_week) {
-  var fromDateTime = convertDateTime(from_time_date.val(), from_time_time.val());
-  var toDateTime = convertDateTime(to_time_date.val(), to_time_time.val());
+(function(angular) {
   
-  if (fromDateTime != null && toDateTime != null) {
-    var totalHours = ((toDateTime - fromDateTime) / 1000 / 60 / 60);
-
-    if (!isNaN(totalHours))
-      hours_for_range.text(totalHours + " hours");
-    else
-      hours_for_range.text("");
-  } else {
-    hours_for_range.text("");
-  }
-  checkForScheduleConflicts();
-}
-
-function updateDayOfWeek(from_time_date, day_of_week) {
-  try {
-    var fromDate = convertDateTime(from_time_date.val(), "1:00am");
-    if (fromDate != null)
-      day_of_week.text(daysOfWeek[fromDate.getDay()]);
-    else
-      day_of_week.text("");
-  } catch(e) {
-    day_of_week.text("");
-  }
-}
-
-function makePickers() {
-  $.each($("#schedule_form input.date-picker.from"), function(index, value){
-    var from_time_date = $(value);
-    var to_time_date = $($("#schedule_form input.date-picker.to")[index]);
-    var from_time_time = $($("#schedule_form input.time-picker.from")[index]);
-    var to_time_time = $($("#schedule_form input.time-picker.to")[index]);
-    var hours_for_range = $($("label.hours_for_range")[index]);
-    var day_of_week = $($(".day_of_week")[index]);
-
-    from_time_date.datepicker();
-    to_time_date.datepicker();
-    from_time_time.timepicker();
-    to_time_time.timepicker();
-    
-    var onChange = function() { 
-      onScheduleTimeChange(from_time_date, from_time_time, to_time_date, to_time_time, hours_for_range, day_of_week);
-    };
-    
-    from_time_date.on("change", onChange);
-    from_time_date.on("change", function() {
-      updateDayOfWeek(from_time_date, day_of_week);
-    });
-    
-    updateDayOfWeek(from_time_date, day_of_week);
-
-    to_time_date.on("change", onChange);
-    from_time_time.on("change", onChange);
-    to_time_time.on("change", onChange);
-    from_time_time.on("changeTime", onChange);
-    to_time_time.on("changeTime", onChange);
-  });
-}
-
-function padString(num, size) {
-    var s = "000000000" + num;
-    return s.substr(s.length-size);
-}
-
-function addDays(dateString, daysToAdd) {
-  var dateArray = dateString.split("/");
-  var yyyy = parseInt(dateArray[2]);
-  var mm = parseInt(dateArray[0]) - 1;
-  var dd = parseInt(dateArray[1]);
   
-  var newDate = new Date(yyyy, mm, dd);
-  newDate.setTime(newDate.getTime() + (24 * 60 * 60 * 1000 * daysToAdd));
-  return padString(newDate.getMonth() + 1, 2) + "/" + padString(newDate.getDate(), 2) + "/" + newDate.getFullYear();
-}
-
-function customizeSchedulesByDay() {
-  var fromDate = convertDateTime($("#schedule_item_0_from_time_date").val(), $("#schedule_item_0_from_time_time").val());
-  var throughDate = convertDateTime($("#schedule_item_0_through_date").val(), $("#schedule_item_0_from_time_time").val());
-  
-  if (fromDate != null && !isNaN(fromDate) && throughDate != null && !isNaN(throughDate) && throughDate.getTime() > fromDate.getTime()) {
-    var i = 1;
-    $("#customize_times_by_day_section").hide();
-    while (fromDate.getTime() < throughDate.getTime()) {
-      fromDate.setTime(fromDate.getTime() + (24 * 60 * 60 * 1000));
-      
-      $.each($("#primary_schedule_section").find("input.date-picker"), function(index, value) {
-        $(value).datepicker("destroy");
-      });
-      
-      var template = $("#primary_schedule_section").clone();
-      
-      $.each(template.find("input"), function(index, value) {
-        var newId = $(value).attr("id").replace("0", i.toString());
-        var newName = $(value).attr("name").replace("0", i.toString());
-        $(value).attr("id", newId);
-        $(value).attr("name", newName);
-      });
-      
-      $.each(template.find("input.date-picker"), function(index, value) {
-        var newDate = addDays($(value).val(), i);
-        $(value).val(newDate);
-      });
-      
-      var delete_link = $("<div class=\"col-md-2\"><a href=\"#\">remove</a></div>");
-      delete_link.find("a").on("click", function() {
-        $(this).parent().parent().remove();
-        return false;
-      });
-      template.append(delete_link);
-      
-      template.appendTo("#customize_times_by_day_section");
-      i++;
-    }
-    
-    makePickers();
-    $("#repeat_through_section").remove();
-    $("#customize_times_by_day_section").show();
-    $("#pending_schedule_button_section").hide();
-  }
-  return false;
-}
-
-function toggleCustomizeSchedulesByDayButton() {
-  var fromDate = convertDateTime($("#schedule_item_0_from_time_date").val(), $("#schedule_item_0_from_time_time").val());
-  var toDate = convertDateTime($("#schedule_item_0_to_time_date").val(), $("#schedule_item_0_to_time_time").val());
-  var throughDate = convertDateTime($("#schedule_item_0_through_date").val(), $("#schedule_item_0_from_time_time").val());
-  
-  if (fromDate != null && toDate != null && throughDate != null && 
-    toDate.getTime() > fromDate.getTime() && throughDate.getTime() > fromDate.getTime()) {
-    $("#customize_schedules_by_day").show()
-  } else {
-    $("#customize_schedules_by_day").hide()
-  }
-}
-
-$(function() {
-  makePickers();
-  $("#schedule_item_0_through_date").datepicker();
-  $("#schedule_item_0_from_time_date").on("change", function() {
-    $("#schedule_item_0_through_date").val($("#schedule_item_0_from_time_date").val());
-  });
-  $("#customize_schedules_by_day").on("click", customizeSchedulesByDay);
-  toggleCustomizeSchedulesByDayButton();
-  
-  $("#schedule_item_0_from_time_date").on("change", toggleCustomizeSchedulesByDayButton);
-  $("#schedule_item_0_from_time_time").on("change", toggleCustomizeSchedulesByDayButton);
-  $("#schedule_item_0_to_time_date").on("change", toggleCustomizeSchedulesByDayButton);
-  $("#schedule_item_0_to_time_time").on("change", toggleCustomizeSchedulesByDayButton);
-  $("#schedule_item_0_through_date").on("change", toggleCustomizeSchedulesByDayButton);
-});
-
-
-
-function addToMassAssignList(option) {
-  var row_id = "user_id_" + option.value
-  if ( $("#" + row_id).length == 0 ) {
-    var row_div = $("<div id='" + row_id + "' style='row'>");
-    var label_div = $("<div style='float: left'>");
-    label_div.text(option.text);
-  
-    var user_id_field = $("<input id='user_ids_" + option.value + "' name='user_ids[" + option.value + "]' type='hidden'>");
-    user_id_field.val(option.text);
-    label_div.append(user_id_field);
-  
-    var remove_link_div = $("<div style='float: right'>");
-    var remove_link = $("<a href='#'>");
-    remove_link.text("remove");
-    remove_link.click(function() {
-      removeRowFromMassAssign(row_id);
-      checkForScheduleConflicts();
-      return false;
-    });
-    remove_link_div.append(remove_link);
-  
-    row_div.append(label_div);
-    row_div.append(remove_link_div);
-    $("#mass_assign_users").append(row_div);
-    $("#mass_assign_users").append( "<div style='clear: both'>" );
-  }
-  checkForScheduleConflicts();
-}
-
-function removeRowFromMassAssign(row_id) {
-  $("#" + row_id).remove();
-}
-
-function checkForScheduleConflicts() {
-  var postData = $("#schedule_form").serializeArray();
-  var formURL = "<%= schedules_schedule_conflicts_path %>";
-  $.ajax({
-    url : formURL,
-    type: "POST",
-    data : postData,
-    success:function(data, textStatus, jqXHR) {
-      $("#schedule_conflicts").empty();
-      $("#schedule_conflicts").append(data);
-    },
-    error: function(jqXHR, textStatus, errorThrown) {
-      
-    }
-  });
-}
-
-$(function() {
-  $( "#schedule_job_id" ).combobox({
-    list: $( "#schedule_job_id" ),
-    parent_div: $("#job_id_input_group"),
-    input: $("#job_id_input")
-  });
-  <% if !@schedule.persisted? %>
-  $( "#user_id" ).combobox({
-    list: $( "#user_id" ),
-    parent_div: $("#user_id_input_group"),
-    input: $("#user_id_input"),
-    custom_on_select: function(option) {
-      addToMassAssignList(option);
-    }
-  });
-  <% end %>
-  <% params[:user_ids].try(:each) do |k, v| %>
-  addToMassAssignList({ value: '<%= k %>', text: '<%= v %>' });
-  <% end %>
-    
-  $('#schedule_form').submit(function() {
-    $(this).find("input:submit").prop('disabled',true);
-  });
-
-  var form = $("#schedule_form");
-   $(":submit",form).click(function(){
-      if($(this).attr('name')) {
-          $(form).append(
-              $("<input type='hidden'>").attr( { 
-                  name: $(this).attr('name'), 
-                  value: $(this).attr('value') })
-          );
-      }
-    });
-
-   $(form).submit(function(){
-       console.log($(this).serializeArray());
-   });
-});
+})(window.angular);
 </script>
-<%= form_for(@schedule, html: { id: "schedule_form" }) do |f| %>
-  <input name="schedule_id" type="hidden" value="<%= @schedule.id %>">
-  <div id="schedule_conflicts">
-    
+<div ng-app="schedulerApp" ng-controller="scheduleEditController" ng-cloak class="ng-cloak" ng-show="schedule.$resolved">
+
+  <div class="alert alert-danger" ng-show="schedule.errors.length > 0">
+    <ul>
+      <li ng-repeat="error in schedule.errors"><div ng-bind-html="error"></div></li>
+    </ul>
   </div>
-  <% if @schedule.errors.any? %>
-    <div id="error_explanation" class="alert alert-error">
-      <strong><%= pluralize(@schedule.errors.count, "error") %> prohibited this schedule from being saved:</strong>
-
-      <ul>
-      <% @schedule.errors.full_messages.each do |msg| %>
-        <li><%= msg %></li>
-      <% end %>
-      </ul>
-    </div>
-  <% end %>
-  <% if @future_schedule.try(:errors).try(:any?) %>
-    <div id="error_explanation" class="alert alert-error">
-      <strong><%= pluralize(@future_schedule.errors.count, "error") %> prohibited this pending schedule from being saved:</strong>
-
-      <ul>
-      <% @future_schedule.errors.full_messages.each do |msg| %>
-        <li><%= msg %></li>
-      <% end %>
-      </ul>
-    </div>
-  <% end %>
-
+  <div class="alert alert-warning" ng-show="schedule.warnings.length > 0">
+    <ul>
+      <li ng-repeat="warning in schedule.warnings"><div ng-bind-html="warning"></div></li>
+    </ul>
+  </div>
   <div class="row">
     <div class="col-md-8">
-      <label for="job_id_input">Job:</label>
-      <%= f.select :job_id, @jobs, selected: @schedule.job.try(:id) || params[:job_id], include_blank: true %>
-      <input id="job_id_input" title="Job" placeholder="Job" class="form-control custom-combobox-input ui-autocomplete-input" autocomplete="on" data-original-title="">
-      <div id="job_id_input_group" class="input-group">
-        <span class="input-group-btn">
-          <button class="btn btn-default" type="button">Job</button>
-        </span>
-      </div>
+      <label>Job:</label>
+        <angucomplete id="schedule_job"
+          placeholder="Job"
+          pause="100"
+          selectedobject="schedule.job"
+          localdata="jobs"
+          searchfields="name"
+          titlefield="name"
+          minlength="1"
+          inputclass="form-control"
+          holderclass="input-group"
+          buttonposition="right"
+          buttonlabel="Job"
+          holderclass="input-group">
+        </angucomplete>
       <br />
-      <% if @schedule.persisted? %>
-        User: <%= @schedule.user.full_name %>
-        <br />
-      <% else %>
-      <label for="user_id_input">Employee:</label>
-      <%= select_tag :user_id, options_for_select(@users, params[:employee_id]), include_blank: true %>
-      <input id="user_id_input" title="Employee" placeholder="Employee" class="form-control custom-combobox-input ui-autocomplete-input" autocomplete="on" data-original-title="">
-      <div id="user_id_input_group" class="input-group">
-        <span class="input-group-btn">
-          <button class="btn btn-default" type="button">Employee</button>
-        </span>
+      <div ng-if="schedule.persisted()" ng-cloak class="ng-cloak">
+        User: {{schedule.user.full_name}}
       </div>
-      <% end %>
-      <br />
+      <div ng-if="!schedule.persisted()" ng-cloak class="ng-cloak">
+        <label>Employee:</label>
+        <angucomplete id="schedule_user"
+          placeholder="Employee"
+          pause="100"
+          selectedobject="schedule.user"
+          localdata="users"
+          searchfields="full_name"
+          titlefield="full_name"
+          minlength="1"
+          inputclass="form-control"
+          holderclass="input-group"
+          buttonposition="right"
+          buttonlabel="Employee"
+          holderclass="input-group"
+          on-selected="onUserSelected">
+        </angucomplete>
+      </div>
+      <br >
       <div class="row">
-        <div class="col-md-2"></div>
-        <div class="col-md-3">
-          <label>From Date/Time: </label>
+        <div class="col-md-4">
+          <label>From Time: </label>
         </div>
-        <div class="col-md-3">
-          <label>To Date/Time: </label>
-        </div>
-      </div>
-      <% @schedule_time_ranges.each_with_index do |schedule_time_range, index| %>
-      <div class="row" id="primary_schedule_section">
-        <div class="col-md-2" data-column="day_of_week">
-          <div class="day_of_week"><%= schedule_time_range["day_of_week"] %></div>
-        </div>
-        <div class="col-md-3" data-column="from_date">
-          <%= text_field_tag "schedule_item[0][from_time_date]", schedule_time_range["from_time_date"], class: "input-sm form-control date-picker from", placeholder: "mm/dd/yyyy" %>
-          <%= text_field_tag "schedule_item[0][from_time_time]", schedule_time_range["from_time_time"], class: "input-sm form-control time-picker from", placeholder: "h:mm" %>
-        </div>
-
-        <div class="col-md-3" data-column="to_date">
-          <%= text_field_tag "schedule_item[0][to_time_date]", schedule_time_range["to_time_date"], class: "input-sm form-control date-picker to", placeholder: "mm/dd/yyyy" %>
-          <%= text_field_tag "schedule_item[0][to_time_time]", schedule_time_range["to_time_time"], class: "input-sm form-control time-picker to", placeholder: "h:mm" %>
-        </div>
-
-        <div class="col-md-2" data-column="total_hours">
-          <label class="hours_for_range"><%= schedule_time_range["total_hours"] %></label>
+        <div class="col-md-4">
+          <label>To Time: </label>
         </div>
       </div>
-      <% end %>
-
-      <% unless @schedule.persisted? %>
+      
+      <div class="row" ng-repeat="time_range in schedule.time_ranges">
+        <div class="col-md-4 dropdown">
+          <a class="dropdown-toggle" ng-attr-id="from_time_dropdown_{{$index}}" role="button" data-toggle="dropdown" data-target="#" href="#">
+            <div class="input-group">
+              <div class="form-control" style="font-size: 12px">{{time_range.from_time.format("ddd, DD MMM YYYY - hh:mm A")}}</div>
+              <span class="input-group-addon">
+                <i class="glyphicon glyphicon-calendar"></i>
+              </span>
+            </div>
+          </a>
+          <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+            <datetimepicker data-ng-model="time_range.from_time" data-on-set-time="schedule.validateNewSchedule(schedule, usersSelected)" data-datetimepicker-config="{ dropdownSelector: '#from_time_dropdown_{{$index}}' }"/>
+          </ul>
+        </div>
+        <div class="col-md-4 dropdown">
+          <a class="dropdown-toggle" ng-attr-id="to_time_dropdown_{{$index}}" role="button" data-toggle="dropdown" data-target="#" href="#">
+            <div class="input-group">
+              <div class="form-control" style="font-size: 12px">{{time_range.to_time.format("ddd, DD MMM YYYY - hh:mm A")}}</div>
+              <span class="input-group-addon">
+                <i class="glyphicon glyphicon-calendar"></i>
+              </span>
+            </div>
+          </a>
+          <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+            <datetimepicker data-ng-model="time_range.to_time" data-on-set-time="schedule.validateNewSchedule(schedule, usersSelected)" data-datetimepicker-config="{ dropdownSelector: '#to_time_dropdown_{{$index}}' }"/>
+          </ul>
+        </div>
+        <div class="col-md-4"><span style="float: left">{{time_range.getTotalHoursLabel()}}</span><a href="#" style="float: right" ng-show="$index > 0" ng-click="schedule.time_ranges.splice($index, 1)">remove</a></div>
+      </div>
       <br />
-      <div id="repeat_through_section">
+      <div ng-show="!schedule.persisted() &amp;&amp; !schedule.expanded">
         <div class="row">
-          <div class="col-md-2"></div>
-          <div class="col-md-10">
-            <label>Repeat through:</label>
+          <div class="col-md-12">
+            <label>Repeat schedule through:</label>
           </div>
         </div>
         <div class="row">
-          <div class="col-md-2"></div>
-          <div class="col-md-3">
-            <%= text_field_tag "schedule_item[0][through_date]", @schedule_time_ranges[0]["through_date"], class: "form-control date-picker input-sm", placeholder: "mm/dd/yyyy" %>
+          <div class="col-md-4 dropdown">
+            <a class="dropdown-toggle" id="through_date_dropdown_0" role="button" data-toggle="dropdown" data-target="#" href="#">
+              <div class="input-group">
+                <div class="form-control" style="font-size: 12px">{{schedule.time_ranges[0].through_date.format("dddd, DD MMM YYYY")}}</div>
+                <span class="input-group-addon">
+                  <i class="glyphicon glyphicon-calendar"></i>
+                </span>
+              </div>
+            </a>
+            <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+              <datetimepicker data-ng-model="schedule.time_ranges[0].through_date" data-on-set-time="schedule.validateNewSchedule(schedule, usersSelected)" data-datetimepicker-config="{ dropdownSelector: '#through_date_dropdown_0', minView: 'day' }"/>
+            </ul>
           </div>
           <div class="col-md-4">
-            <a href="#" id="customize_schedules_by_day" class="btn btn-sm btn-primary" role="button" style="color: #FFFFFF">Customize Times by Day</a>
+            <a href="#" class="btn btn-sm btn-primary" role="button" style="color: #FFFFFF" ng-click="schedule.expandTimeRanges()" ng-disabled="!schedule.canExpand()">Customize Times by Day</a>
           </div>
         </div>
       </div>
-      <div id="customize_times_by_day_section">
-        
-      </div>
-      <% end %>
 
       <%= hidden_field_tag :return_path, params[:return_path] %>
       <%= hidden_field_tag :future_schedule_id, params[:future_schedule_id] %>
     </div>
-    <div id="mass_assign_users" class="col-md-4" style="padding-top: 15px; padding-bottom: 15px">
-      
+    <div class="col-md-4" style="padding-top: 15px; padding-bottom: 15px">
+        <div ng-repeat="user in usersSelected" ng-attr-id="selected_user_{{user.id}}" style="row">
+          <div style='float: left'>{{user.full_name}}</div>
+          <div style='float: right'><a href="#" ng-click="removeSelectedUser(user)">remove</a></div>
+          <div style='clear: both'></div>
+        </div>
     </div>
   </div>
   <br>
 
-  <div class="row">
+  <div class="row" ng-show="!schedule.persisted()">
     <div class="col-md-4">
-      <%= f.submit class: "btn btn-lg btn-primary btn-block" %>
+      <button ng-disabled="disableSubmitButtons" ng-click="saveSchedule()" class="btn btn-lg btn-primary btn-block">Create</button>
     </div>
   </div>
-  <% unless @schedule.persisted? || (defined?(@future_schedule) && @future_schedule.persisted?) %>
-  <div id="pending_schedule_button_section">
-    <br>
-    <div class="row">
-      <div class="col-md-4">
-        <%= f.submit class: "btn btn-lg btn-primary btn-block", value: "Create Pending Schedule" %>
-      </div>
+  <div class="row" ng-show="schedule.persisted()">
+    <div class="col-md-4">
+      <button ng-disabled="disableSubmitButtons" ng-click="saveSchedule()" class="btn btn-lg btn-primary btn-block">Update</button>
     </div>
-    <% end %>
-    <% if defined?(@future_schedule) && @future_schedule.persisted? %>
-    <br>
-    <div class="row">
-      <div class="col-md-4">
-        <%= f.submit class: "btn btn-lg btn-primary btn-block", value: "Update Pending Schedule" %>
-      </div>
+  </div>
+  <br>
+  <div class="row" ng-show="!schedule.persisted() &amp;&amp; !schedule.expanded &amp;&amp; !schedule.isPendingSchedule()">
+    <div class="col-md-4">
+      <button ng-disabled="disableSubmitButtons" ng-click="createPendingSchedule()" class="btn btn-lg btn-primary btn-block">Create Pending Schedule</button>
     </div>
+  </div>
 
-    <br>
-    <div class="row">
-      <div class="col-md-4">
-        <%= f.submit class: "btn btn-lg btn-primary btn-block", value: "Delete Pending Schedule" %>
-      </div>
+  <div class="row" ng-show="!schedule.persisted() &amp;&amp; !schedule.expanded &amp;&amp; schedule.isPendingSchedule()">
+    <div class="col-md-4">
+      <button ng-disabled="disableSubmitButtons" ng-click="updatePendingSchedule()" class="btn btn-lg btn-primary btn-block">Update Pending Schedule</button>
     </div>
-    <% end %>
   </div>
-<% end %>
+  <br>
+  <div class="row" ng-show="!schedule.persisted() &amp;&amp; !schedule.expanded &amp;&amp; schedule.isPendingSchedule()">
+    <div class="col-md-4">
+      <button ng-disabled="disableSubmitButtons" ng-click="deletePendingSchedule()" class="btn btn-lg btn-primary btn-block">Delete Pending Schedule</button>
+    </div>
+  </div>
+</div>
+
 
 <br />

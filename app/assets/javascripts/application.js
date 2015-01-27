@@ -9,6 +9,7 @@
 //
 // WARNING: THE FIRST BLANK LINE MARKS THE END OF WHAT'S TO BE PROCESSED, ANY BLANK LINE SHOULD
 // GO AFTER THE REQUIRES BELOW.
+//= require moment.js
 //= require jquery.timepicker.min.js
 //= require bootstrap.js.coffee
 //= require fullcalendar.js

@@ -6,7 +6,15 @@ class Schedule < ActiveRecord::Base
   before_validation { self.hours = (self.to_time - self.from_time) / 3600.0 rescue nil }
   validate :hours_greater_than_zero
   
-  attr_accessor :url
+  attr_accessor :url, :through_date
+  
+  def time_ranges
+    [{
+      "from_time" => self.from_time,
+      "to_time" => self.to_time,
+      "through_date" => self.through_date
+    }]
+  end
 
   def to_schedule_event(color, link_to_url = nil)
     event = {

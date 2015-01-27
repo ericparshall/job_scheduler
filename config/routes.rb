@@ -14,6 +14,11 @@ JobScheduler::Application.routes.draw do
   match "schedules/schedule_conflicts" => "schedules#schedule_conflicts", via: :all
   
   match "schedules/grouped_by_job_id" => "schedules#grouped_by_job_id", via: [:get]
+  match "schedules/create_schedule" => "schedules#create_schedule", via: [:post]
+  match "schedules/update_schedule" => "schedules#update_schedule", via: [:post]
+  match "schedules/create_pending_schedule" => "schedules#create_pending_schedule", via: [:post]
+  match "schedules/update_pending_schedule" => "schedules#update_pending_schedule", via: [:post]
+  match "schedules/delete_pending_schedule" => "schedules#delete_pending_schedule", via: [:post]
   resources :schedules do
     get :scheduled_for_job
     get :grouped_by_job_id

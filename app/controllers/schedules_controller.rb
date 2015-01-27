@@ -2,6 +2,7 @@ class SchedulesController < ApplicationController
   include ApplicationHelper
   include SchedulesHelper
   
+  layout "application_angular", only: [:edit, :new]
   before_filter :require_admin_user, except: [ :scheduled_for_job ]
   before_filter :initialize_collections, except: [ :schedule_conflicts ]
 
@@ -29,6 +30,8 @@ class SchedulesController < ApplicationController
     Date.beginning_of_week = :sunday
     @from_time = (Time.parse("#{params[:from_date]} 00:00:00 UTC") rescue nil) || Time.now.beginning_of_month
     @to_time = (Time.parse("#{params[:to_date]} 00:00:00 UTC").end_of_day rescue nil) || Time.now.end_of_month
+    puts @from_time.inspect
+    puts @to_time.inspect
     update_date_range
     
     unless params[:selected_tab] == "Calendar"
@@ -52,40 +55,28 @@ class SchedulesController < ApplicationController
 
     respond_to do |format|
       format.html # show.html.erb
-      format.json { render json: @schedule }
+      format.json { render json: @schedule.to_json(include: [:job, :user]) }
     end
   end
 
   def new
-    params[:user_ids] ||= {}
-    params[:user_ids][params[:employee_id]] = User.find(params[:employee_id]).full_name unless params[:employee_id].blank?
-    @schedule = Schedule.new
-    
-    if params[:future_schedule_id]
-      @future_schedule = FutureSchedule.find(params[:future_schedule_id]) rescue nil
-    end
-    
-    unless @future_schedule.nil?
-      @schedule.from_time = @future_schedule.from_time
-      @schedule.to_time = @future_schedule.to_time
-      @schedule.job_id = @future_schedule.job_id
-    end
-    
-    @schedule_time_ranges = [
-      {
-        "from_time_date" => default_schedule_date(:from_time),
-        "from_time_time" => default_from_time(:from_time),
-        "to_time_date" => default_schedule_date(:to_time),
-        "to_time_time" => default_from_time(:to_time),
-        "total_hours" => @schedule.hours,
-        "through_date" => default_schedule_date(:through_date),
-        "day_of_week" => ""
-      }
-    ]
-
     respond_to do |format|
       format.html
-      format.json { render json: @schedule }
+      format.json { 
+        if params[:future_schedule_id]
+          @future_schedule = FutureSchedule.find(params[:future_schedule_id]) rescue nil
+        end
+
+        @schedule = Schedule.new
+        unless @future_schedule.nil?
+          @schedule.from_time = @future_schedule.from_time
+          @schedule.to_time = @future_schedule.to_time
+          @schedule.job_id = @future_schedule.job_id
+          @schedule.through_date = @future_schedule.through_date
+        end
+
+        render json: @schedule.as_json(methods: :time_ranges, include: [:job]) 
+      }
     end
   end
 
@@ -103,6 +94,154 @@ class SchedulesController < ApplicationController
         "day_of_week" => Date::DAYNAMES[@schedule.from_time.wday]
       }
     ]
+    
+    respond_to do |format|
+      format.html
+      format.json { render json: @schedule.to_json(include: { job: { customer: {} } }, methods: :time_ranges) }
+    end
+  end
+
+  def create_schedule
+    schedule_hash = JSON.parse(params[:schedule])
+    users_selected = JSON.parse(params[:users_selected])
+    
+    schedule_blocks = get_schedule_blocks(schedule_hash["time_ranges"])
+    schedules = []
+    
+    employee_ids = users_selected.map {|user| user["id"] }
+    
+    if schedule_blocks.count == 0 || employee_ids.count == 0
+      respond_to do |format|
+        schedule_hash["errors"] = ["The schedule is incomplete"]
+        format.json { render json: schedule_hash, status: :bad_request }
+      end
+      return
+    end
+    
+    employee_ids.each do |employee_id|
+      schedule_blocks.each do |schedule_block|
+        schedules << Schedule.new({ job_id: schedule_hash["job"].try(:[], "id") }.merge(
+          user_id: employee_id, 
+          from_time: schedule_block[:from_time], 
+          to_time: schedule_block[:to_time]
+        ))
+      end
+    end
+      
+    schedules.each do |s|
+      if !s.valid?
+        unique_errors = Set.new
+        s.errors.full_messages.each {|error_message| unique_errors << error_message }
+        schedule_hash["errors"] = unique_errors.to_a
+
+        respond_to do |format|
+          format.json { render json: schedule_hash, status: :bad_request }
+        end
+        return
+      end
+    end
+    schedules.each {|s| s.save }
+    
+    employee_ids.each do |employee_id|
+      ScheduleMailer.schedule_created(employee_id, schedules.first.job.id, schedule_blocks).deliver
+    end
+    
+    respond_to do |format|
+      format.json { head :ok }
+    end
+  end
+  
+  def update_schedule
+    schedule_hash = JSON.parse(params[:schedule])
+    
+    @schedule = Schedule.find(schedule_hash["id"])
+    
+    time_range = schedule_hash["time_ranges"].first
+    
+    @schedule.from_time = Time.parse(time_range["from_time"]) rescue nil
+    @schedule.to_time = Time.parse(time_range["to_time"]) rescue nil
+    @schedule.job_id = schedule_hash["job"]["id"] rescue nil
+    
+    if @schedule.valid?
+      respond_to do |format|
+        @schedule.save
+        format.json { head :ok }
+      end
+    else
+      unique_errors = Set.new
+      @schedule.errors.full_messages.each {|error_message| unique_errors << error_message }
+      schedule_hash["errors"] = unique_errors.to_a
+      
+      respond_to do |format|
+        format.json { render json: schedule_hash, status: :bad_request }
+      end
+    end
+  end
+  
+  def create_pending_schedule
+    schedule_hash = JSON.parse(params[:schedule])
+    
+    time_range = schedule_hash["time_ranges"].first
+    
+    @future_schedule = FutureSchedule.new
+    @future_schedule.from_time = Time.parse(time_range["from_time"]) rescue nil
+    @future_schedule.to_time = Time.parse(time_range["to_time"]) rescue nil
+    @future_schedule.job_id = schedule_hash["job"]["id"] rescue nil
+    @future_schedule.through_date = Time.parse(time_range["through_date"]) rescue nil
+    
+    if @future_schedule.valid?
+      respond_to do |format|
+        @future_schedule.save
+        format.json { head :ok }
+      end
+    else
+      unique_errors = Set.new
+      @future_schedule.errors.full_messages.each {|error_message| unique_errors << error_message }
+      schedule_hash["errors"] = unique_errors.to_a
+      
+      respond_to do |format|
+        format.json { render json: schedule_hash, status: :bad_request }
+      end
+    end
+  end
+  
+  def update_pending_schedule
+    schedule_hash = JSON.parse(params[:schedule])
+    
+    @future_schedule = FutureSchedule.find(schedule_hash["future_schedule_id"])
+    
+    time_range = schedule_hash["time_ranges"].first
+
+    @future_schedule.from_time = Time.parse(time_range["from_time"]) rescue nil
+    @future_schedule.to_time = Time.parse(time_range["to_time"]) rescue nil
+    @future_schedule.job_id = schedule_hash["job"]["id"] rescue nil
+    @future_schedule.through_date = Time.parse(time_range["through_date"]) rescue nil
+    
+    if @future_schedule.valid?
+      respond_to do |format|
+        @future_schedule.save
+        format.json { head :ok }
+      end
+    else
+      unique_errors = Set.new
+      @future_schedule.errors.full_messages.each {|error_message| unique_errors << error_message }
+      schedule_hash["errors"] = unique_errors.to_a
+      
+      respond_to do |format|
+        format.json { render json: schedule_hash, status: :bad_request }
+      end
+    end
+  end
+  
+  def delete_pending_schedule
+    schedule_hash = JSON.parse(params[:schedule])
+    begin
+      @future_schedule = FutureSchedule.find(schedule_hash["future_schedule_id"])
+      @future_schedule.delete
+    rescue StandardError => e
+      
+    end
+    head :ok
   end
 
   def create
@@ -156,43 +295,7 @@ class SchedulesController < ApplicationController
       end
       return
     else
-      schedule_blocks = get_schedule_blocks(params[:schedule_item])
-      schedules = []
       
-      employee_ids = params[:user_ids].map {|k, v| k } rescue []
-      
-      if schedule_blocks.count == 0 || employee_ids.count == 0
-        render action: "new"
-        return
-      end
-      
-      employee_ids.each do |employee_id|
-        schedule_blocks.each do |schedule_block|
-          schedules << Schedule.new({ job_id: params[:schedule][:job_id] }.merge(
-            user_id: employee_id, 
-            from_time: schedule_block[:from_time], 
-            to_time: schedule_block[:to_time]
-          ))
-        end
-      end
-        
-      schedules.each do |s|
-        if !s.valid?
-          @schedule = s
-          render action: "new"
-          return
-        end
-      end
-      schedules.each {|s| s.save }
-      
-      employee_ids.each do |employee_id|
-        ScheduleMailer.schedule_created(employee_id, params[:schedule][:job_id], schedule_blocks).deliver
-      end
-      
-      respond_to do |format|
-        format.html { redirect_to params[:return_path] || @schedule, notice: 'Schedule(s) was successfully created.' }
-      end
-      return
     end
   end
 
@@ -237,9 +340,13 @@ class SchedulesController < ApplicationController
   def schedule_conflicts
     @errors = []
     @warnings = []
-    schedule_blocks = get_schedule_blocks(params["schedule_item"])
     
-    schedule = Schedule.find(params[:schedule_id]) unless params[:schedule_id].blank?
+    schedule_hash = JSON.parse(params[:schedule])
+    users_selected = JSON.parse(params[:users_selected])
+    
+    schedule_blocks = get_schedule_blocks(schedule_hash["time_ranges"])
+    
+    schedule = Schedule.find(schedule_hash["id"]) unless params["id"].blank?
     
     if !schedule.nil?
       schedule.from_time = schedule_blocks.first[:from_time]
@@ -249,12 +356,11 @@ class SchedulesController < ApplicationController
       conflicts[:errors].each {|error| @errors << error}
       conflicts[:warnings].each {|warning| @warnings << warning}
     else
-      employee_ids = params[:user_ids].map {|k, v| k } rescue []
-      employee_ids.each do |employee_id|
+      users_selected.each do |user_hash|
         schedules = []
         schedule_blocks.each do |schedule_block|
-          schedules << Schedule.new({ job_id: params[:schedule][:job_id] }.merge(
-            user_id: employee_id, 
+          schedules << Schedule.new({ job_id: schedule_hash["job_id"] }.merge(
+            user_id: user_hash["id"], 
             from_time: schedule_block[:from_time], 
             to_time: schedule_block[:to_time]
           ))
@@ -266,29 +372,33 @@ class SchedulesController < ApplicationController
       end
     end
     
-    render layout: false
+    respond_to do |format|
+      format.json { render json: {errors: @errors, warnings: @warnings} }
+    end
   end
   
-  def get_schedule_blocks(schedule_item)
+  def get_schedule_blocks(time_ranges)
     schedule_blocks = []
     begin
-      if schedule_item.size == 1
-        start_date = Date.parse(schedule_item["0"]["from_time_date"])
-        end_date = Date.parse(schedule_item["0"]["to_time_date"])
-        through_date = Date.parse(schedule_item["0"]["through_date"]) rescue start_date
-        while start_date <= through_date
+      if time_ranges.size == 1
+        from_time = Time.parse(time_ranges[0]["from_time"])
+        to_time = Time.parse(time_ranges[0]["to_time"])
+        through_date = Time.parse(time_ranges[0]["through_date"]).end_of_day
+        
+        while from_time <= through_date
           schedule_blocks << {
-            from_time: Time.parse("#{start_date.strftime("%m/%d/%Y")} #{schedule_item["0"]["from_time_time"]} UTC"),
-            to_time: Time.parse("#{end_date.strftime("%m/%d/%Y")} #{schedule_item["0"]["to_time_time"]} UTC")
+            from_time: from_time,
+            to_time: to_time
           }
-          start_date += 1.day
-          end_date += 1.day
+          from_time += 1.day
+          to_time += 1.day
         end
+        
       else
-        schedule_item.each do |index, range|
+        time_ranges.each do |range|
           schedule_blocks << {
-            from_time: Time.parse("#{range["from_time_date"]} #{range["from_time_time"]} UTC"),
-            to_time: Time.parse("#{range["to_time_date"]} #{range["to_time_time"]} UTC")
+            from_time: Time.parse(range["from_time"]),
+            to_time: Time.parse(range["to_time"])
           }
         end
       end
@@ -460,7 +570,7 @@ class SchedulesController < ApplicationController
       @from_time = @from_time.beginning_of_week
       @to_time = @from_time.end_of_week
     when "day"
-      @to_time = @from_time
+      @to_time = @from_time.end_of_day
     else
       params[:unit] = "day" if @from_time == @to_time
       params[:unit] = "month" if @from_time == @from_time.beginning_of_month && @to_time == @from_time.end_of_month

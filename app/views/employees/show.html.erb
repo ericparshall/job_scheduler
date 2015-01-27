@@ -9,7 +9,7 @@
       firstDay: 1,
       events: '<%= "/employees/#{params[:id]}/schedule.json" %>',
       dayClick: function(date, allDay, jsEvent, view) {
-        window.location = '<%= new_schedule_path(employee_id: params[:id], return_path: employee_path(User.find(params[:id]))).html_safe %>&for_date=' + date.getTime() / 1000;
+        window.location = '<%= new_schedule_path(employee_id: params[:id], return_path: employee_path(User.find(params[:id]))).html_safe %>&for_date=' + (date.getTime() - (date.getTimezoneOffset() * 60 * 1000));
       }
     });
     
