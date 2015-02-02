@@ -1,4 +1,4 @@
-var schedulerApp = angular.module('schedulerApp', ['ngResource', 'ngSanitize', 'ui.date', 'angucomplete', 'ui.bootstrap.datetimepicker'], ["$compileProvider", function($compileProvider) {
+var schedulerApp = angular.module('schedulerApp', ['ngResource', 'ngSanitize', 'ui.date', 'angucomplete', 'ui.bootstrap', 'ui.bootstrap.datetimepicker'], ["$compileProvider", function($compileProvider) {
 
   // configure new 'compile' directive by passing a directive
   // factory function. The factory function injects the '$compile'
