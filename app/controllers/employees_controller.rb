@@ -58,8 +58,6 @@ class EmployeesController < ApplicationController
   end
 
   def update
-    puts request.body.read
-    request.body.rewind
     @user = User.find(params[:id])
 
     respond_to do |format|

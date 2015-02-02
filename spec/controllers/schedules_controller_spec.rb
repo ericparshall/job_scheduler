@@ -82,4 +82,115 @@ RSpec.describe SchedulesController, :type => :controller do
   describe "#create_schedule" do
     
   end
+
+  describe '#get_available_employees' do
+    before :each do
+      signed_in_as_a_valid_user
+
+      @user_1 = Fabricate(:user, full_name: 'user 1')
+      @user_2 = Fabricate(:user, full_name: 'user 2')
+      @user_3 = Fabricate(:user, full_name: 'user 3')
+      @user_4 = Fabricate(:user, full_name: 'user 4')
+      @user_5 = Fabricate(:user, full_name: 'user 5')
+      @user_6 = Fabricate(:user, full_name: 'user 6')
+      @user_7 = Fabricate(:user, full_name: 'user 7')
+      @user_8 = Fabricate(:user, full_name: 'user 8')
+      @user_9 = Fabricate(:user, full_name: 'user 9')
+      @user_10 = Fabricate(:user, full_name: 'user 10')
+
+      Fabricate(:schedule,
+                      user_id: @user_1.id,
+                      job_id: 1,
+                      from_time: Time.parse('2015-01-01T09:00:00.000Z'),
+                      to_time: Time.parse('2015-01-01T17:30:00.000Z')
+      )
+      Fabricate(:schedule,
+                      user_id: @user_2.id,
+                      job_id: 1,
+                      from_time: Time.parse('2015-01-03T11:15:00.000Z'),
+                      to_time: Time.parse('2015-01-03T15:30:00.000Z')
+      )
+      Fabricate(:schedule,
+                      user_id: @user_3.id,
+                      job_id: 1,
+                      from_time: Time.parse('2015-01-06T01:12:00.000Z'),
+                      to_time: Time.parse('2015-01-06T14:45:00.000Z')
+      )
+      Fabricate(:schedule,
+                      user_id: @user_4.id,
+                      job_id: 1,
+                      from_time: Time.parse('09/05/2014 1:00am UTC'),
+                      to_time: Time.parse('09/05/2014 6:00am UTC')
+      )
+      Fabricate(:schedule,
+                      user_id: @user_5.id,
+                      job_id: 1,
+                      from_time: Time.parse('09/05/2014 1:00am UTC'),
+                      to_time: Time.parse('09/05/2014 6:00am UTC')
+      )
+      Fabricate(:schedule,
+                      user_id: @user_6.id,
+                      job_id: 1,
+                      from_time: Time.parse('09/05/2014 1:00am UTC'),
+                      to_time: Time.parse('09/05/2014 6:00am UTC')
+      )
+
+      Fabricate(:schedule,
+                user_id: @user_7.id,
+                job_id: 1,
+                from_time: Time.parse('2015-01-01T01:00:00.000Z'),
+                to_time: Time.parse('2015-01-01T02:59:00.000Z')
+      )
+      Fabricate(:schedule,
+                user_id: @user_8.id,
+                job_id: 1,
+                from_time: Time.parse('2015-01-01T01:00:00.000Z'),
+                to_time: Time.parse('2015-01-01T03:05:00.000Z')
+      )
+      Fabricate(:schedule,
+                user_id: @user_9.id,
+                job_id: 1,
+                from_time: Time.parse('2015-01-06T20:40:00.000Z'),
+                to_time: Time.parse('2015-01-06T21:40:00.000Z')
+      )
+      Fabricate(:schedule,
+                user_id: @user_10.id,
+                job_id: 1,
+                from_time: Time.parse('2015-01-06T20:45:00.000Z'),
+                to_time: Time.parse('2015-01-06T21:45:00.000Z')
+      )
+    end
+
+    it 'should work' do
+      times = [{
+                       '$$hashKey' => 'object:7',
+                       'from_time' => '2015-01-01T09:00:00.000Z',
+                       'through_date' => '2015-01-08T00:00:00.000Z',
+                       'to_time' => '2015-01-01T17:30:00.000Z'
+                   },
+                   {
+                       '$$hashKey' => 'object:8',
+                       'from_time' => '2015-01-03T11:15:00.000Z',
+                       'to_time' => '2015-01-03T15:30:00.000Z'
+                   },
+                   {
+                       '$$hashKey' => 'object:9',
+                       'from_time' => '2015-01-06T01:12:00.000Z',
+                       'to_time' => '2015-01-06T14:45:00.000Z'
+                   }]
+      post :get_available_employees, :format => :json, :schedule => {:time_ranges => times}.to_json
+
+      available_users = JSON.parse response.body
+
+      expect(available_users.detect {|u| u['full_name'] == 'user 4' }).to be
+      expect(available_users.detect {|u| u['full_name'] == 'user 5' }).to be
+      expect(available_users.detect {|u| u['full_name'] == 'user 6' }).to be
+      expect(available_users.detect {|u| u['full_name'] == 'user 7' }).to be
+
+      expect(available_users.detect {|u| u['full_name'] == 'user 1' }).to_not be
+      expect(available_users.detect {|u| u['full_name'] == 'user 2' }).to_not be
+      expect(available_users.detect {|u| u['full_name'] == 'user 3' }).to_not be
+      expect(available_users.detect {|u| u['full_name'] == 'user 10' }).to_not be
+    end
+  end
 end

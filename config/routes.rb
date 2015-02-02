@@ -1,24 +1,25 @@
 JobScheduler::Application.routes.draw do
-  root to: "home#index"
+  root to: 'home#index'
   resources :user_types
-  match 'test' => "home#test", via: [:get]
-  match 'my_schedule' => "home#my_schedule", via: [:get]
+  match 'test' => 'home#test', via: [:get]
+  match 'my_schedule' => 'home#my_schedule', via: [:get]
   
-  match 'reports' => "reports#index", via: [:get]
-  match 'reports/weeks_by_beginning' => "reports#weeks_by_beginning", via: [:get]
-  match 'reports/employees_scheduled_unschedule' => "reports#employees_scheduled_unschedule", via: [:get]
-  match 'reports/scheduled_for_the_week' => "reports#scheduled_for_the_week", via: [:get]
+  match 'reports' => 'reports#index', via: [:get]
+  match 'reports/weeks_by_beginning' => 'reports#weeks_by_beginning', via: [:get]
+  match 'reports/employees_scheduled_unschedule' => 'reports#employees_scheduled_unschedule', via: [:get]
+  match 'reports/scheduled_for_the_week' => 'reports#scheduled_for_the_week', via: [:get]
 
-  match 'schedules/search' => "schedules#search", via: [:get, :post]
-  match "schedules/scheduled_for_job" => "schedules#scheduled_for_job", via: [:get]
-  match "schedules/schedule_conflicts" => "schedules#schedule_conflicts", via: :all
+  match 'schedules/search' => 'schedules#search', :via => [:get, :post]
+  match 'schedules/scheduled_for_job' => 'schedules#scheduled_for_job', via: [:get]
+  match 'schedules/schedule_conflicts' => 'schedules#schedule_conflicts', via: :all
   
-  match "schedules/grouped_by_job_id" => "schedules#grouped_by_job_id", via: [:get]
-  match "schedules/create_schedule" => "schedules#create_schedule", via: [:post]
-  match "schedules/update_schedule" => "schedules#update_schedule", via: [:post]
-  match "schedules/create_pending_schedule" => "schedules#create_pending_schedule", via: [:post]
-  match "schedules/update_pending_schedule" => "schedules#update_pending_schedule", via: [:post]
-  match "schedules/delete_pending_schedule" => "schedules#delete_pending_schedule", via: [:post]
+  match 'schedules/grouped_by_job_id' => 'schedules#grouped_by_job_id', via: [:get]
+  match 'schedules/create_schedule' => 'schedules#create_schedule', via: [:post]
+  match 'schedules/update_schedule' => 'schedules#update_schedule', via: [:post]
+  match 'schedules/create_pending_schedule' => 'schedules#create_pending_schedule', via: [:post]
+  match 'schedules/update_pending_schedule' => 'schedules#update_pending_schedule', via: [:post]
+  match 'schedules/delete_pending_schedule' => 'schedules#delete_pending_schedule', via: [:post]
+  match 'schedules/get_available_employees' => 'schedules#get_available_employees', via: [:post]
   resources :schedules do
     get :scheduled_for_job
     get :grouped_by_job_id
@@ -40,7 +41,7 @@ JobScheduler::Application.routes.draw do
     end
   end
   
-  match "employees/employee_list" => "employees#employee_list", via: [:get]
+  match 'employees/employee_list' => 'employees#employee_list', via: [:get]
   resources :employees, except: [:destroy] do
     get :schedule
     member do

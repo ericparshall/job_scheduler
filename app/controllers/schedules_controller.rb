@@ -30,8 +30,6 @@ class SchedulesController < ApplicationController
     Date.beginning_of_week = :sunday
     @from_time = (Time.parse("#{params[:from_date]} 00:00:00 UTC") rescue nil) || Time.now.beginning_of_month
     @to_time = (Time.parse("#{params[:to_date]} 00:00:00 UTC").end_of_day rescue nil) || Time.now.end_of_month
-    puts @from_time.inspect
-    puts @to_time.inspect
     update_date_range
     
     unless params[:selected_tab] == "Calendar"
@@ -101,18 +99,48 @@ class SchedulesController < ApplicationController
     end
   end
 
+  def get_available_employees
+
+    # "(from_time >= ? and from_time <= ?) or (to_time >= ? and to_time <= ?)", @from_time, @to_time, @from_time, @to_time
+    schedule_hash = JSON.parse(params[:schedule])
+    schedule_blocks = get_schedule_blocks(schedule_hash["time_ranges"])
+
+    base_sql = 'select "users".* from "users" left join "schedules" on "schedules".user_id = "users".id '
+
+    # and () or () or ()
+    filter_time_statements = []
+    filter_time_times = []
+    schedule_blocks.each do |schedule_block|
+      filter_time_statements << '((from_time >= ? and from_time <= ?) or (to_time >= ? and to_time <= ?))'
+      from_time = schedule_block[:from_time] - 5.hours - 59.minutes - 59.seconds
+      to_time = schedule_block[:to_time] + 6.hours + 59.minutes + 59.seconds
+      filter_time_times << from_time
+      filter_time_times << to_time
+      filter_time_times << from_time
+      filter_time_times << to_time
+    end
+    base_sql += " and (#{filter_time_statements.join(' or ')}) where \"schedules\".id is null" if filter_time_times.size > 0
+
+    respond_to do |format|
+      format.json {
+        users = User.find_by_sql([base_sql, *filter_time_times.flatten])
+        render :json => users.to_json(:include => [:user_type], :methods => [:skills_list]), :status => :ok
+      }
+    end
+  end
+
   def create_schedule
     schedule_hash = JSON.parse(params[:schedule])
     users_selected = JSON.parse(params[:users_selected])
     
-    schedule_blocks = get_schedule_blocks(schedule_hash["time_ranges"])
+    schedule_blocks = get_schedule_blocks(schedule_hash['time_ranges'])
     schedules = []
     
     employee_ids = users_selected.map {|user| user["id"] }
     
     if schedule_blocks.count == 0 || employee_ids.count == 0
       respond_to do |format|
-        schedule_hash["errors"] = ["The schedule is incomplete"]
+        schedule_hash['errors'] = ['The schedule is incomplete']
         format.json { render json: schedule_hash, status: :bad_request }
       end
       return
@@ -127,10 +155,13 @@ class SchedulesController < ApplicationController
         ))
       end
     end
-      
+
+    conflicts = ScheduleConflictChecker.check_schedule_for_conflicts( schedules )
+
     schedules.each do |s|
-      if !s.valid?
+      if !s.valid? || conflicts[:errors].count > 0
         unique_errors = Set.new
+        conflicts[:errors].each {|error_message| unique_errors << error_message }
         s.errors.full_messages.each {|error_message| unique_errors << error_message }
         schedule_hash["errors"] = unique_errors.to_a
 
@@ -161,14 +192,17 @@ class SchedulesController < ApplicationController
     @schedule.from_time = Time.parse(time_range["from_time"]) rescue nil
     @schedule.to_time = Time.parse(time_range["to_time"]) rescue nil
     @schedule.job_id = schedule_hash["job"]["id"] rescue nil
-    
-    if @schedule.valid?
+
+    conflicts = ScheduleConflictChecker.check_schedule_for_conflicts([@schedule])
+
+    if conflicts[:errors].count == 0 && @schedule.valid?
       respond_to do |format|
         @schedule.save
         format.json { head :ok }
       end
     else
       unique_errors = Set.new
+      conflicts[:errors].each {|error_message| unique_errors << error_message }
       @schedule.errors.full_messages.each {|error_message| unique_errors << error_message }
       schedule_hash["errors"] = unique_errors.to_a
       
@@ -346,7 +380,7 @@ class SchedulesController < ApplicationController
     
     schedule_blocks = get_schedule_blocks(schedule_hash["time_ranges"])
     
-    schedule = Schedule.find(schedule_hash["id"]) unless params["id"].blank?
+    schedule = Schedule.find(schedule_hash['id']) unless schedule_hash['id'].blank?
     
     if !schedule.nil?
       schedule.from_time = schedule_blocks.first[:from_time]

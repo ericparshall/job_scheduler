@@ -9,8 +9,11 @@ class ScheduleConflictChecker
     
       existing_schedules.each do |existing_schedule|
         schedules.each do |schedule|
-          if schedules_conflict?(schedule, existing_schedule)
+          if schedule.id != existing_schedule.id && schedules_conflict?(schedule, existing_schedule)
             errors << "<strong>#{existing_schedule.user.full_name}</strong>: The schedule conflicts with another schedule: <a target=\"_blank\" href=\"/schedules/#{existing_schedule.id}\">#{existing_schedule.job.name}</a>".html_safe
+            break
+          elsif not_enough_time_between?(schedule, existing_schedule)
+            errors << "<strong>#{existing_schedule.user.full_name}</strong>: There is not at least 6 hours between this and another schedule: <a target=\"_blank\" href=\"/schedules/#{existing_schedule.id}\">#{existing_schedule.job.name}</a>".html_safe
             break
           end
         end
@@ -50,6 +53,10 @@ class ScheduleConflictChecker
   def self.schedules_conflict?(schedule_a, schedule_b)
     (schedule_a.from_time - schedule_b.to_time) * (schedule_b.from_time - schedule_a.to_time) > 0
   end
+
+  def self.not_enough_time_between?(schedule_a, schedule_b)
+    return (schedule_a.from_time - schedule_b.to_time).abs < 6.hours.to_i || (schedule_b.from_time - schedule_a.to_time).abs < 6.hours.to_i
+  end
   
   def self.week_blocks(schedules)
     blocks = {}
@@ -71,7 +78,6 @@ class ScheduleConflictChecker
   end
   
   def self.get_existing_schedules(schedule_week_blocks, user_id, persisted, schedule_id)
-    puts schedule_week_blocks.keys.inspect
     min_time = schedule_week_blocks.keys.min
     max_time = schedule_week_blocks.keys.max.end_of_week
     query = Schedule.where([

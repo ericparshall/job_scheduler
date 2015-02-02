@@ -7,6 +7,10 @@ class Schedule < ActiveRecord::Base
   validate :hours_greater_than_zero
   
   attr_accessor :url, :through_date
+
+  def verify_time_since_last_schedule
+
+  end
   
   def time_ranges
     [{
@@ -29,7 +33,7 @@ class Schedule < ActiveRecord::Base
       allDay: false
     }
     event[:url] = link_to_url if link_to_url
-    event
+    return event
   end
   
   def to_schedule_event_grouped_by_job_id(color, link_to_url = nil)

@@ -36,9 +36,9 @@
     <tr>
       <td><%= link_to User.find(user_row.header).full_name, "#", onclick: "refine_search({user_id: '#{user_row.header}'})" %></td>
       <% @schedules_grid.column_headers.each do |job_id| %>
-      <td><%= link_to user_row.data.inject(0) {|sum, d| d.nil? ? sum : d.job_id == job_id ? sum + d.hours : sum }, "#", onclick: "refine_search({user_id: '#{user_row.header}', job_id: '#{job_id}'})" %></td>
+      <td><%= link_to user_row.data.inject(0) {|sum, d| d.nil? ? sum : d.job_id == job_id ? (sum + d.hours).round(2) : sum.round(2) }, "#", onclick: "refine_search({user_id: '#{user_row.header}', job_id: '#{job_id}'})" %></td>
       <% end %>
-      <th><%= user_row.total %></th>
+      <th><%= user_row.total.round(2) %></th>
     </tr>
     <% end %>
   </tbody>
@@ -46,9 +46,9 @@
     <tr>
       <th>Total</th>
       <% @schedules_grid.columns.each do |job_column| %>
-      <th><%= job_column.total %></th>
+      <th><%= job_column.total.round(2) %></th>
       <% end %>
-      <th><%= @schedules_grid.grand_total %></th>
+      <th><%= @schedules_grid.grand_total.round(2) %></th>
     </tr>
   </tfoot>
 </table>

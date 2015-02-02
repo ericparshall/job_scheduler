@@ -26,4 +26,8 @@ class User < ActiveRecord::Base
       {skill.id => skill.name}
     end
   end
+
+  def skills_list
+    self.skills.map(&:name)
+  end
 end
