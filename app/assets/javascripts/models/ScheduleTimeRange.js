@@ -7,6 +7,8 @@ function ScheduleTimeRange(from_time, to_time, through_date) {
     if (this.from_time == null) {
       this.from_time = through_date;
     }
+  } else if (through_date == null) {
+      this.through_date = from_time;
   }
 }
 
