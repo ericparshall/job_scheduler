@@ -223,6 +223,14 @@
             });
         };
 
+        Schedule.prototype.getAvailableUsers = function($scope) {
+            $http.post("/schedules/get_available_employees.json", {
+                schedule: JSON.stringify($scope.schedule)
+            }).success(function(response) {
+                $scope.availableUsers = response;
+            });
+        };
+
 
         return Schedule;
     }]);
