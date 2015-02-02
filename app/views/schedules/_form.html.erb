@@ -5,7 +5,7 @@
             <h3 class="modal-title">Search for Available Employees</h3>
         </div>
         <div class="modal-body" style="height: 500px">
-            <div class="row" style="height: 50%; overflow: scroll;">
+            <div class="row" style="height: 70%; overflow: scroll;">
                 <div class="col-md-12">
                     <table class="table table-bordered table-striped">
                         <tr>
@@ -13,38 +13,40 @@
                             <th>Skills</th>
                             <th ng-if="<%= current_user.user_type.admin? %>"><a href="" ng-click="toggleSort('rating')">Rating</a></th>
                             <th><a href="" ng-click="toggleSort('user_type.name')">Type</a></th>
+                            <th></th>
                         </tr>
 
                         <tr ng-repeat="user in availableUsers | orderBy:orderField | filter:filterUsers" ng-cloak>
-                            <td><small><a target="_blank" ng-href="/employees/{{user.id}}">{{user.full_name}}</a></small></td>
-                            <td><small>{{ user.skills_list.join(', ') }}<a href="#" ng_repeat="s in user.skills_list">{{s}}</a></small></td>
+                            <td><a target="_blank" ng-href="/employees/{{user.id}}">{{user.full_name}}</a></td>
+                            <td><span ng_repeat="s in user.skills_list" style="padding: 2px"><button class="btn btn-xs btn-success" ng-click="addUser(user, s)">{{s}} </button></span></td>
                             <td ng-if="<%= current_user.user_type.admin? %>">
-                                <small>{{user.rating}}</small>
+                                {{user.rating}}
                             </td>
-                            <td><small>{{user.user_type.name}}</small></td>
+                            <td>{{user.user_type.name}}</td>
+                            <td><button class="btn btn-sm" ng-click="addUser(user)">Add</button></td>
                         </tr>
                     </table>
                 </div>
             </div>
-            <div class="row" style="height:50%; overflow: scroll;">
-                <div class="row">
+            <div class="row" style="height:30%; overflow: scroll;">
+
                     <div class="col-md-4">
-                        <span class="input-group">
-                            <select ng-model="selectedSkill" class="form-control" ng-options="skill as skill.name for skill in skills"></select>
-                            <span class="input-group-btn">
-                                <button class="btn btn-primary" ng-click="addSkillFilter()">Add</button>
+                        <div class="row">
+                            <span class="input-group">
+                                <select ng-model="selectedSkill" class="form-control" ng-options="skill as skill.name for skill in skills"></select>
+                                <span class="input-group-btn">
+                                    <button class="btn btn-primary" ng-click="addSkillFilter()">Add</button>
+                                </span>
                             </span>
-                        </span>
+                        </div>
+                        <div class="row">
+                            <button ng-repeat="skill in selectedSkills" class="btn btn-default btn-danger" ng-click="removeSkillFilter($index)">
+                                <i class="glyphicon glyphicon-remove">{{skill.name}}</i>
+                            </button>
+                        </div>
                     </div>
                     <div class="col-md-8">
-
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-4">
-                        <button ng-repeat="skill in selectedSkills" class="btn btn-default btn-danger" ng-click="removeSkillFilter($index)">
-                            <i class="glyphicon glyphicon-remove">{{skill.name}}</i>
-                        </button>
+                        <div ng-repeat="user in selectedUsers"><span style="padding-right: 10px">{{user.user_label}}</span><button class="btn-xs btn-danger" ng-click="removeUser($index)">Remove</button></div>
                     </div>
                 </div>
             </div>

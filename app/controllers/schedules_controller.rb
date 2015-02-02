@@ -122,7 +122,7 @@ class SchedulesController < ApplicationController
     if filter_time_times.size > 0
       base_sql += " and (#{filter_time_statements.join(' or ')}) where \"schedules\".id is null and \"users\".archived = 'f' "
     else
-      base_sql += 'where "users".archived = \'f\''
+      base_sql += ' where "users".archived = \'f\''
     end
 
     respond_to do |format|

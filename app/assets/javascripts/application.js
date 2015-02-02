@@ -11,7 +11,7 @@
 // GO AFTER THE REQUIRES BELOW.
 //= require moment.js
 //= require jquery.timepicker.min.js
-//= require bootstrap.js
+//= require bootstrap.js.coffee
 //= require fullcalendar.js
 //= require gcal.js
 //= require modernizr.js

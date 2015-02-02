@@ -3,6 +3,20 @@ angular.module("schedulerApp").controller("EmployeeSearchCtrl", ["$scope", "$mod
     $scope.orderField = "full_name";
     $scope.selectedUsers = [];
     $scope.availableUsers = [];
+    $scope.addUser = function(user, user_skill) {
+        if (user_skill != null) {
+            user.user_label = user.full_name + " (" + user_skill + ")";
+        } else {
+            user.user_label = user.full_name;
+        }
+
+        if ($.inArray(user, $scope.selectedUsers) < 0) {
+            $scope.selectedUsers.push(user);
+        }
+    }
+    $scope.removeUser = function(index) {
+        $scope.selectedUsers.splice(index, 1);
+    };
 
     $scope.skills = Skill.query();
     $scope.selectedSkill = null;
@@ -74,7 +88,7 @@ angular.module("schedulerApp").controller('scheduleEditController', ['$scope', '
         modalInstance.result.then(function (selectedUsers) {
             for (var i = 0; i < selectedUsers.length; i++) {
                 var selectedUser = selectedUsers[i];
-                for (var j = 0; j < $scope.users; j++) {
+                for (var j = 0; j < $scope.users.length; j++) {
                     var user = $scope.users[j];
                     if (user.id == selectedUser.id) {
                         if ($.inArray(user, $scope.usersSelected) < 0) {
