@@ -103,9 +103,9 @@ class SchedulesController < ApplicationController
 
     # "(from_time >= ? and from_time <= ?) or (to_time >= ? and to_time <= ?)", @from_time, @to_time, @from_time, @to_time
     schedule_hash = JSON.parse(params[:schedule])
-    schedule_blocks = get_schedule_blocks(schedule_hash["time_ranges"])
+    schedule_blocks = get_schedule_blocks(schedule_hash['time_ranges'])
 
-    base_sql = 'select "users".* from "users" left join "schedules" on "schedules".user_id = "users".id '
+    base_sql = 'select distinct "users".* from "users" left join "schedules" on "schedules".user_id = "users".id  '
 
     # and () or () or ()
     filter_time_statements = []
@@ -119,7 +119,11 @@ class SchedulesController < ApplicationController
       filter_time_times << from_time
       filter_time_times << to_time
     end
-    base_sql += " and (#{filter_time_statements.join(' or ')}) where \"schedules\".id is null" if filter_time_times.size > 0
+    if filter_time_times.size > 0
+      base_sql += " and (#{filter_time_statements.join(' or ')}) where \"schedules\".id is null and \"users\".archived = 'f' "
+    else
+      base_sql += 'where "users".archived = \'f\''
+    end
 
     respond_to do |format|
       format.json {

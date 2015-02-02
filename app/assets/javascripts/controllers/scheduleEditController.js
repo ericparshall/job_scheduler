@@ -1,4 +1,93 @@
-angular.module("schedulerApp").controller('scheduleEditController', ['$scope', '$location', 'Employee', 'Job', 'Schedule', 'PathUtils', function($scope, $location, Employee, Job, Schedule, PathUtils) {
+angular.module("schedulerApp").controller("EmployeeSearchCtrl", ["$scope", "$modalInstance", "Skill", "schedule", function($scope, $modalInstance, Skill, schedule) {
+    $scope.schedule = schedule;
+    $scope.orderField = "full_name";
+    $scope.selectedUsers = [];
+    $scope.availableUsers = [];
+
+    $scope.skills = Skill.query();
+    $scope.selectedSkill = null;
+    $scope.selectedSkills = [];
+
+    $scope.addSkillFilter = function() {
+        if ($scope.selectedSkill != null && $.inArray($scope.selectedSkill, $scope.selectedSkills) < 0) {
+            $scope.selectedSkills.push($scope.selectedSkill);
+        }
+    };
+    $scope.removeSkillFilter = function(index) {
+        $scope.selectedSkills.splice(index, 1)[0]
+    };
+
+    schedule.getAvailableUsers($scope);
+
+    $scope.toggleSort = function(sortBy) {
+        if ($scope.orderField != sortBy) {
+            $scope.orderField = sortBy;
+        } else {
+            $scope.orderField = "-" + sortBy;
+        }
+    };
+
+    $scope.filterUsers = function(user) {
+        if ($scope.selectedSkills.length > 0) {
+            if ('skills_list' in user) {
+                for (var i = 0; i < $scope.selectedSkills.length; i++) {
+                    var skill = $scope.selectedSkills[i];
+                    for (var j = 0; j < user.skills_list.length; j++) {
+                        if (skill.name == user.skills_list[j]) {
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            return false;
+        } else {
+            return true;
+        }
+    };
+
+    $scope.ok = function () {
+        $modalInstance.close($scope.selectedUsers);
+    };
+
+    $scope.cancel = function () {
+        $modalInstance.dismiss('cancel');
+    };
+}]);
+
+
+angular.module("schedulerApp").controller('scheduleEditController', ['$scope', '$location', 'Employee', 'Job', 'Schedule', 'PathUtils', '$modal', '$log', function($scope, $location, Employee, Job, Schedule, PathUtils, $modal, $log) {
+
+    $scope.openEmployeeSearch = function () {
+
+        var modalInstance = $modal.open({
+            templateUrl: 'advEmployeeSearch.html',
+            controller: 'EmployeeSearchCtrl',
+            size: 'lg',
+            resolve: {
+                schedule: function() {
+                    return $scope.schedule;
+                }
+            }
+        });
+
+        modalInstance.result.then(function (selectedUsers) {
+            for (var i = 0; i < selectedUsers.length; i++) {
+                var selectedUser = selectedUsers[i];
+                for (var j = 0; j < $scope.users; j++) {
+                    var user = $scope.users[j];
+                    if (user.id == selectedUser.id) {
+                        if ($.inArray(user, $scope.usersSelected) < 0) {
+                            $scope.usersSelected.push(user);
+                        }
+                    }
+                }
+            }
+        }, function () {
+            $log.info('Modal dismissed at: ' + new Date());
+        });
+    };
+
   $scope.scheduleId = PathUtils.parseId(/\/schedules\/(\d+)\/edit.*/, 1);
   if ($location.search().return_path != null) {
     $scope.returnPath = decodeURIComponent($location.search().return_path);

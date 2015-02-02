@@ -32,9 +32,7 @@ angular.module('angucomplete', [] )
         template: '<div class="angucomplete-holder {{holderClass}}">' +
         '  <input id="{{id}}_value" ng-model="searchStr" type="text" placeholder="{{placeholder}}" class="{{inputClass}}" onmouseup="this.select();" ng-focus="resetHideResults()" ng-blur="hideResults()">' +
         '    <span ng-if="\'RIGHT\' == buttonPosition" class="input-group-btn">' +
-        '      <button class="btn btn-default" type="button" ng-click="showAll()" ng-blur="hideResults()">' +
-        '        <span ng-if="\'RIGHT\' == buttonPosition" class="input-group-btn">{{buttonLabel}}</span>' +
-        '      </button>' +
+        '      <button class="btn btn-default" type="button" ng-click="showAll()" ng-blur="hideResults()">{{buttonLabel}}</button>' +
         '    </span>' +
         '  </div>' +
         '  <div id="{{id}}_dropdown" class="angucomplete-dropdown" ng-style="dropDownStyle" ng-if="showDropdown">' +
