@@ -37,8 +37,8 @@
       <tr>
         <td><%= check_box_tag "schedule[#{schedule.id}]", "1", false, class: "schedule_check", onclick: "selectSchedule();" %></td>
         <td><%= link_to schedule.job.customer.try(:name), schedule.job.customer unless schedule.job.customer.nil? %></td>
-        <td><%= link_to schedule.job.name, schedule %></td>
-        <td><%= link_to schedule.user.full_name, schedule %></td>
+        <td><%= link_to schedule.job.name, schedule.job %></td>
+        <td><%= link_to schedule.user.full_name, schedule.job %></td>
         <td><%= "#{schedule.from_time.strftime("%m/%d/%Y %I:%M%P")}  to  #{schedule.to_time.strftime("%m/%d/%Y %I:%M%P")}" unless schedule.from_time.nil? || schedule.to_time.nil? %></td>
         <td><%= schedule.hours %></td>
         <td><%= link_to 'Edit', edit_schedule_path(schedule, return_path: request.fullpath) %></td>
