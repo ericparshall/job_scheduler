@@ -1,30 +1,53 @@
-<h3 style="float: left">Jobs</h3>
-<%= link_to 'New Job', new_job_path, class: "btn btn-lg btn-primary btn-block", style: "width: 200px; color: white; float: right" %>
-<div style="clear:both" />
-<ul class="nav nav-tabs">
-  <li class="<%= tab_active["Default"] %>"><%= link_to "Default", jobs_path %></li>
-  <li class="<%= tab_active["Archived"] %>"><%= link_to "Archived", jobs_path(archived: true) %></li>
-</ul>
-<table class="table table-bordered table-striped">
-  <tr>
-    <th>Customer</th>
-    <th>Job Name</th>
-    <th>Description</th>
-    <th></th>
-  </tr>
+<div ng-app="schedulerApp" ng-controller="jobsController" ng-cloak>
+    <h3 style="float: left">Jobs</h3>
+    <nav class="navbar navbar-default" role="navigation">
+        <div class="collapse navbar-collapse">
+            <div class="navbar-form">
 
-<% @jobs.each do |job| %>
-  <tr>
-    <td><%= link_to job.customer.try(:name), job.customer unless job.customer.nil? %></td>
-    <td><%= link_to job.name, job %></td>
-    <td><%= link_to job.description, job %></td>
-    <td>
-      <%= link_to 'Edit', edit_job_path(job) %>
-      |
-      <%= link_to job.archived? ? "Unarchive" : "Archive", archive_job_path(job, params), method: :post %>
-    </td>
-  </tr>
-<% end %>
-</table>
+                <div class="row-fluid">
+                    <div class="col-md-4">
+                        <angucomplete id="filter_customer"
+                                      placeholder="Customer"
+                                      pause="100"
+                                      selectedobject="customer"
+                                      localdata="customers"
+                                      searchfields="name"
+                                      titlefield="name"
+                                      minlength="1"
+                                      inputclass="form-control"
+                                      holderclass="input-group"
+                                      buttonposition="right"
+                                      buttonlabel="Customer"
+                                      holderclass="input-group"
+                                      on-selected="onCustomerSelected">
+                        </angucomplete>
+                        <a style="padding: 10px;" href="#" ng-click="resetFilter()">Reset</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <a href="/jobs/new" class="btn btn-lg btn-primary btn-block" style="width: 200px; color: white; float: right">New Job</a>
+      <div style="clear:both"/>
+      <ul class="nav nav-tabs">
+          <li ng-class="defaultTabStyle"><a ng-click="defaultTabClick()" href="#">Default</a></li>
+          <li ng-class="archivedTabStyle"><a ng-click="archivedTabClick()" href="#">Archived</a></li>
+      </ul>
+      <table class="table table-bordered table-striped">
+          <tr>
+              <th><a href="" ng-click="toggleSort('customer.name')">Customer</a></th>
+              <th><a href="" ng-click="toggleSort('name')">Job Name</a></th>
+              <th><a href="" ng-click="toggleSort('description')">Description</a></th>
+              <th class="shrink"></th>
+          </tr>
 
-<br />
+          <tr ng-repeat="job in jobs | orderBy:orderField">
+              <td><a ng-if="job.customer" ng-href="/customers/{{job.customer_id}}">{{job.customer.name}}</a></td>
+              <td><a ng-href="/jobs/{{job.id}}">{{job.name}}</a></td>
+              <td><a ng-href="/jobs/{{job.id}}">{{job.description}}</a></td>
+              <td><a ng-href="/jobs/{{job.id}}/edit">Edit</a> | <a ng-click="archiveJob(job)" href="">{{job.archiveLabel()}}</a></td>
+          </tr>
+
+      </table>
+      </div>
+      <br/>

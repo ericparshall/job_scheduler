@@ -1,13 +1,13 @@
 <div ng-app="schedulerApp" ng-controller="employeesController" ng-cloak>
   <h3 style="float: left">Employees</h3>
-  <%= link_to 'New Employee', new_employee_path, class: "btn btn-lg btn-primary btn-block", style: "width: 200px; color: white; float: right" %>
+  <a href="/employees/new" class="btn btn-lg btn-primary btn-block" style="width: 200px; color: white; float: right">New Employee</a>
   <div style="clear:both"></div>
   <nav class="navbar navbar-default" role="navigation">
-    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-      <div class="navbar-form navbar-left">
-        <div class="form-group">
+    <div class="collapse navbar-collapse">
+      <div class="navbar-form">
+
           <div class="row-fluid">
-            <div class="col-md-12">
+            <div class="col-md-4">
               <select id="skill_id" name="skill_id" style="display: none">
                 <option value=""></option>
                 <option ng-repeat="skill in skills" data-index="{{$index}}" value="{{skill.id}}">{{skill.name}}</option>
@@ -31,7 +31,7 @@
                 </button>
             </div>
           </div>
-        </div>
+
       </div>
     </div>
   </nav>
@@ -40,7 +40,7 @@
     <li ng-class="defaultTabStyle"><a ng-click="defaultTabClick()" href="#">Default</a></li>
     <li ng-class="archivedTabStyle"><a ng-click="archivedTabClick()" href="#">Archived</a></li>
   </ul>
-  <table class="table table-bordered table-striped" id="tblEmployeeList">
+  <table class="table table-bordered table-striped">
     <tr ng-cloak>
       <th><a href="" ng-click="toggleSort('full_name')">Name</a></th>
       <th ng-if="<%= current_user.user_type.admin? %>"><a href="" ng-click="toggleSort('rating')">Rating</a></th>
@@ -62,7 +62,7 @@
         <a ng-href="/employees/{{employee.id}}/edit">Edit</a>
         <span ng-if="employee.id != <%= current_user.id %>">
           |
-          <a ng-click="archiveEmployee($index, employee)" href="#">{{employee.archiveLabel()}}</a>
+          <a ng-click="archiveEmployee(employee)" href="">{{employee.archiveLabel()}}</a>
         </span>
       </td>
     </tr>

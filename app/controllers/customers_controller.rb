@@ -4,11 +4,13 @@ class CustomersController < ApplicationController
 
   # GET /customers
   def index
-    @customers = Customer.all
-    @customers = case
-    when params[:archived] == "true" then Customer.where(archived: true)
-    else Customer.where(archived: false)
+    @customers = Customer.where(archived: params[:archived] == "true")
+
+    respond_to do |format|
+      format.html # index.html.erb
+      format.json { render json: @customers }
     end
+    
   end
 
   # GET /customers/1

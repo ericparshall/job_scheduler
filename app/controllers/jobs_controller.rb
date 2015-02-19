@@ -1,16 +1,17 @@
 class JobsController < ApplicationController
   before_filter :require_admin_user
   before_action :get_customers, only: [:new, :edit]
+  layout "application_angular", only: [:index]
 
   def index
-    @jobs = case
-    when params[:archived] == "true" then Job.where(archived: true)
-    else Job.where(archived: false)
-    end
-
     respond_to do |format|
       format.html # index.html.erb
-      format.json { render json: @jobs.to_json(include: [:customer]) }
+      format.json {
+        @jobs = Job.where(archived: params[:archived] == "true")
+        @jobs = @jobs.where(customer_id: params[:customer_id]) if params[:customer_id]
+
+        render json: @jobs.to_json(include: [ :customer ])
+      }
     end
   end
 

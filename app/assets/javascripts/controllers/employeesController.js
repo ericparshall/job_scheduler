@@ -23,11 +23,14 @@
       }
     };
   
-    $scope.archiveEmployee = function(index, employee) {
-      Employee.archive(employee.id, function(success) {
-        employee.archived = !employee.archived;
-        $scope.employees.splice(index, 1);
-      });
+    $scope.archiveEmployee = function(employee) {
+      var index = jQuery.inArray(employee, $scope.employees);
+        if (index > -1) {
+            Employee.archive(employee.id, function(success) {
+                employee.archived = !employee.archived;
+                $scope.employees.splice(index, 1);
+            });
+        }
     };
 
     $scope.archivedTabClick = function() {
