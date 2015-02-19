@@ -1,7 +1,9 @@
 class HomeController < ApplicationController
   layout "test", only: [:test]
   def index
-    
+    if current_user.user_type.admin?
+      redirect_to "/schedules/search?unit=month&selected_tab=Calendar"
+    end
   end
   
   def test
